@@ -15,17 +15,18 @@ import View
 --         frame :: Flaot -> Picture
 --         frame seconds = render(render initialState)
 
-width, height, offset :: Int
-width = 300
-height = 300
+width, height, offset, fps :: Int
+width = 1920
+height = 1080
 offset = 100
+fps = 60
 
 main :: IO ()
 main =
   playIO
     (InWindow "Nice Window" (width, height) (offset, offset)) -- Or FullScreen
     black -- Background color
-    60 -- Frames per second
+    fps -- Frames per second
     initialState -- Initial state
     view -- View function
     input -- Event function
