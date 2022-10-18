@@ -16,8 +16,8 @@ import View
 --         frame seconds = render(render initialState)
 
 width, height, offset, fps :: Int
-width = 1920
-height = 1080
+width = 1024
+height = 768
 offset = 100
 fps = 60
 

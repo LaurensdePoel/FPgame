@@ -26,7 +26,7 @@ render gState =
     wall offset =
       translate 0 offset $
         color wallColor $
-          rectangleSolid 1000 10
+          rectangleSolid 300 10
 
     wallColor = greyN 0.5
-    walls = pictures [wall 500, wall (-500)]
+    walls = pictures [wall 200, wall (-200)]
