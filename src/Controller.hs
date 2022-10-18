@@ -8,16 +8,12 @@ import Graphics.Gloss.Interface.IO.Game
   )
 import Model
 
-type Radius = Float
-
-type Position = (Float, Float)
-
 -- | Handle one iteration of the game
 step :: Float -> GameState -> IO GameState
 step seconds gstate
   | elapsedTime gstate + seconds > nO_SECS_BETWEEN_CYCLES =
     -- enough time has passed call new update
-    return $ gstate {elapsedTime = elapsedTime gstate + 1} -- tmp now doing some stupid shit
+    return $ gstate {elapsedTime = elapsedTime gstate + 1}
   | otherwise =
     -- Just update the elapsed time
     return $ gstate {elapsedTime = elapsedTime gstate + seconds}

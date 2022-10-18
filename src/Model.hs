@@ -19,7 +19,7 @@ data Airplane = Plane
 data GameState = Game
   { elapsedTime :: Float,
     status :: Status,
-    plane :: Airplane,
+    plane :: Airplane, -- tmp
     tmpInt :: Int
     --level :: Level,
     --projectiles :: [Projectile],
