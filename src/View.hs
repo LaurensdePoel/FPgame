@@ -16,7 +16,7 @@ render ::
   GameState ->
   -- | A picture of this game state.
   Picture
-render game =
+render gState =
   pictures
     [ walls
     ]
