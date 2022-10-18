@@ -22,12 +22,14 @@ offset = 100
 fps = 60
 
 main :: IO ()
-main =
+main = do
+  plane1 <- loadBMP "assets/ship_0004.bmp"
+  let
   playIO
     (InWindow "Nice Window" (width, height) (offset, offset)) -- Or FullScreen
     black -- Background color
     fps -- Frames per second
-    initialState -- Initial state
+    (initialState plane1) -- Initial state
     view -- View function
     input -- Event function
     step -- Step function

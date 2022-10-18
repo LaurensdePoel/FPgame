@@ -2,6 +2,8 @@
 --   which represent the state of the game
 module Model where
 
+import Graphics.Gloss (Picture)
+
 data Status = InMenu | InGame
 
 data Position = Position Float Float
@@ -20,7 +22,8 @@ data GameState = Game
   { elapsedTime :: Float,
     status :: Status,
     plane :: Airplane, -- tmp
-    tmpInt :: Int
+    tmpInt :: Int,
+    tmpPic :: Picture
     --level :: Level,
     --projectiles :: [Projectile],
     --players :: [Player],
@@ -32,11 +35,12 @@ data GameState = Game
 nO_SECS_BETWEEN_CYCLES :: Float
 nO_SECS_BETWEEN_CYCLES = 5
 
-initialState :: GameState
-initialState =
+initialState :: Picture -> GameState
+initialState pic =
   Game
     { elapsedTime = 0,
       status = InGame,
       plane = Plane {position = Position (-10) 30, size = PlaneSize 50 50, velocity = Velocity 5 5},
-      tmpInt = 0
+      tmpInt = 0,
+      tmpPic = pic
     }

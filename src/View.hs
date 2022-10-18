@@ -18,7 +18,8 @@ render ::
   Picture
 render gState =
   pictures
-    [ walls
+    [ walls,
+      tmpPic gState
     ]
   where
     --  The bottom and top walls.
