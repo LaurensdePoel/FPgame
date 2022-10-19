@@ -23,16 +23,18 @@ fps = 60
 
 main :: IO ()
 main = do
-  plane1 <- loadBMP "assets/ship_0004.bmp"
+  player1BMP <- loadBMP "assets/ships/player_01.bmp"
+  tile1BMP <- loadBMP "assets/tiles/tile_01.bmp"
+  projectile1BMP <- loadBMP "assets/projectiles/projectile_01.bmp"
   let
   playIO
     (InWindow "Nice Window" (width, height) (offset, offset)) -- Or FullScreen
     black -- Background color
     fps -- Frames per second
-    (initialState plane1) -- Initial state
+    (initialState [player1BMP, tile1BMP, projectile1BMP]) -- Initial state
     view -- View function
     input -- Event function
     step -- Step function
 
-background :: Color
-background = black
+-- background :: Color
+-- background = black
