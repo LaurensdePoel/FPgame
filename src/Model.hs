@@ -1,4 +1,4 @@
-{-# LANGUAGE DeriveAnyClass #-}
+{-# LANGUAGE MultiParamTypeClasses, FlexibleInstances #-}
 
 -- | This module contains the data types
 --   which represent the state of the game
@@ -19,21 +19,17 @@ data ProjectileType = None | Gun | DoubleGun | Rocket
 newtype Damage = Damage Int
 
 data Origin = Players | Enemies deriving(Eq)
-class Collidable a where
-  -- collides :: Collidable b => a -> b -> Bool
-  collides ::  a -> a  -> Bool
+class Collidable a b where
+  collides :: a -> b -> Bool
 data Airplane = Airplane
   { airplanePos :: Position,
     size :: Size,
     airplaneVelocity :: Velocity
   }
-
 data Player = Player
   { playerAirplane :: Airplane --,
   -- powerUps :: [PowerUp]
   }
-  -- deriving (Collidable)
-
 data Enemy
   = Fighter
       { fighterPlane :: Airplane
@@ -41,8 +37,6 @@ data Enemy
   | Kamikaze
       { kamikazePlane :: Airplane
       }
-      deriving (Collidable)
-
 data Projectile = Projectile
   { projectileType :: ProjectileType,
     projectilePos :: Position,
@@ -52,8 +46,6 @@ data Projectile = Projectile
     origin :: Origin,
     sprite :: Picture
   }
-  -- deriving (Collidable)
-
 data GameState = Game
   { elapsedTime :: Float,
     status :: Status,
@@ -88,34 +80,21 @@ toBoundingBox (Position p@(pX, pY)) (Size (sX, sY)) = (p, (pX + sX, pY + sY))
 airplaneToBoundingBox :: Airplane -> (Point, Point)
 airplaneToBoundingBox Airplane {airplanePos = p, size = s} = toBoundingBox p s
 
-instance Collidable Player where
+instance Collidable Player Enemy where
   collides Player { playerAirplane = pPlane } Fighter { fighterPlane = ePlane } = checkCollision (airplaneToBoundingBox pPlane) (airplaneToBoundingBox ePlane)
   collides Player { playerAirplane = pPlane } Kamikaze { kamikazePlane = ePlane } = checkCollision (airplaneToBoundingBox pPlane) (airplaneToBoundingBox ePlane)
-  collides Player { playerAirplane = pPlane } Projectile { origin = o, projectilePos = projectilePos, projectileSize = projectileSize} 
-        | o == Enemies = checkCollision (airplaneToBoundingBox pPlane) $ toBoundingBox projectilePos projectileSize
-        | otherwise = False
-  collides Player {} _ = False
--- instance Collidable Projectile where
---   collides Projectile {origin = o1, projectilePos = pPos, projectileSize = pSize} Projectile {origin = o2, projectilePos = p2Pos, projectileSize = p2Size} 
---                 | o1 /= o2 = checkCollision projectileBox $ toBoundingBox p2Pos p2Size
---                 | otherwise = False
---   collides Projectile {origin = o, projectilePos = pPos, projectileSize = pSize} Player { playerAirplane = plane } = collides' Players          
---   collides Projectile {origin = o, projectilePos = pPos, projectileSize = pSize} Fighter { fighterPlane = plane } = collides' Enemies  
---   collides Projectile {origin = o, projectilePos = pPos, projectileSize = pSize} Kamikaze { kamikazePlane = plane } = collides' Enemies  
---   collides Projectile {} _ = False
---     where
---       projectileBox = toBoundingBox pPos pSize
---       airplaneBox = airplaneToBoundingBox plane
---       collides' otherOrigin | o != otherOrigin = checkCollision projectileBox airplaneBox
---                     | otherwise = False
 
+instance Collidable Projectile Enemy where
+  collides Projectile {origin = o, projectilePos = pPos, projectileSize = pSize} Fighter { fighterPlane = fPlane } 
+      | o /= Enemies = checkCollision (toBoundingBox pPos pSize) (airplaneToBoundingBox fPlane)
+      | otherwise = False 
+  collides Projectile {origin = o, projectilePos = pPos, projectileSize = pSize} Kamikaze { kamikazePlane = kPlane }
+      | o /= Enemies = checkCollision (toBoundingBox pPos pSize) (airplaneToBoundingBox kPlane)
+      | otherwise = False 
 
+instance Collidable Projectile Player where
+  collides Projectile {origin = o, projectilePos = pPos, projectileSize = pSize} Player { playerAirplane = pPlane } 
+      | o /= Players = checkCollision (toBoundingBox pPos pSize) (airplaneToBoundingBox pPlane)
+      | otherwise = False
 
--- instance Collidable Enemy where
---   collides Fighter Projectile = undefined
---   collides Fighter Player = undefined
---   collides Fighter _ = False
---   collides Kamikaze Projectile = undefined
---   collides Kamikaze Player = undefined
---   collides Kamikaze _ = False
-
+-- instance Collidable Projectile Projectile where
