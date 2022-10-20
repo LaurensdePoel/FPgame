@@ -25,51 +25,22 @@ input e gstate = return (inputKey e gstate)
 -- (GameState _ _ _ _ (Player ((Airplane{airplanePos })))
 -- {elapsedTime = elapsedTime gstate + 1}
 changePositionFromPlane :: Airplane -> Airplane
-changePositionFromPlane airplane = airplane {airplanePos = Position (1, 5)}
+changePositionFromPlane airplane = airplane {airplanePos = (1, 5)}
 
 inputKey :: Event -> GameState -> GameState
-inputKey (EventKey (Char 'w') _ _ _) gs =
-  gs
-    { players =
-        let pstate = players gs
-         in pstate
-              { airplanePos = moveUp (airplanePos pstate)
-              }
-    }
-inputKey (EventKey (Char 's') _ _ _) gs =
-  gs
-    { players =
-        let pstate = players gs
-         in pstate
-              { airplanePos = moveDown (airplanePos pstate)
-              }
-    }
-inputKey (EventKey (Char 'a') _ _ _) gs =
-  gs
-    { players =
-        let pstate = players gs
-         in pstate
-              { airplanePos = moveLeft (airplanePos pstate)
-              }
-    }
-inputKey (EventKey (Char 'd') _ _ _) gs =
-  gs
-    { players =
-        let pstate = players gs
-         in pstate
-              { airplanePos = moveRight (airplanePos pstate)
-              }
-    }
+inputKey (EventKey (Char char) _ _ _) gs
+  | char == 'w' = move (0, 5)
+  | char == 's' = move (0, -5)
+  | char == 'a' = move (-5, 0)
+  | char == 'd' = move (5, 0)
+  where
+    move addToPosition =
+      gs
+        { players =
+            let playerState = players gs
+             in playerState
+                  { airplanePos = addValues addToPosition (airplanePos playerState)
+                  }
+        }
+    addValues addPos oldPos = addPos + oldPos
 inputKey _ gs = gs -- Otherwise keep the same
-
-moveUp :: Position -> Position
-moveUp (Position (x, y)) = Position (x, y + 5)
-
-moveDown :: Position -> Position
-moveDown (Position (x, y)) = Position (x, y - 5)
-
-moveLeft :: Position -> Position
-moveLeft (Position (x, y)) = Position (x -5, y)
-
-moveRight :: Position -> Position
-moveRight (Position (x, y)) = Position (x + 5, y - 5)
