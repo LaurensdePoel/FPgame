@@ -16,21 +16,25 @@ import View
 --         frame seconds = render(render initialState)
 
 width, height, offset, fps :: Int
-width = 1920
-height = 1080
+width = 1024
+height = 768
 offset = 100
 fps = 60
 
 main :: IO ()
-main =
+main = do
+  player1BMP <- loadBMP "assets/ships/player_01.bmp"
+  tile1BMP <- loadBMP "assets/tiles/tile_01.bmp"
+  projectile1BMP <- loadBMP "assets/projectiles/projectile_01.bmp"
+  let
   playIO
     (InWindow "Nice Window" (width, height) (offset, offset)) -- Or FullScreen
     black -- Background color
     fps -- Frames per second
-    initialState -- Initial state
+    (initialState [player1BMP, tile1BMP, projectile1BMP]) -- Initial state
     view -- View function
     input -- Event function
     step -- Step function
 
-background :: Color
-background = black
+-- background :: Color
+-- background = black
