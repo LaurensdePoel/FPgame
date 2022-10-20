@@ -13,7 +13,7 @@ newtype Position = Position Point
 
 newtype Size = Size Point
 
-data Velocity = Velocity Point
+newtype Velocity = Velocity Point
 
 data ProjectileType = None | Gun | DoubleGun | Rocket
 
@@ -28,23 +28,18 @@ class Updateable a where
   move :: a -> a
 
 data Airplane = Airplane
-  { airplanePos :: Position,
-    size :: Size,
-    airplaneVelocity :: Velocity
+  { airplaneType :: AirPlaneType,
+    airplanePos :: Position,
+    airplaneSize :: Size,
+    airplaneVelocity :: Velocity,
+    airplaneHealth :: Int,
+    -- fireRate :: FireRate
+    -- timeLastShot :: Time
+    -- AirplaneProjectile :: Projectile
+    airplaneSprite :: Picture
   }
 
-data Player = Player
-  { playerAirplane :: Airplane --,
-  -- powerUps :: [PowerUp]
-  }
-
-data Enemy
-  = Fighter
-      { fighterPlane :: Airplane
-      }
-  | Kamikaze
-      { kamikazePlane :: Airplane
-      }
+data AirPlaneType = Player | Fighter | Kamikaze deriving (Eq)
 
 data Projectile = Projectile
   { projectileType :: ProjectileType,
@@ -59,8 +54,9 @@ data Projectile = Projectile
 data GameState = Game
   { elapsedTime :: Float,
     status :: Status,
-    plane :: Airplane, -- tmp
-    tmpInt :: Int
+    tmpInt :: Int,
+    players :: Airplane
+    --enemies :: [Airplane]
     --level :: Level,
     --projectiles :: [Projectile],
     --players :: [Player],
@@ -72,59 +68,61 @@ data GameState = Game
 nO_SECS_BETWEEN_CYCLES :: Float
 nO_SECS_BETWEEN_CYCLES = 5
 
-initialState :: GameState
-initialState =
+initialState :: [Picture] -> GameState
+initialState assetlist =
   Game
     { elapsedTime = 0,
       status = InGame,
-      plane = Airplane {airplanePos = Position (-10, 30), size = Size (50, 50), airplaneVelocity = Velocity (5, 5)},
+      players =
+        Airplane
+          { airplaneType = Player,
+            airplanePos = Position (-400, 0),
+            airplaneSize = Size (50, 50),
+            airplaneVelocity = Velocity (5, 5),
+            airplaneHealth = 100,
+            airplaneSprite = rotate 90 (head assetlist)
+          },
       tmpInt = 0
     }
 
--- Collidable
+-- -- Collidable
 
 checkCollision :: (Point, Point) -> (Point, Point) -> Bool
 checkCollision (r1p1, r1p2) (r2p1, r2p2) = fst (r1p1) < fst (r2p2) && fst (r1p2) > fst (r2p1) && snd (r1p1) > snd (r2p2) && snd (r1p2) < snd (r2p1)
 
-toBoundingBox :: Position -> Size -> (Point, Point)
-toBoundingBox (Position p@(pX, pY)) (Size (sX, sY)) = (p, (pX + sX, pY + sY))
+toHitBox :: Position -> Size -> (Point, Point)
+toHitBox (Position p@(pX, pY)) (Size (sX, sY)) = (p, (pX + sX, pY + sY))
 
-airplaneToBoundingBox :: Airplane -> (Point, Point)
-airplaneToBoundingBox Airplane {airplanePos = p, size = s} = toBoundingBox p s
+instance Collidable Airplane Airplane where
+  collides
+    Airplane {airplaneType = type1, airplanePos = pos1, airplaneSize = size1}
+    Airplane {airplaneType = type2, airplanePos = pos2, airplaneSize = size2}
+      | type1 == Player && type2 == Player = False
+      | type1 == Player = checkCollision (toHitBox pos1 size1) (toHitBox pos2 size2)
+      | otherwise = False
 
-instance Collidable Player Enemy where
-  collides Player {playerAirplane = pPlane} Fighter {fighterPlane = ePlane} = checkCollision (airplaneToBoundingBox pPlane) (airplaneToBoundingBox ePlane)
-  collides Player {playerAirplane = pPlane} Kamikaze {kamikazePlane = ePlane} = checkCollision (airplaneToBoundingBox pPlane) (airplaneToBoundingBox ePlane)
-
-instance Collidable Projectile Enemy where
-  collides Projectile {origin = o, projectilePos = pPos, projectileSize = pSize} Fighter {fighterPlane = fPlane}
-    | o /= Enemies = checkCollision (toBoundingBox pPos pSize) (airplaneToBoundingBox fPlane)
-    | otherwise = False
-  collides Projectile {origin = o, projectilePos = pPos, projectileSize = pSize} Kamikaze {kamikazePlane = kPlane}
-    | o /= Enemies = checkCollision (toBoundingBox pPos pSize) (airplaneToBoundingBox kPlane)
-    | otherwise = False
-
-instance Collidable Projectile Player where
-  collides Projectile {origin = o, projectilePos = pPos, projectileSize = pSize} Player {playerAirplane = pPlane}
-    | o /= Players = checkCollision (toBoundingBox pPos pSize) (airplaneToBoundingBox pPlane)
-    | otherwise = False
+instance Collidable Projectile Airplane where
+  collides
+    Projectile {origin = o, projectilePos = pPos, projectileSize = pSize}
+    Airplane {airplaneType = t, airplanePos = aPos, airplaneSize = aSize}
+      | o == Players && t == Player = False
+      | o == Enemies && t /= Player = False
+      | otherwise = checkCollision (toHitBox pPos pSize) (toHitBox aPos aSize)
 
 instance Collidable Projectile Projectile where
-  collides Projectile {origin = o1, projectilePos = p1Pos, projectileSize = p1Size} Projectile {origin = o2, projectilePos = p2Pos, projectileSize = p2Size}
-    | o1 /= o2 = checkCollision (toBoundingBox p1Pos p1Size) (toBoundingBox p2Pos p2Size)
-    | otherwise = False
+  collides
+    Projectile {origin = o1, projectilePos = pos1, projectileSize = size1}
+    Projectile {origin = o2, projectilePos = pos2, projectileSize = size2}
+      | o1 /= o2 = checkCollision (toHitBox pos1 size1) (toHitBox pos2 size2)
+      | otherwise = False
 
 -- Updateable
 
 updatePosition :: Position -> Velocity -> Position
-updatePosition (Position (pX, pY)) (Velocity (vX, vY)) = Position (pX * vX, pY * vY) -- TODO p * v
+updatePosition (Position (pX, pY)) (Velocity (vX, vY)) = Position (pX + vX, pY + vY)
 
-instance Updateable Player where
-  move Player {} = undefined
-
-instance Updateable Enemy where
-  move Fighter {} = undefined
-  move Kamikaze {} = undefined
+instance Updateable Airplane where
+  move airplane@Airplane {airplanePos = p, airplaneVelocity = v} = airplane {airplanePos = updatePosition p v}
 
 instance Updateable Projectile where
-  move object@Projectile {projectilePos = p, projectileVelocity = v} = object {projectilePos = updatePosition p v}
+  move projectile@Projectile {projectilePos = p, projectileVelocity = v} = projectile {projectilePos = updatePosition p v}

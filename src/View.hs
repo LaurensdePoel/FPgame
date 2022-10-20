@@ -11,6 +11,9 @@ view = return . render
 viewPure :: GameState -> Picture
 viewPure = undefined
 
+drawAirplane :: Airplane -> Picture
+drawAirplane Airplane {airplanePos = Position pos, airplaneSprite = sprite} = uncurry translate pos sprite
+
 render ::
   -- | The game state to render.
   GameState ->
@@ -18,7 +21,10 @@ render ::
   Picture
 render gState =
   pictures
-    [ walls
+    [ walls,
+      -- {airplane{playerAirplane {player gState}}
+      drawAirplane (players gState)
+      --airplaneSprite (playerAirplane (player gState))
     ]
   where
     --  The bottom and top walls.
@@ -26,7 +32,10 @@ render gState =
     wall offset =
       translate 0 offset $
         color wallColor $
-          rectangleSolid 1000 10
+          rectangleSolid 300 10
 
     wallColor = greyN 0.5
-    walls = pictures [wall 500, wall (-500)]
+    walls = pictures [wall 200, wall (-200)]
+
+    p1Airplane :: Airplane -> Picture
+    p1Airplane (Airplane _ (Position pos) _ _ _ pic) = uncurry translate pos pic

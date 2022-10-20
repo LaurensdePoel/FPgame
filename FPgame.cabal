@@ -66,7 +66,8 @@ executable FPgame
     -- Other library packages from which modules are imported.
     build-depends:      base ^>=4.14.3.0,
                         gloss,
-                        random
+                        random,
+                        containers
 
     -- Directories containing source files.
     hs-source-dirs:   src
