@@ -11,9 +11,10 @@ import Model
 -- | Handle one iteration of the game
 step :: Float -> GameState -> IO GameState
 step seconds gstate
-  | elapsedTime gstate + seconds > nO_SECS_BETWEEN_CYCLES =
-    -- enough time has passed call new update
-    return $ gstate {elapsedTime = elapsedTime gstate + 1}
+  | elapsedTime gstate + seconds > 0.01666667 -- (fromIntegral fps :: Float)
+  -- enough time has passed call new update
+    =
+    return $ gstate {elapsedTime = 0, players = move $ players gstate}
   | otherwise =
     -- Just update the elapsed time
     return $ gstate {elapsedTime = elapsedTime gstate + seconds}
@@ -25,43 +26,22 @@ input e gstate = return (inputKey e gstate)
 -- (GameState _ _ _ _ (Player ((Airplane{airplanePos })))
 -- {elapsedTime = elapsedTime gstate + 1}
 changePositionFromPlane :: Airplane -> Airplane
-changePositionFromPlane airplane = airplane {airplanePos = Position (1, 5)}
+changePositionFromPlane airplane = airplane {airplanePos = (1, 5)}
 
 inputKey :: Event -> GameState -> GameState
-inputKey (EventKey (Char 'w') _ _ _) gs =
-  gs
-    { players =
-        let pstate = players gs
-         in pstate
-              { airplanePos = moveUp (airplanePos pstate)
-              }
-    }
-inputKey (EventKey (Char 's') _ _ _) gs =
-  gs
-    { players =
-        let pstate = players gs
-         in pstate
-              { airplanePos = moveDown (airplanePos pstate)
-              }
-    }
+inputKey (EventKey (Char char) _ _ _) gs
+  | char == 'w' = move (0, 5)
+  | char == 's' = move (0, -5)
+  | char == 'a' = move (-5, 0)
+  | char == 'd' = move (5, 0)
+  where
+    move addToPosition =
+      gs
+        { players =
+            let playerState = players gs
+             in playerState
+                  { airplanePos = addValues addToPosition (airplanePos playerState)
+                  }
+        }
+    addValues addPos oldPos = addPos + oldPos
 inputKey _ gs = gs -- Otherwise keep the same
-
-moveUp :: Position -> Position
-moveUp (Position (x, y)) = Position (x, y + 5)
-
-moveDown :: Position -> Position
-moveDown (Position (x, y)) = Position (x, y - 5)
-
--- handleKeys :: Event -> GameState -> GameState
--- handleKeys (EventKey (SpecialKey KeyLeft) Down _ _) gs =
---   gs {direction = West, heading = FacingWest}
--- handleKeys (EventKey (SpecialKey KeyRight) Down _ _) gs =
---   gs {direction = East, heading = FacingEast}
--- handleKeys (EventKey (SpecialKey KeySpace) Down _ _) gs =
---   gs
---     { speedY =
---         if isCollision gs (fst (position gs), snd (position gs) + speedY gs) '*'
---           then 6
---           else (-6)
---     }
--- handleKeys _ gs = gs {direction = None}

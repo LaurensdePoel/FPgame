@@ -1,4 +1,5 @@
 {-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE InstanceSigs #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 
 -- | This module contains the data types
@@ -9,7 +10,26 @@ import Graphics.Gloss
 
 data Status = InMenu | InGame
 
-newtype Position = Position Point
+type Position = Point
+
+instance Num Position where
+  (+) :: Position -> Position -> Position
+  (+) (x1, y1) (x2, y2) = (x1 + x2, y1 + y2)
+  (-) :: Position -> Position -> Position
+  (-) (x1, y1) (x2, y2) = (x1 - x2, y1 - y2)
+  (*) :: Position -> Position -> Position
+  (*) (x1, y1) (x2, y2) = (x1 * x2, y1 * y2)
+  signum :: Position -> Position
+  signum (x, y) = (signum x, signum y)
+  abs :: Position -> Position
+  abs (x, y) = (abs x, abs y)
+  negate :: Position -> Position
+  negate (x, y) = (negate x, negate y)
+  fromInteger :: Integer -> Position
+  fromInteger x = (fromInteger x, fromInteger x)
+
+fps :: Int
+fps = 60
 
 newtype Size = Size Point
 
@@ -26,6 +46,10 @@ class Collidable a b where
 
 class Updateable a where
   move :: a -> a
+  shoot :: a -> a
+
+  updateAll :: a -> a
+  updateAll = shoot . move
 
 class Drawable a where
   draw :: a -> Picture
@@ -68,9 +92,6 @@ data GameState = Game
 
 -- deriving (Show)
 
-nO_SECS_BETWEEN_CYCLES :: Float
-nO_SECS_BETWEEN_CYCLES = 5
-
 initialState :: [Picture] -> GameState
 initialState assetlist =
   Game
@@ -79,7 +100,7 @@ initialState assetlist =
       players =
         Airplane
           { airplaneType = Player,
-            airplanePos = Position (-400, 0),
+            airplanePos = (-400, 0),
             airplaneSize = Size (50, 50),
             airplaneVelocity = Velocity (5, 5),
             airplaneHealth = 100,
@@ -94,7 +115,7 @@ checkCollision :: (Point, Point) -> (Point, Point) -> Bool
 checkCollision (r1p1, r1p2) (r2p1, r2p2) = fst (r1p1) < fst (r2p2) && fst (r1p2) > fst (r2p1) && snd (r1p1) > snd (r2p2) && snd (r1p2) < snd (r2p1)
 
 toHitBox :: Position -> Size -> (Point, Point)
-toHitBox (Position p@(pX, pY)) (Size (sX, sY)) = (p, (pX + sX, pY + sY))
+toHitBox p@(pX, pY) (Size (sX, sY)) = (p, (pX + sX, pY + sY))
 
 instance Collidable Airplane Airplane where
   collides
@@ -122,10 +143,17 @@ instance Collidable Projectile Projectile where
 -- Updateable
 
 updatePosition :: Position -> Velocity -> Position
-updatePosition (Position (pX, pY)) (Velocity (vX, vY)) = Position (pX + vX, pY + vY)
+updatePosition (pX, pY) (Velocity (vX, vY)) = (pX + vX, pY + vY)
+
+updateVelocity :: Velocity -> Velocity
+updateVelocity (Velocity (x, y)) = Velocity (update x, update y)
+  where
+    update z
+      | signum z == 1 = if z > 0.2 then z - 0.2 else 0.0
+      | otherwise = if z < -0.2 then z + 0.2 else 0.0
 
 instance Updateable Airplane where
-  move airplane@Airplane {airplanePos = p, airplaneVelocity = v} = airplane {airplanePos = updatePosition p v}
+  move airplane@Airplane {airplanePos = p, airplaneVelocity = v} = airplane {airplanePos = updatePosition p v, airplaneVelocity = updateVelocity v}
 
 instance Updateable Projectile where
   move projectile@Projectile {projectilePos = p, projectileVelocity = v} = projectile {projectilePos = updatePosition p v}
@@ -133,7 +161,7 @@ instance Updateable Projectile where
 -- Drawable
 
 instance Drawable Airplane where
-  draw Airplane {airplanePos = Position p, airplaneSprite = s} = uncurry translate p s
+  draw Airplane {airplanePos = p, airplaneSprite = s} = uncurry translate p s
 
 instance Drawable Projectile where
-  draw Projectile {projectilePos = Position p, projectileSprite = s} = uncurry translate p s
+  draw Projectile {projectilePos = p, projectileSprite = s} = uncurry translate p s
