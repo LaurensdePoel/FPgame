@@ -44,6 +44,22 @@ inputKey (EventKey (Char 's') _ _ _) gs =
               { airplanePos = moveDown (airplanePos pstate)
               }
     }
+inputKey (EventKey (Char 'a') _ _ _) gs =
+  gs
+    { players =
+        let pstate = players gs
+         in pstate
+              { airplanePos = moveLeft (airplanePos pstate)
+              }
+    }
+inputKey (EventKey (Char 'd') _ _ _) gs =
+  gs
+    { players =
+        let pstate = players gs
+         in pstate
+              { airplanePos = moveRight (airplanePos pstate)
+              }
+    }
 inputKey _ gs = gs -- Otherwise keep the same
 
 moveUp :: Position -> Position
@@ -52,16 +68,8 @@ moveUp (Position (x, y)) = Position (x, y + 5)
 moveDown :: Position -> Position
 moveDown (Position (x, y)) = Position (x, y - 5)
 
--- handleKeys :: Event -> GameState -> GameState
--- handleKeys (EventKey (SpecialKey KeyLeft) Down _ _) gs =
---   gs {direction = West, heading = FacingWest}
--- handleKeys (EventKey (SpecialKey KeyRight) Down _ _) gs =
---   gs {direction = East, heading = FacingEast}
--- handleKeys (EventKey (SpecialKey KeySpace) Down _ _) gs =
---   gs
---     { speedY =
---         if isCollision gs (fst (position gs), snd (position gs) + speedY gs) '*'
---           then 6
---           else (-6)
---     }
--- handleKeys _ gs = gs {direction = None}
+moveLeft :: Position -> Position
+moveLeft (Position (x, y)) = Position (x -5, y)
+
+moveRight :: Position -> Position
+moveRight (Position (x, y)) = Position (x + 5, y - 5)

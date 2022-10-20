@@ -37,7 +37,7 @@ data Airplane = Airplane
     airplaneSprite :: Picture
   }
 
-data AirPlaneType = Player1 | Player2 | Fighter | Kamikaze
+data AirPlaneType = Player | Fighter | Kamikaze
 
 data Projectile = Projectile
   { projectileType :: ProjectileType,
@@ -73,7 +73,7 @@ initialState assetlist =
       status = InGame,
       players =
         Airplane
-          { airplaneType = Player1,
+          { airplaneType = Player,
             airplanePos = Position (-400, 0),
             airplaneSize = Size (50, 50),
             airplaneVelocity = Velocity (5, 5),
