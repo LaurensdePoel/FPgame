@@ -28,8 +28,29 @@ changePositionFromPlane :: Airplane -> Airplane
 changePositionFromPlane airplane = airplane {airplanePos = Position (1, 5)}
 
 inputKey :: Event -> GameState -> GameState
-inputKey (EventKey (Char w) _ _ _) gstate = gstate --{player GameState = a {playerAirplane a} = b} -- If the user presses c, do something
-inputKey _ gstate = gstate -- Otherwise keep the same
+inputKey (EventKey (Char 'w') _ _ _) gs =
+  gs
+    { players =
+        let pstate = players gs
+         in pstate
+              { airplanePos = moveUp (airplanePos pstate)
+              }
+    }
+inputKey (EventKey (Char 's') _ _ _) gs =
+  gs
+    { players =
+        let pstate = players gs
+         in pstate
+              { airplanePos = moveDown (airplanePos pstate)
+              }
+    }
+inputKey _ gs = gs -- Otherwise keep the same
+
+moveUp :: Position -> Position
+moveUp (Position (x, y)) = Position (x, y + 5)
+
+moveDown :: Position -> Position
+moveDown (Position (x, y)) = Position (x, y - 5)
 
 -- handleKeys :: Event -> GameState -> GameState
 -- handleKeys (EventKey (SpecialKey KeyLeft) Down _ _) gs =

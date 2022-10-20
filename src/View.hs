@@ -23,7 +23,7 @@ render gState =
   pictures
     [ walls,
       -- {airplane{playerAirplane {player gState}}
-      drawAirplane (playerAirplane (player gState))
+      drawAirplane (players gState)
       --airplaneSprite (playerAirplane (player gState))
     ]
   where
@@ -38,4 +38,4 @@ render gState =
     walls = pictures [wall 200, wall (-200)]
 
     p1Airplane :: Airplane -> Picture
-    p1Airplane (Airplane (Position pos) _ _ _ pic) = uncurry translate pos pic
+    p1Airplane (Airplane _ (Position pos) _ _ _ pic) = uncurry translate pos pic
