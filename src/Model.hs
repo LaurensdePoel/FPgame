@@ -1,32 +1,69 @@
+{-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
+
 -- | This module contains the data types
 --   which represent the state of the game
 module Model where
 
 import qualified Data.Map.Strict as M
-import Graphics.Gloss (Picture)
+import Graphics.Gloss
 
 data Status = InMenu | InGame
 
-data Position = Position Float Float
+newtype Position = Position Point
 
-data PlaneSize = PlaneSize Float Float
+newtype Size = Size Point
 
-data Velocity = Velocity Float Float
+newtype Velocity = Velocity Point
 
--- type AssetsList = Map (String) (Picture)
+data ProjectileType = None | Gun | DoubleGun | Rocket
 
-data Airplane = Plane
-  { position :: Position,
-    size :: PlaneSize,
-    velocity :: Velocity
+newtype Damage = Damage Int
+
+data Origin = Players | Enemies deriving (Eq)
+
+class Collidable a b where
+  collides :: a -> b -> Bool
+
+data Airplane = Airplane
+  { airplanePos :: Position,
+    airplaneSize :: Size,
+    airplaneVelocity :: Velocity,
+    airplaneHealt :: Int,
+    -- fireRate :: FireRate
+    -- timeLastShot :: Time
+    -- AirplaneProjectile :: Projectile
+    airplaneSprite :: Picture
+  }
+
+data Player = Player
+  { playerAirplane :: Airplane --,
+  -- powerUps :: [PowerUp]
+  }
+
+data Enemy
+  = Fighter
+      { fighterPlane :: Airplane
+      }
+  | Kamikaze
+      { kamikazePlane :: Airplane
+      }
+
+data Projectile = Projectile
+  { projectileType :: ProjectileType,
+    projectilePos :: Position,
+    projectileSize :: Size,
+    projectileVelocity :: Velocity,
+    damage :: Damage,
+    origin :: Origin,
+    sprite :: Picture
   }
 
 data GameState = Game
   { elapsedTime :: Float,
     status :: Status,
-    plane :: Airplane, -- tmp
     tmpInt :: Int,
-    tmpPic :: Picture
+    player :: Player
     --level :: Level,
     --projectiles :: [Projectile],
     --players :: [Player],
@@ -43,7 +80,42 @@ initialState assetlist =
   Game
     { elapsedTime = 0,
       status = InGame,
-      plane = Plane {position = Position (-10) 30, size = PlaneSize 50 50, velocity = Velocity 5 5},
-      tmpInt = 0,
-      tmpPic = head assetlist
+      player =
+        Player
+          Airplane
+            { airplanePos = Position (-400, 0),
+              airplaneSize = Size (50, 50),
+              airplaneVelocity = Velocity (5, 5),
+              airplaneHealt = 100,
+              airplaneSprite = rotate 90 (head assetlist)
+            },
+      tmpInt = 0
     }
+
+checkCollision :: (Point, Point) -> (Point, Point) -> Bool
+checkCollision (r1p1, r1p2) (r2p1, r2p2) = fst (r1p1) < fst (r2p2) && fst (r1p2) > fst (r2p1) && snd (r1p1) > snd (r2p2) && snd (r1p2) < snd (r2p1)
+
+toBoundingBox :: Position -> Size -> (Point, Point)
+toBoundingBox (Position p@(pX, pY)) (Size (sX, sY)) = (p, (pX + sX, pY + sY))
+
+airplaneToBoundingBox :: Airplane -> (Point, Point)
+airplaneToBoundingBox Airplane {airplanePos = p, airplaneSize = s} = toBoundingBox p s
+
+instance Collidable Player Enemy where
+  collides Player {playerAirplane = pPlane} Fighter {fighterPlane = ePlane} = checkCollision (airplaneToBoundingBox pPlane) (airplaneToBoundingBox ePlane)
+  collides Player {playerAirplane = pPlane} Kamikaze {kamikazePlane = ePlane} = checkCollision (airplaneToBoundingBox pPlane) (airplaneToBoundingBox ePlane)
+
+instance Collidable Projectile Enemy where
+  collides Projectile {origin = o, projectilePos = pPos, projectileSize = pSize} Fighter {fighterPlane = fPlane}
+    | o /= Enemies = checkCollision (toBoundingBox pPos pSize) (airplaneToBoundingBox fPlane)
+    | otherwise = False
+  collides Projectile {origin = o, projectilePos = pPos, projectileSize = pSize} Kamikaze {kamikazePlane = kPlane}
+    | o /= Enemies = checkCollision (toBoundingBox pPos pSize) (airplaneToBoundingBox kPlane)
+    | otherwise = False
+
+instance Collidable Projectile Player where
+  collides Projectile {origin = o, projectilePos = pPos, projectileSize = pSize} Player {playerAirplane = pPlane}
+    | o /= Players = checkCollision (toBoundingBox pPos pSize) (airplaneToBoundingBox pPlane)
+    | otherwise = False
+
+-- instance Collidable Projectile Projectile where
