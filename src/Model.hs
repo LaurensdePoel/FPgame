@@ -27,6 +27,9 @@ class Collidable a b where
 class Updateable a where
   move :: a -> a
 
+class Drawable a where
+  draw :: a -> Picture
+
 data Airplane = Airplane
   { airplaneType :: AirPlaneType,
     airplanePos :: Position,
@@ -46,9 +49,9 @@ data Projectile = Projectile
     projectilePos :: Position,
     projectileSize :: Size,
     projectileVelocity :: Velocity,
-    damage :: Damage,
-    origin :: Origin,
-    sprite :: Picture
+    projectileDamage :: Damage,
+    projectileOrigin :: Origin,
+    projectileSprite :: Picture
   }
 
 data GameState = Game
@@ -103,7 +106,7 @@ instance Collidable Airplane Airplane where
 
 instance Collidable Projectile Airplane where
   collides
-    Projectile {origin = o, projectilePos = pPos, projectileSize = pSize}
+    Projectile {projectileOrigin = o, projectilePos = pPos, projectileSize = pSize}
     Airplane {airplaneType = t, airplanePos = aPos, airplaneSize = aSize}
       | o == Players && t == Player = False
       | o == Enemies && t /= Player = False
@@ -111,8 +114,8 @@ instance Collidable Projectile Airplane where
 
 instance Collidable Projectile Projectile where
   collides
-    Projectile {origin = o1, projectilePos = pos1, projectileSize = size1}
-    Projectile {origin = o2, projectilePos = pos2, projectileSize = size2}
+    Projectile {projectileOrigin = o1, projectilePos = pos1, projectileSize = size1}
+    Projectile {projectileOrigin = o2, projectilePos = pos2, projectileSize = size2}
       | o1 /= o2 = checkCollision (toHitBox pos1 size1) (toHitBox pos2 size2)
       | otherwise = False
 
@@ -126,3 +129,11 @@ instance Updateable Airplane where
 
 instance Updateable Projectile where
   move projectile@Projectile {projectilePos = p, projectileVelocity = v} = projectile {projectilePos = updatePosition p v}
+
+-- Drawable
+
+instance Drawable Airplane where
+  draw Airplane {airplanePos = Position p, airplaneSprite = s} = uncurry translate p s
+
+instance Drawable Projectile where
+  draw Projectile {projectilePos = Position p, projectileSprite = s} = uncurry translate p s
