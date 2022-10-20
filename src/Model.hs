@@ -1,4 +1,5 @@
 {-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE InstanceSigs #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 
 -- | This module contains the data types
@@ -10,7 +11,23 @@ import Graphics.Gloss
 
 data Status = InMenu | InGame
 
-newtype Position = Position Point
+type Position = Point
+
+instance Num Position where
+  (+) :: Position -> Position -> Position
+  (+) (x1, y1) (x2, y2) = (x1 + x2, y1 + y2)
+  (-) :: Position -> Position -> Position
+  (-) (x1, y1) (x2, y2) = (x1 - x2, y1 - y2)
+  (*) :: Position -> Position -> Position
+  (*) (x1, y1) (x2, y2) = (x1 * x2, y1 * y2)
+  signum :: Position -> Position
+  signum (x, y) = (signum x, signum y)
+  abs :: Position -> Position
+  abs (x, y) = (abs x, abs y)
+  negate :: Position -> Position
+  negate (x, y) = (negate x, negate y)
+  fromInteger :: Integer -> Position
+  fromInteger x = (fromInteger x, fromInteger x)
 
 newtype Size = Size Point
 
@@ -37,7 +54,7 @@ data Airplane = Airplane
     airplaneSprite :: Picture
   }
 
-data AirPlaneType = Player1 | Player2 | Fighter | Kamikaze
+data AirPlaneType = Player | Fighter | Kamikaze
 
 data Projectile = Projectile
   { projectileType :: ProjectileType,
@@ -73,8 +90,8 @@ initialState assetlist =
       status = InGame,
       players =
         Airplane
-          { airplaneType = Player1,
-            airplanePos = Position (-400, 0),
+          { airplaneType = Player,
+            airplanePos = (-400, 0),
             airplaneSize = Size (50, 50),
             airplaneVelocity = Velocity (5, 5),
             airplaneHealth = 100,

@@ -12,7 +12,7 @@ viewPure :: GameState -> Picture
 viewPure = undefined
 
 drawAirplane :: Airplane -> Picture
-drawAirplane Airplane {airplanePos = Position pos, airplaneSprite = sprite} = uncurry translate pos sprite
+drawAirplane Airplane {airplanePos = pos, airplaneSprite = sprite} = uncurry translate pos sprite
 
 render ::
   -- | The game state to render.
@@ -38,4 +38,4 @@ render gState =
     walls = pictures [wall 200, wall (-200)]
 
     p1Airplane :: Airplane -> Picture
-    p1Airplane (Airplane _ (Position pos) _ _ _ pic) = uncurry translate pos pic
+    p1Airplane (Airplane _ pos _ _ _ pic) = uncurry translate pos pic
