@@ -189,6 +189,11 @@ instance Updateable Airplane where
   move :: Airplane -> Airplane
   move airplane@Airplane {airplanePos = p, airplaneVelocity = v} = airplane {airplanePos = updatePosition p v, airplaneVelocity = updateVelocity v}
 
+  destroy :: [Airplane] -> [Airplane]
+  destroy airplanes = filter alive airplanes
+    where
+      alive Airplane {airplaneHealth = h} = h > 0
+
   shoot :: Airplane -> GameState -> (Airplane, GameState)
   shoot
     airplane@Airplane {airplanePos = p, airplaneSize = s, airplaneProjectile = ap}
