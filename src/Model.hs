@@ -33,6 +33,8 @@ fps = 60
 
 newtype Size = Size Point
 
+type Time = Float
+
 newtype Velocity = Velocity Point
 
 data ProjectileType = None | Gun | DoubleGun | Rocket
@@ -41,15 +43,19 @@ newtype Damage = Damage Int
 
 data Origin = Players | Enemies deriving (Eq)
 
+-- firerate timelastshot
+data FireRate = Single Time | Burst Time
+
 class Collidable a b where
   collides :: a -> b -> Bool
 
 class Updateable a where
   move :: a -> a
-  shoot :: a -> a
+  shoot :: a -> GameState -> (a, GameState)
 
-  updateAll :: a -> a
-  updateAll = shoot . move
+  updateAll :: a -> GameState -> a
+
+-- updateAll = shoot . move
 
 class Drawable a where
   draw :: a -> Picture
@@ -60,9 +66,9 @@ data Airplane = Airplane
     airplaneSize :: Size,
     airplaneVelocity :: Velocity,
     airplaneHealth :: Int,
-    -- fireRate :: FireRate
-    -- timeLastShot :: Time
-    -- AirplaneProjectile :: Projectile
+    fireRate :: FireRate,
+    timeLastShot :: Time,
+    airplaneProjectile :: Projectile,
     airplaneSprite :: Picture
   }
 
@@ -82,10 +88,10 @@ data GameState = Game
   { elapsedTime :: Float,
     status :: Status,
     tmpInt :: Int,
-    players :: Airplane
+    players :: Airplane,
     --enemies :: [Airplane]
     --level :: Level,
-    --projectiles :: [Projectile],
+    projectiles :: [Projectile]
     --players :: [Player],
     --powerUP :: [PowerUp]
   }
@@ -104,9 +110,22 @@ initialState assetlist =
             airplaneSize = Size (50, 50),
             airplaneVelocity = Velocity (5, 5),
             airplaneHealth = 100,
+            fireRate = Single 30.0,
+            timeLastShot = 0.0,
+            airplaneProjectile =
+              Projectile
+                { projectileType = Gun,
+                  projectilePos = (0, 0),
+                  projectileSize = Size (30, 30),
+                  projectileVelocity = Velocity (10, 0),
+                  projectileDamage = Damage 30,
+                  projectileOrigin = Players,
+                  projectileSprite = rotate 90 $ head (reverse assetlist)
+                },
             airplaneSprite = rotate 90 (head assetlist)
           },
-      tmpInt = 0
+      tmpInt = 0,
+      projectiles = []
     }
 
 -- -- Collidable
@@ -152,10 +171,38 @@ updateVelocity (Velocity (x, y)) = Velocity (update x, update y)
       | signum z == 1 = if z > 0.2 then z - 0.2 else 0.0
       | otherwise = if z < -0.2 then z + 0.2 else 0.0
 
+readyToShoot' :: Time -> Time -> Airplane -> (Bool, Airplane)
+readyToShoot' x t a
+  | t > x = (True, a {timeLastShot = 0.0})
+  | otherwise = (False, a {timeLastShot = t + 1.0})
+
+readyToShoot :: Airplane -> (Bool, Airplane)
+readyToShoot a@Airplane {fireRate = r, timeLastShot = t} = case r of
+  Single x -> readyToShoot' x t a
+  Burst x -> readyToShoot' x t a
+
 instance Updateable Airplane where
+  -- updateAll :: Airplane -> GameState -> Airplane
+  -- updateAll x g = shoot (move x) g
+
+  move :: Airplane -> Airplane
   move airplane@Airplane {airplanePos = p, airplaneVelocity = v} = airplane {airplanePos = updatePosition p v, airplaneVelocity = updateVelocity v}
 
+  shoot :: Airplane -> GameState -> (Airplane, GameState)
+  shoot
+    airplane@Airplane {airplanePos = p, airplaneSize = s, airplaneProjectile = ap}
+    g@Game {projectiles = ps}
+      | ready = (a, g {projectiles = ap' : ps})
+      | otherwise = (a, g)
+      where
+        (ready, a) = readyToShoot airplane
+        ap' = ap {projectilePos = p}
+
 instance Updateable Projectile where
+  -- updateAll :: Projectile -> Projectile
+  -- updateAll = move
+
+  move :: Projectile -> Projectile
   move projectile@Projectile {projectilePos = p, projectileVelocity = v} = projectile {projectilePos = updatePosition p v}
 
 -- Drawable

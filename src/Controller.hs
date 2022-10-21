@@ -14,10 +14,12 @@ step seconds gstate
   | elapsedTime gstate + seconds > 0.01666667 -- (fromIntegral fps :: Float)
   -- enough time has passed call new update
     =
-    return $ gstate {elapsedTime = 0, players = move $ players gstate}
+    return $ gstate {elapsedTime = 0, players = fst updatedPlayer, projectiles = map move . projectiles $ snd updatedPlayer}
   | otherwise =
     -- Just update the elapsed time
     return $ gstate {elapsedTime = elapsedTime gstate + seconds}
+  where
+    updatedPlayer = shoot (move $ players gstate) gstate
 
 -- | Handle user input
 input :: Event -> GameState -> IO GameState
