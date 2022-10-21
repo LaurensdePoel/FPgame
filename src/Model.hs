@@ -52,6 +52,7 @@ class Collidable a b where
 class Updateable a where
   move :: a -> a
   shoot :: a -> GameState -> (a, GameState)
+  destroy :: a -> GameState -> Bool
 
   updateAll :: a -> GameState -> a
 
@@ -131,7 +132,7 @@ initialState assetlist =
 -- -- Collidable
 
 checkCollision :: (Point, Point) -> (Point, Point) -> Bool
-checkCollision (r1p1, r1p2) (r2p1, r2p2) = fst (r1p1) < fst (r2p2) && fst (r1p2) > fst (r2p1) && snd (r1p1) > snd (r2p2) && snd (r1p2) < snd (r2p1)
+checkCollision (r1p1, r1p2) (r2p1, r2p2) = fst (r1p1) < fst (r2p1) + fst (r2p2) && fst (r1p1) + fst (r1p2) > fst (r2p1) && snd (r1p1) < snd (r2p1) + snd (r2p2) && snd (r1p2) + snd (r1p1) > snd (r2p1)
 
 toHitBox :: Position -> Size -> (Point, Point)
 toHitBox p@(pX, pY) (Size (sX, sY)) = (p, (pX + sX, pY + sY))
@@ -204,6 +205,11 @@ instance Updateable Projectile where
 
   move :: Projectile -> Projectile
   move projectile@Projectile {projectilePos = p, projectileVelocity = v} = projectile {projectilePos = updatePosition p v}
+
+  destroy :: Projectile -> GameState -> Bool
+  destroy projectile@Projectile {projectilePos = p, projectileSize = s} Game {projectiles = ps}
+    | checkCollision (toHitBox p s) ((-1000.0, -1000.0), (1000.0, 1000.0)) = True --TODO: update to actual screen size + a little bit extra (And not hard coded)
+    | otherwise = False --filter (\Projectile {projectilePos = p'} -> p' /= p) ps
 
 -- Drawable
 
