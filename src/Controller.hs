@@ -14,7 +14,7 @@ step seconds gstate
   | elapsedTime gstate + seconds > 0.01666667 -- (fromIntegral fps :: Float)
   -- enough time has passed call new update
     =
-    return $ gstate {elapsedTime = 0, players = fst updatedPlayer, projectiles = filter (`destroy` gstate) (map move . projectiles $ snd updatedPlayer)}
+    return $ gstate {elapsedTime = 0, players = fst updatedPlayer, projectiles = destroy (map move . projectiles $ snd updatedPlayer)}
   | otherwise =
     -- Just update the elapsed time
     return $ gstate {elapsedTime = elapsedTime gstate + seconds}

@@ -52,7 +52,7 @@ class Collidable a b where
 class Updateable a where
   move :: a -> a
   shoot :: a -> GameState -> (a, GameState)
-  destroy :: a -> GameState -> Bool
+  destroy :: [a] -> [a]
 
   updateAll :: a -> GameState -> a
 
@@ -206,10 +206,12 @@ instance Updateable Projectile where
   move :: Projectile -> Projectile
   move projectile@Projectile {projectilePos = p, projectileVelocity = v} = projectile {projectilePos = updatePosition p v}
 
-  destroy :: Projectile -> GameState -> Bool
-  destroy projectile@Projectile {projectilePos = p, projectileSize = s} Game {projectiles = ps}
-    | checkCollision (toHitBox p s) ((-1000.0, -1000.0), (1000.0, 1000.0)) = True --TODO: update to actual screen size + a little bit extra (And not hard coded)
-    | otherwise = False --filter (\Projectile {projectilePos = p'} -> p' /= p) ps
+  destroy :: [Projectile] -> [Projectile]
+  destroy ps = filter inBounds ps
+    where
+      inBounds Projectile {projectilePos = p, projectileSize = s}
+        | checkCollision (toHitBox p s) ((-1000.0, -1000.0), (1000.0, 1000.0)) = True --TODO: update to actual screen size + a little bit extra (And not hard coded)
+        | otherwise = False --filter (\Projectile {projectilePos = p'} -> p' /= p) ps
 
 -- Drawable
 
