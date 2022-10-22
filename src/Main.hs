@@ -15,11 +15,10 @@ import View
 --         frame :: Flaot -> Picture
 --         frame seconds = render(render initialState)
 
-width, height, offset, fps :: Int
+width, height, offset :: Int
 width = 1024
 height = 768
 offset = 100
-fps = 60
 
 main :: IO ()
 main = do
