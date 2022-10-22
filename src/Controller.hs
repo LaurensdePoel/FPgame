@@ -2,10 +2,12 @@
 --   in response to time and user input
 module Controller where
 
+import qualified Data.Set as S
 import Graphics.Gloss.Interface.IO.Game
   ( Event (EventKey),
     Key (Char),
   )
+import Graphics.Gloss.Interface.IO.Interact (KeyState (..))
 import Model
 
 -- | Handle one iteration of the game
@@ -39,8 +41,12 @@ inputKey (EventKey (Char char) _ _ _) gs
         { players =
             let playerState = players gs
              in playerState
-                  { airplanePos = addValues addToPosition (airplanePos playerState)
+                  { airplanePos = airplanePos playerState + addToPosition
                   }
         }
-    addValues addPos oldPos = addPos + oldPos
 inputKey _ gs = gs -- Otherwise keep the same
+
+inputKeyV2 :: Event -> GameState -> GameState
+inputKeyV2 (EventKey k Down _ _) gs = gs {keys = S.insert k (keys gs)}
+inputKeyV2 (EventKey k Up _ _) gs = gs {keys = S.delete k (keys gs)}
+inputKeyV2 _ gs = gs -- Otherwise keep the same

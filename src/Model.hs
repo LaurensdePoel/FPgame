@@ -6,8 +6,9 @@
 --   which represent the state of the game
 module Model where
 
-import qualified Data.Map.Strict as M
+import qualified Data.Set as S
 import Graphics.Gloss
+import Graphics.Gloss.Interface.IO.Interact (Key)
 
 data Status = InMenu | InGame
 
@@ -70,12 +71,8 @@ data GameState = Game
   { elapsedTime :: Float,
     status :: Status,
     tmpInt :: Int,
-    players :: Airplane
-    --enemies :: [Airplane]
-    --level :: Level,
-    --projectiles :: [Projectile],
-    --players :: [Player],
-    --powerUP :: [PowerUp]
+    players :: Airplane,
+    keys :: S.Set Key
   }
 
 -- deriving (Show)
@@ -97,8 +94,24 @@ initialState assetlist =
             airplaneHealth = 100,
             airplaneSprite = rotate 90 (head assetlist)
           },
-      tmpInt = 0
+      tmpInt = 0,
+      keys = S.empty
     }
+
+-- Game
+--   { elapsedTime = 0,
+--     status = InGame,
+--     players =
+--       Airplane
+--         { airplaneType = Player,
+--           airplanePos = (-400, 0),
+--           airplaneSize = Size (50, 50),
+--           airplaneVelocity = Velocity (5, 5),
+--           airplaneHealth = 100,
+--           airplaneSprite = rotate 90 (head assetlist)
+--         },
+--     tmpInt = 0
+--     keys =
 
 -- checkCollision :: (Point, Point) -> (Point, Point) -> Bool
 -- checkCollision (r1p1, r1p2) (r2p1, r2p2) = fst (r1p1) < fst (r2p2) && fst (r1p2) > fst (r2p1) && snd (r1p1) > snd (r2p2) && snd (r1p2) < snd (r2p1)
