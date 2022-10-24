@@ -10,31 +10,36 @@ import Graphics.Gloss.Interface.IO.Game
   ( Key (Char),
   )
 
+
 updatePlayerVelocity :: S.Set Key -> Airplane -> Airplane
-updatePlayerVelocity activeKeys airplane
+updatePlayerVelocity activeKeys airplane =
+  foldr f e activeKeys
+    where
+      f = addVelocityBasedOnKey
+      e = airplane
+
+addVelocityBasedOnKey :: Key -> Airplane -> Airplane
+addVelocityBasedOnKey key airplane
   -- | S.member (SpecialKey KeyUp) activeKeys =
   --   airplane {airplanePos = (0, 0)}
-  | S.member (Char 'w') activeKeys =
-    airplane {airplaneVelocity = add (0, velocityStep)}
-  | S.member (Char 'a') activeKeys =
-    airplane {airplaneVelocity = add (-velocityStep, 0)}
-  | S.member (Char 's') activeKeys =
-    airplane {airplaneVelocity = add (0, -velocityStep)}
-  | S.member (Char 'd') activeKeys =
-    airplane {airplaneVelocity = add (velocityStep, 0)}
+  | key == Char 'w' = airplane {airplaneVelocity = add (0, velocityStep)}
+  | key == Char 'a' = airplane {airplaneVelocity = add (-velocityStep, 0)}
+  | key == Char 's' = airplane {airplaneVelocity = add (0, -velocityStep)}
+  | key == Char 'd' = airplane {airplaneVelocity = add (velocityStep, -0)}
   | otherwise = airplane
     where
       add vel = check (airplaneVelocity airplane + vel)
       check:: Velocity -> Velocity
-      check orignalVel@(vX,vY) 
+      check orignalVel@(vX,vY)
         | vX < minVel = (minVel,vY)
         | vY < minVel = (vX,minVel)
         | vX > maxVel = (maxVel,vY)
         | vY > maxVel = (vX,maxVel)
-        |otherwise = orignalVel    
+        |otherwise = orignalVel
       minVel = -12.0
       maxVel = 12.0
       velocityStep = 0.6
+
 
 updateFireRate :: Airplane -> Airplane
 updateFireRate airplane@Airplane {fireRate = r, timeLastShot = t} = case r of
