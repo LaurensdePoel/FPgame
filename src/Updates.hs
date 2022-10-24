@@ -15,14 +15,26 @@ updatePlayerVelocity activeKeys airplane
   -- | S.member (SpecialKey KeyUp) activeKeys =
   --   airplane {airplanePos = (0, 0)}
   | S.member (Char 'w') activeKeys =
-    airplane {airplaneVelocity = airplaneVelocity airplane + (0, 0.5)}
+    airplane {airplaneVelocity = add (0, velocityStep)}
   | S.member (Char 'a') activeKeys =
-    airplane {airplaneVelocity = airplaneVelocity airplane + (-0.5, 0)}
+    airplane {airplaneVelocity = add (-velocityStep, 0)}
   | S.member (Char 's') activeKeys =
-    airplane {airplaneVelocity = airplaneVelocity airplane + (0, -0.5)}
+    airplane {airplaneVelocity = add (0, -velocityStep)}
   | S.member (Char 'd') activeKeys =
-    airplane {airplaneVelocity = airplaneVelocity airplane + (0.5, 0)}
+    airplane {airplaneVelocity = add (velocityStep, 0)}
   | otherwise = airplane
+    where
+      add vel = check (airplaneVelocity airplane + vel)
+      check:: Velocity -> Velocity
+      check orignalVel@(vX,vY) 
+        | vX < minVel = (minVel,vY)
+        | vY < minVel = (vX,minVel)
+        | vX > maxVel = (maxVel,vY)
+        | vY > maxVel = (vX,maxVel)
+        |otherwise = orignalVel    
+      minVel = -12.0
+      maxVel = 12.0
+      velocityStep = 0.6
 
 updateFireRate :: Airplane -> Airplane
 updateFireRate airplane@Airplane {fireRate = r, timeLastShot = t} = case r of
