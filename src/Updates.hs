@@ -1,49 +1,51 @@
 -- | This module defines the Updates of entities in the game
 module Updates where
 
-import Updateable
 import Collidable
-import Model
-
 import qualified Data.Set as S
-import Graphics.Gloss.Interface.IO.Game
-  ( Key (Char),
-  )
-
+import Graphics.Gloss.Interface.IO.Interact
+import Model
+import Updateable
 
 -- Updates velocity based on pressed keys. Foldr loops trough every key and add new velocity to current Airplane
 updatePlayerVelocity :: S.Set Key -> Airplane -> Airplane
 updatePlayerVelocity activeKeys airplane =
   foldr f e activeKeys
-    where
-      f = addVelocityBasedOnKey
-      e = airplane
+  where
+    f = addVelocityBasedOnKey
+    e = airplane
 
 -- If key affects velocity of the player update the current velocity
 addVelocityBasedOnKey :: Key -> Airplane -> Airplane
-addVelocityBasedOnKey key airplane
-  -- | S.member (SpecialKey KeyUp) activeKeys =
-  --   airplane {airplanePos = (0, 0)}
-  | key == Char 'w' = airplane {airplaneVelocity = add (0, velocityStep)}
-  | key == Char 'a' = airplane {airplaneVelocity = add (-velocityStep, 0)}
-  | key == Char 's' = airplane {airplaneVelocity = add (0, -velocityStep)}
-  | key == Char 'd' = airplane {airplaneVelocity = add (velocityStep, -0)}
-  | otherwise = airplane
-    where
-      add :: Velocity -> Velocity
-      add vel = checkMinMax (airplaneVelocity airplane + vel)
-      checkMinMax :: Velocity -> Velocity
-      checkMinMax orignalVel@(vX,vY)
-        | vX < minVel = (minVel,vY)
-        | vY < minVel = (vX,minVel)
-        | vX > maxVel = (maxVel,vY)
-        | vY > maxVel = (vX,maxVel)
-        |otherwise = orignalVel
-      --TODO move values below to special HS file those values are base parameters
-      minVel = -12.0
-      maxVel = 12.0
-      velocityStep = 0.6
-
+addVelocityBasedOnKey key airplane@Airplane {airplaneType = planeType} =
+  case planeType of
+    Player1
+      | key == Char 'w' -> airplane {airplaneVelocity = add (0, velocityStep)}
+      | key == Char 'a' -> airplane {airplaneVelocity = add (- velocityStep, 0)}
+      | key == Char 's' -> airplane {airplaneVelocity = add (0, - velocityStep)}
+      | key == Char 'd' -> airplane {airplaneVelocity = add (velocityStep, -0)}
+      | otherwise -> airplane
+    Player2
+      | key == SpecialKey KeyUp -> airplane {airplaneVelocity = add (0, velocityStep)}
+      | key == SpecialKey KeyLeft -> airplane {airplaneVelocity = add (- velocityStep, 0)}
+      | key == SpecialKey KeyDown -> airplane {airplaneVelocity = add (0, - velocityStep)}
+      | key == SpecialKey KeyRight -> airplane {airplaneVelocity = add (velocityStep, -0)}
+      | otherwise -> airplane
+    _ -> airplane
+  where
+    add :: Velocity -> Velocity
+    add vel = checkMinMax (airplaneVelocity airplane + vel)
+    checkMinMax :: Velocity -> Velocity
+    checkMinMax orignalVel@(vX, vY)
+      | vX < minVel = (minVel, vY)
+      | vY < minVel = (vX, minVel)
+      | vX > maxVel = (maxVel, vY)
+      | vY > maxVel = (vX, maxVel)
+      | otherwise = orignalVel
+    --TODO move values below to special HS file those values are base parameters
+    minVel = -12.0
+    maxVel = 12.0
+    velocityStep = 0.6
 
 updateFireRate :: Airplane -> Airplane
 updateFireRate airplane@Airplane {fireRate = r, timeLastShot = t} = case r of

@@ -65,6 +65,8 @@ data FireRate = Single Time | Burst Time
 
 newtype ScreenBox = ScreenBox (Point, Point)
 
+data AirPlaneType = Player1 | Player2 | Fighter | Kamikaze deriving (Eq)
+
 -- class Collidable a b where
 --   collides :: a -> b -> Bool
 
@@ -91,8 +93,6 @@ data Airplane = Airplane
     airplaneProjectile :: Projectile,
     airplaneSprite :: Picture
   }
-
-data AirPlaneType = Player | Fighter | Kamikaze deriving (Eq)
 
 data Projectile = Projectile
   { projectileType :: ProjectileType,
@@ -127,7 +127,7 @@ initialState assetlist =
       status = InGame,
       players =
         [ Airplane
-            { airplaneType = Player,
+            { airplaneType = Player1,
               airplanePos = (-400, 0),
               airplaneSize = Size (50, 50),
               airplaneVelocity = (0, 0),
@@ -148,7 +148,7 @@ initialState assetlist =
               airplaneSprite = rotate 90 $ getTexture "player1" assetlist
             },
           Airplane
-            { airplaneType = Player,
+            { airplaneType = Player2,
               airplanePos = (-200, 0),
               airplaneSize = Size (50, 50),
               airplaneVelocity = (0, 0),
