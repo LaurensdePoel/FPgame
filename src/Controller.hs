@@ -7,6 +7,7 @@ import Graphics.Gloss.Interface.IO.Game
     Key (Char),
   )
 import Model
+import Updates
 
 -- | Handle one iteration of the game
 step :: Float -> GameState -> IO GameState
@@ -14,12 +15,10 @@ step seconds gstate
   | elapsedTime gstate + seconds > 0.01666667 -- (fromIntegral fps :: Float)
   -- enough time has passed call new update
     =
-    return $ gstate {elapsedTime = 0, players = fst updatedPlayer, projectiles = destroy (map move . projectiles $ snd updatedPlayer)}
+      return $ updateGameState $ gstate {elapsedTime = 0}
   | otherwise =
-    -- Just update the elapsed time
-    return $ gstate {elapsedTime = elapsedTime gstate + seconds}
-  where
-    updatedPlayer = shoot (move $ players gstate) gstate
+      -- Just update the elapsed time
+      return $ gstate {elapsedTime = elapsedTime gstate + seconds}
 
 -- | Handle user input
 input :: Event -> GameState -> IO GameState
@@ -40,10 +39,11 @@ inputKey (EventKey (Char char) _ _ _) gs
     move addToPosition =
       gs
         { players =
-            let playerState = players gs
-             in playerState
-                  { airplanePos = addValues addToPosition (airplanePos playerState)
-                  }
+            let playerState = head $ players gs
+             in [ playerState
+                    { airplanePos = addValues addToPosition (airplanePos playerState)
+                    }
+                ]
         }
     addValues addPos oldPos = addPos + oldPos
 inputKey _ gs = gs -- Otherwise keep the same

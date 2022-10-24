@@ -58,13 +58,13 @@ executable FPgame
     main-is:          Main.hs
 
     -- Modules included in this executable, other than Main.
-    other-modules:    Controller, Model, View
+    other-modules:    Controller, Model, View, Drawable, Collidable, Updateable, Updates
 
     -- LANGUAGE extensions used by modules in this package.
     -- other-extensions:
 
     -- Other library packages from which modules are imported.
-    build-depends:      base ^>=4.14.3.0,
+    build-depends:      base ^>=4.16.3.0,
                         gloss,
                         random,
                         containers

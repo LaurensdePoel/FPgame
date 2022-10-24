@@ -2,6 +2,7 @@
 --   the game state into a picture
 module View where
 
+import Drawable
 import Graphics.Gloss
 import Model
 
@@ -11,8 +12,8 @@ view = return . render
 viewPure :: GameState -> Picture
 viewPure = undefined
 
-drawAirplane :: Airplane -> Picture
-drawAirplane Airplane {airplanePos = pos, airplaneSprite = sprite} = uncurry translate pos sprite
+-- drawAirplane :: Airplane -> Picture
+-- drawAirplane Airplane {airplanePos = pos, airplaneSprite = sprite} = uncurry translate pos sprite
 
 render ::
   -- | The game state to render.
@@ -22,13 +23,7 @@ render ::
 render gState =
   pictures xs
   where
-    xs =
-      [ walls,
-        -- {airplane{playerAirplane {player gState}}
-        draw (players gState)
-        --airplaneSprite (playerAirplane (player gState))
-      ]
-        ++ (map draw $ projectiles gState)
+    xs = mapDraw (projectiles gState) ++ mapDraw (players gState)
 
     --  The bottom and top walls.
     wall :: Float -> Picture
