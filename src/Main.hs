@@ -1,6 +1,7 @@
 module Main where
 
 import Controller
+import Data.Map as Map
 import Graphics.Gloss
 import Graphics.Gloss.Interface.IO.Game
 import Model
@@ -25,15 +26,21 @@ main = do
   player1BMP <- loadBMP "assets/ships/player_01.bmp"
   tile1BMP <- loadBMP "assets/tiles/tile_01.bmp"
   projectile1BMP <- loadBMP "assets/projectiles/projectile_01.bmp"
-  let
-  playIO
-    (InWindow "Nice Window" (width, height) (offset, offset)) -- Or FullScreen
-    black -- Background color
-    fps -- Frames per second
-    (initialState [player1BMP, tile1BMP, projectile1BMP]) -- Initial state
-    view -- View function
-    input -- Event function
-    step -- Step function
+  let -- Or FullScreen
+      -- Background color
+      -- Frames per second
+      -- Initial state
+      -- View function
+      -- Event function
+      -- Step function
+      -- background :: Color
+      -- background = black
 
--- background :: Color
--- background = black
+  playIO
+    (InWindow "Nice Window" (width, height) (offset, offset))
+    black
+    fps
+    (initialState (Map.fromList [("player1", player1BMP), ("bullet", projectile1BMP)]))
+    view
+    input
+    step
