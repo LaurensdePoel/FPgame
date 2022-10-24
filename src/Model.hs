@@ -130,7 +130,7 @@ initialState assetlist =
             { airplaneType = Player,
               airplanePos = (-400, 0),
               airplaneSize = Size (50, 50),
-              airplaneVelocity = (5, 5),
+              airplaneVelocity = (0, 0),
               airplaneHealth = 100,
               fireRate = Single 30.0,
               timeLastShot = 0.0,
@@ -146,6 +146,27 @@ initialState assetlist =
                     projectileSprite = rotate 90 $ getTexture "bullet" assetlist
                   },
               airplaneSprite = rotate 90 $ getTexture "player1" assetlist
+            },
+          Airplane
+            { airplaneType = Player,
+              airplanePos = (-200, 0),
+              airplaneSize = Size (50, 50),
+              airplaneVelocity = (0, 0),
+              airplaneHealth = 100,
+              fireRate = Single 30.0,
+              timeLastShot = 0.0,
+              airplaneProjectile =
+                Projectile
+                  { projectileType = Gun,
+                    projectilePos = (0, 0),
+                    projectileSize = Size (30, 30),
+                    projectileVelocity = (10, 0),
+                    projectileHealth = 1,
+                    projectileDamage = Damage 30,
+                    projectileOrigin = Players,
+                    projectileSprite = rotate 90 $ getTexture "bullet" assetlist
+                  },
+              airplaneSprite = rotate 90 $ getTexture "player2" assetlist
             }
         ],
       enemies = [],

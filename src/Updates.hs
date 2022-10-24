@@ -11,6 +11,7 @@ import Graphics.Gloss.Interface.IO.Game
   )
 
 
+-- Updates velocity based on pressed keys. Foldr loops trough every key and add new velocity to current Airplane
 updatePlayerVelocity :: S.Set Key -> Airplane -> Airplane
 updatePlayerVelocity activeKeys airplane =
   foldr f e activeKeys
@@ -18,6 +19,7 @@ updatePlayerVelocity activeKeys airplane =
       f = addVelocityBasedOnKey
       e = airplane
 
+-- If key affects velocity of the player update the current velocity
 addVelocityBasedOnKey :: Key -> Airplane -> Airplane
 addVelocityBasedOnKey key airplane
   -- | S.member (SpecialKey KeyUp) activeKeys =
@@ -28,14 +30,16 @@ addVelocityBasedOnKey key airplane
   | key == Char 'd' = airplane {airplaneVelocity = add (velocityStep, -0)}
   | otherwise = airplane
     where
-      add vel = check (airplaneVelocity airplane + vel)
-      check:: Velocity -> Velocity
-      check orignalVel@(vX,vY)
+      add :: Velocity -> Velocity
+      add vel = checkMinMax (airplaneVelocity airplane + vel)
+      checkMinMax :: Velocity -> Velocity
+      checkMinMax orignalVel@(vX,vY)
         | vX < minVel = (minVel,vY)
         | vY < minVel = (vX,minVel)
         | vX > maxVel = (maxVel,vY)
         | vY > maxVel = (vX,maxVel)
         |otherwise = orignalVel
+      --TODO move values below to special HS file those values are base parameters
       minVel = -12.0
       maxVel = 12.0
       velocityStep = 0.6
