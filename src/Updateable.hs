@@ -4,7 +4,6 @@
 module Updateable where
 
 import Data.Maybe
-import Graphics.Gloss
 import Model
 
 -------------------------------------------------

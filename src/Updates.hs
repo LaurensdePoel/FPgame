@@ -3,28 +3,25 @@ module Updates where
 
 import Updateable
 import Collidable
-import Graphics.Gloss
 import Model
 
 import qualified Data.Set as S
 import Graphics.Gloss.Interface.IO.Game
-  ( Event (EventKey),
-    Key (Char),
+  ( Key (Char),
   )
-import Graphics.Gloss.Interface.IO.Interact (KeyState (..))
 
 updatePlayerVelocity :: S.Set Key -> Airplane -> Airplane
 updatePlayerVelocity activeKeys airplane
   -- | S.member (SpecialKey KeyUp) activeKeys =
   --   airplane {airplanePos = (0, 0)}
   | S.member (Char 'w') activeKeys =
-    airplane {airplaneVelocity = airplaneVelocity airplane + (0, 5)}
+    airplane {airplaneVelocity = airplaneVelocity airplane + (0, 0.5)}
   | S.member (Char 'a') activeKeys =
-    airplane {airplaneVelocity = airplaneVelocity airplane + (-5, 0)}
+    airplane {airplaneVelocity = airplaneVelocity airplane + (-0.5, 0)}
   | S.member (Char 's') activeKeys =
-    airplane {airplaneVelocity = airplaneVelocity airplane + (0, -5)}
+    airplane {airplaneVelocity = airplaneVelocity airplane + (0, -0.5)}
   | S.member (Char 'd') activeKeys =
-    airplane {airplaneVelocity = airplaneVelocity airplane + (5, 0)}
+    airplane {airplaneVelocity = airplaneVelocity airplane + (0.5, 0)}
   | otherwise = airplane
 
 updateFireRate :: Airplane -> Airplane

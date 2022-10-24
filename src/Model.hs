@@ -152,7 +152,7 @@ initialState assetlist =
       tmpInt = 0,
       pressedKeys = S.empty,
       projectiles = [],
-      window = ScreenBox ((-1000.0, -1000.0), (1000.0, 1000.0))
+      window = ScreenBox ((-300.0, 300.0), (300.0, -300.0))
     }
 
 getTexture :: String -> Map String Picture -> Picture
