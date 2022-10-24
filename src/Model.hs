@@ -14,20 +14,21 @@ data Status = InMenu | InGame
 
 type Position = Point
 
-instance Num Position where
-  (+) :: Position -> Position -> Position
+--This is unnecessary
+instance Num Point where
+  (+) :: Point -> Point -> Point
   (+) (x1, y1) (x2, y2) = (x1 + x2, y1 + y2)
-  (-) :: Position -> Position -> Position
+  (-) :: Point -> Point -> Point
   (-) (x1, y1) (x2, y2) = (x1 - x2, y1 - y2)
-  (*) :: Position -> Position -> Position
+  (*) :: Point -> Point -> Point
   (*) (x1, y1) (x2, y2) = (x1 * x2, y1 * y2)
-  signum :: Position -> Position
+  signum :: Point -> Point
   signum (x, y) = (signum x, signum y)
-  abs :: Position -> Position
+  abs :: Point -> Point
   abs (x, y) = (abs x, abs y)
-  negate :: Position -> Position
+  negate :: Point -> Point
   negate (x, y) = (negate x, negate y)
-  fromInteger :: Integer -> Position
+  fromInteger :: Integer -> Point
   fromInteger x = (fromInteger x, fromInteger x)
 
 fps :: Int
@@ -37,7 +38,20 @@ newtype Size = Size Point
 
 type Time = Float
 
-newtype Velocity = Velocity Point
+type Velocity = Point
+
+--   (-) :: Position -> Position -> Position
+--   (-) (x1, y1) (x2, y2) = (x1 - x2, y1 - y2)
+--   (*) :: Position -> Position -> Position
+--   (*) (x1, y1) (x2, y2) = (x1 * x2, y1 * y2)
+--   signum :: Position -> Position
+--   signum (x, y) = (signum x, signum y)
+--   abs :: Position -> Position
+--   abs (x, y) = (abs x, abs y)
+--   negate :: Position -> Position
+--   negate (x, y) = (negate x, negate y)
+--   fromInteger :: Integer -> Position
+--   fromInteger x = (fromInteger x, fromInteger x)
 
 data ProjectileType = None | Gun | DoubleGun | Rocket
 
@@ -112,7 +126,7 @@ initialState assetlist =
           { airplaneType = Player,
             airplanePos = (-400, 0),
             airplaneSize = Size (50, 50),
-            airplaneVelocity = Velocity (5, 5),
+            airplaneVelocity = (0, 0),
             airplaneHealth = 100,
             fireRate = Single 30.0,
             timeLastShot = 0.0,
@@ -121,7 +135,7 @@ initialState assetlist =
                 { projectileType = Gun,
                   projectilePos = (0, 0),
                   projectileSize = Size (30, 30),
-                  projectileVelocity = Velocity (10, 0),
+                  projectileVelocity = (10, 0),
                   projectileDamage = Damage 30,
                   projectileOrigin = Players,
                   projectileSprite = rotate 90 $ head (reverse assetlist)
@@ -167,14 +181,14 @@ instance Collidable Projectile Projectile where
 -- Updateable
 
 updatePosition :: Position -> Velocity -> Position
-updatePosition (pX, pY) (Velocity (vX, vY)) = (pX + vX, pY + vY)
+updatePosition (pX, pY) ((vX, vY)) = (pX + vX, pY + vY)
 
-updateVelocity :: Velocity -> Velocity
-updateVelocity (Velocity (x, y)) = Velocity (update x, update y)
-  where
-    update z
-      | signum z == 1 = if z > 0.2 then z - 0.2 else 0.0
-      | otherwise = if z < -0.2 then z + 0.2 else 0.0
+-- updateVelocity :: Velocity -> Velocity
+-- updateVelocity (Velocity (x, y)) = Velocity (update x, update y)
+--   where
+--     update z
+--       | signum z == 1 = if z > 0.2 then z - 0.2 else 0.0
+--       | otherwise = if z < -0.2 then z + 0.2 else 0.0
 
 readyToShoot' :: Time -> Time -> Airplane -> (Bool, Airplane)
 readyToShoot' x t a
@@ -191,7 +205,8 @@ instance Updateable Airplane where
   -- updateAll x g = shoot (move x) g
 
   move :: Airplane -> Airplane
-  move airplane@Airplane {airplanePos = p, airplaneVelocity = v} = airplane {airplanePos = updatePosition p v, airplaneVelocity = updateVelocity v}
+  -- move airplane@Airplane {airplanePos = p, airplaneVelocity = v} = airplane {airplanePos = updatePosition p v, airplaneVelocity = updateVelocity v}
+  move airplane@Airplane {airplanePos = p, airplaneVelocity = v} = airplane {airplanePos = updatePosition p v}
 
   destroy :: [Airplane] -> [Airplane]
   destroy airplanes = filter alive airplanes
