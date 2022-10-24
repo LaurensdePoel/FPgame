@@ -23,7 +23,7 @@ render ::
 render gState =
   pictures xs
   where
-    xs = mapDraw (projectiles gState) ++ mapDraw (players gState)
+    xs = mapDraw (projectiles gState) ++ mapDraw (players gState) ++ mapDraw (enemies gState)
 
     --  The bottom and top walls.
     wall :: Float -> Picture

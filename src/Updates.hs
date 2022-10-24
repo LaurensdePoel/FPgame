@@ -22,15 +22,15 @@ readyToFire Airplane {timeLastShot = t}
 
 shoot :: Airplane -> [Projectile]
 shoot Airplane {airplanePos = p@(x, y), fireRate = r, airplaneProjectile = projectile} = case r of
-  Single x -> [projectile {projectilePos = p}]
-  Burst x -> [projectile {projectilePos = (x - px, y)}, projectile {projectilePos = p}, projectile {projectilePos = (x + px, y)}]
+  Single _ -> [projectile {projectilePos = p}]
+  Burst _ -> [projectile {projectilePos = (x - px, y)}, projectile {projectilePos = p}, projectile {projectilePos = (x - px - px, y)}] -- TODO: update: - or + is actually depended on if its a player or enemy
     where
       (Size (px, _)) = projectileSize projectile
 
 -- ToDO: handle airplane collides screenbox
 updateAirplanes :: GameState -> GameState
--- updateAirplanes gs@GameState {players = players, enemies = enemies, projectiles = projectiles} = gs {players = players', enemies = enemies', projectiles = newProjectiles ++ projectiles}  -- maybe moves, update fire rate, maybe add projectile to projectile list, take damage if collides with enemy plane(also other object) , maybe destroy
-updateAirplanes gs@Game {players = players, enemies = enemies, projectiles = projectiles} = gs {players = updatedPlayers, enemies = updatedEnemies, projectiles = newProjectiles ++ projectiles} -- maybe moves, update fire rate, maybe add projectile to projectile list, take damage if collides with enemy plane(also other object) , maybe destroy
+updateAirplanes gs@Game {players = players, enemies = enemies, projectiles = projectiles} = gs {players = players', enemies = enemies', projectiles = newProjectiles ++ projectiles} -- maybe moves, update fire rate, maybe add projectile to projectile list, take damage if collides with enemy plane(also other object) , maybe destroy
+-- updateAirplanes gs@Game {players = players, enemies = enemies, projectiles = projectiles} = gs {players = updatedPlayers, enemies = updatedEnemies, projectiles = newProjectiles ++ projectiles} -- maybe moves, update fire rate, maybe add projectile to projectile list, take damage if collides with enemy plane(also other object) , maybe destroy
   where
     updatedPlayers :: [Airplane]
     updatedPlayers = map (updateFireRate . move) players
@@ -41,23 +41,24 @@ updateAirplanes gs@Game {players = players, enemies = enemies, projectiles = pro
     newProjectiles :: [Projectile]
     newProjectiles = concatMap shoot $ filter readyToFire (updatedPlayers ++ updatedEnemies)
 
--- (players', enemies') = checkCollisions updatedPlayers updatedEnemies
+    (players', enemies') = checkCollisions updatedPlayers updatedEnemies
 
--- checkCollisions :: => [Airplane] -> [Airplane] -> ([Airplane],[Airplane]) -- ToDo: makes this function better/ less ugly. Only works when there are two players
--- checkCollisions pps pes = ([p1,p2], pes'')       -- unzip . map (`checkCollisions'` pes) pps  -- [(Airplane,[Airplane]), (Airplane,[Airplane])] -- [[Airplane],[Airplane]]
---     where
---         (p1, pes') = checkCollisions' (head pps) pes
---         (p2, pes'') = checkCollisions' (tail pps) pes'
-
---         checkCollisions' :: Airplane -> [Airplane] -> (Airplane,[Airplane])
---         checkCollisions' _ [] = ([],[])
---         checkCollisions' pp (pe:pes) = case pp `collides` pe of
---                                                 True -> let (pp',pes') = checkCollisions' pp pes in ((damage (airplaneHealth pp) pp'), (airplaneHealth pe):pes')
---                                                 False -> let (pp',pes') = checkCollisions' pp pes in (pp',(pe:pes'))
+    checkCollisions :: [Airplane] -> [Airplane] -> ([Airplane], [Airplane]) -- ToDo: makes this function better/ less ugly.
+    checkCollisions [] pes = ([], pes)
+    checkCollisions (pp : ps) pes = let (pp', pes') = checkCollisions ps pes in let (pList, eList) = pp `checkCollisions'` pes' in (pList : pp', eList)
+      where
+        checkCollisions' :: Airplane -> [Airplane] -> (Airplane, [Airplane])
+        checkCollisions' p [] = (p, [])
+        checkCollisions' pp (pe : pes) = case pp `collides` pe of
+          True -> let (pp', pes') = checkCollisions' pp pes in ((damage (airplaneHealth pp') pp'), (damage (airplaneHealth pe) pe : pes'))
+          False -> let (pp', pes') = checkCollisions' pp pes in (pp', (pe : pes'))
 
 -- ToDO: handle all updates ||||| for now it only checks if projectile is still on screen
 updateProjectiles :: GameState -> GameState
-updateProjectiles gs@Game {window = w, projectiles = projectiles} = gs {projectiles = (filter (`collides` w) (map move projectiles))}
+updateProjectiles gs@Game {window = w, players = players, enemies = enemies, projectiles = projectiles} = gs {projectiles = (filter (`collides` w) (map move projectiles))} -- change bullet health to zero
+-- where
+
+--   projectiles' = map (\p -> if p ) projectiles
 
 -- destroys all objects with zero health
 destroyObjects :: GameState -> GameState
