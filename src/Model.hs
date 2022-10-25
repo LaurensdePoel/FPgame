@@ -86,8 +86,7 @@ data GameState = Game
     -- level :: Level,
     projectiles :: [Projectile],
     -- powerUP :: [PowerUp],
-    pressedKeys :: S.Set Key,
-    window :: ScreenBox
+    pressedKeys :: S.Set Key
   }
 
 -- TODO add to glabal file
@@ -175,9 +174,7 @@ initialState assetlist =
         ],
       tmpInt = 0,
       pressedKeys = S.empty,
-      projectiles = [],
-      -- TODO add check that pos x1 < x2 || neg x1 > x2 and pos y1 > y2 || neg y1 < y2
-      window = ScreenBox ((-400.0, 300.0), (400.0, -300.0))
+      projectiles = []
     }
 
 getTexture :: String -> Map String Picture -> Picture

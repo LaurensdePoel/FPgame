@@ -64,7 +64,7 @@ readyToFire Airplane {timeLastShot = t}
 shoot :: Airplane -> [Projectile]
 shoot Airplane {airplanePos = (x, y), fireRate = r, airplaneProjectile = projectile} = case r of
   Single _ -> [projectile {projectilePos = (x + gunOffset, y - gunOffset)}]
-  Burst _ -> [projectile {projectilePos = (x - px + gunOffset, y - gunOffset)}, projectile {projectilePos = (x + gunOffset, y - gunOffset)}, projectile {projectilePos = (x - px - px + gunOffset, y - gunOffset)}] -- TODO: update: - or + is actually depended on if its a player or enemy
+  Burst _ -> [projectile {projectilePos = (x - px - 5 + gunOffset, y - gunOffset)}, projectile {projectilePos = (x + gunOffset, y - gunOffset)}, projectile {projectilePos = (x - px - px - 10 + gunOffset, y - gunOffset)}] -- TODO: update: - or + is actually depended on if its a player or enemy
     where
       (Size (px, _)) = projectileSize projectile
 
@@ -101,9 +101,9 @@ updateProjectiles gs@Game {players = players, enemies = enemies, projectiles = p
     projectiles' = map (move) projectiles
 
     updatedEnemies :: [Airplane]
-    updatedEnemies = map (\enemy -> foldr (\projectile r -> if projectile `collides` enemy then damage (projectileDamage projectile) r else r) enemy projectiles) enemies
+    updatedEnemies = map (\enemy -> foldr (\projectile r -> if projectile `collides` enemy then damage (projectileDamage projectile) r else r) enemy projectiles') enemies
     updatedPlayers :: [Airplane]
-    updatedPlayers = map (\player -> foldr (\projectile r -> if projectile `collides` player then damage (projectileDamage projectile) r else r) player projectiles) players
+    updatedPlayers = map (\player -> foldr (\projectile r -> if projectile `collides` player then damage (projectileDamage projectile) r else r) player projectiles') players
     updatedProjectiles :: [Projectile]
     updatedProjectiles = map (\projectile -> foldr (\enemy r -> if projectile `collides` enemy then damage (projectileHealth projectile) r else r) projectile enemies) projectiles'
     updatedProjectiles2 = map (\projectile -> foldr (\player r -> if projectile `collides` player then damage (projectileHealth projectile) r else r) projectile players) updatedProjectiles
@@ -114,4 +114,4 @@ destroyObjects :: GameState -> GameState
 destroyObjects gs@Game {players = players, enemies = enemies, projectiles = projectiles} = gs {players = destroyFromList players, enemies = destroyFromList enemies, projectiles = destroyFromList projectiles}
 
 updateGameState :: GameState -> GameState
-updateGameState = destroyObjects . updateProjectiles . updateAirplanes
+updateGameState = destroyObjects . updateAirplanes . updateProjectiles
