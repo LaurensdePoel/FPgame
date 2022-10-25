@@ -5,6 +5,7 @@ import Collidable
 import qualified Data.Set as S
 import Graphics.Gloss.Interface.IO.Interact
 import Model
+import Timeable
 import Updateable
 
 -- Updates velocity based on pressed keys. Foldr loops trough every key and add new velocity to current Airplane
@@ -47,20 +48,6 @@ addVelocityBasedOnKey key airplane@Airplane {airplaneType = planeType} =
     maxVel = 12.0
     velocityStep = 0.6
 
-updateFireRate :: Airplane -> Airplane
-updateFireRate airplane@Airplane {fireRate = r, timeLastShot = t} = case r of
-  Single x
-    | t > x -> airplane {timeLastShot = 0.0}
-    | otherwise -> airplane {timeLastShot = t + 1.0}
-  Burst x
-    | t > x -> airplane {timeLastShot = 0.0}
-    | otherwise -> airplane {timeLastShot = t + 1.0}
-
-readyToFire :: Airplane -> Bool
-readyToFire Airplane {timeLastShot = t}
-  | t == 0.0 = True
-  | otherwise = False
-
 shoot :: Airplane -> [Projectile]
 shoot Airplane {airplanePos = (x, y), fireRate = r, airplaneProjectile = projectile} = case r of
   Single _ -> [projectile {projectilePos = (x + gunOffset, y - gunOffset)}]
@@ -74,13 +61,13 @@ updateAirplanes :: GameState -> GameState
 updateAirplanes gs@Game {players = players, enemies = enemies, projectiles = projectiles, pressedKeys = pressedKeys} = gs {players = players', enemies = enemies', projectiles = newProjectiles ++ projectiles} -- maybe moves, update fire rate, maybe add projectile to projectile list, take damage if collides with enemy plane(also other object) , maybe destroy
   where
     updatedPlayers :: [Airplane]
-    updatedPlayers = map (updateFireRate . move . updatePlayerVelocity pressedKeys) players
+    updatedPlayers = map (updateTime . move . updatePlayerVelocity pressedKeys) players
 
     updatedEnemies :: [Airplane]
-    updatedEnemies = map (updateFireRate . move) enemies
+    updatedEnemies = map (updateTime . move) enemies
 
     newProjectiles :: [Projectile]
-    newProjectiles = concatMap shoot $ filter readyToFire (updatedPlayers ++ updatedEnemies)
+    newProjectiles = concatMap shoot $ filter readyToExecute (updatedPlayers ++ updatedEnemies)
 
     (players', enemies') = checkCollisions updatedPlayers updatedEnemies
 
