@@ -62,9 +62,9 @@ readyToFire Airplane {timeLastShot = t}
   | otherwise = False
 
 shoot :: Airplane -> [Projectile]
-shoot Airplane {airplanePos = p@(x, y), fireRate = r, airplaneProjectile = projectile} = case r of
-  Single _ -> [projectile {projectilePos = p}]
-  Burst _ -> [projectile {projectilePos = (x - px, y)}, projectile {projectilePos = p}, projectile {projectilePos = (x - px - px, y)}] -- TODO: update: - or + is actually depended on if its a player or enemy
+shoot Airplane {airplanePos = (x, y), fireRate = r, airplaneProjectile = projectile} = case r of
+  Single _ -> [projectile {projectilePos = (x + gunOffset, y - gunOffset)}]
+  Burst _ -> [projectile {projectilePos = (x - px + gunOffset, y - gunOffset)}, projectile {projectilePos = (x + gunOffset, y - gunOffset)}, projectile {projectilePos = (x - px - px + gunOffset, y - gunOffset)}] -- TODO: update: - or + is actually depended on if its a player or enemy
     where
       (Size (px, _)) = projectileSize projectile
 
