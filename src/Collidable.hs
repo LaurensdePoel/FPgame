@@ -35,14 +35,6 @@ instance Collidable Airplane Airplane where
       | type1 == Player2 && type2 == Player1 = False
       | type1 == Player1 || type1 == Player2 = checkCollision (toHitBox pos1 size1) (toHitBox pos2 size2)
       | otherwise = False
-
-instance Collidable Airplane ScreenBox where
-  collides
-    Airplane {airplaneType = t, airplanePos = pos@(px, _), airplaneSize = size}
-    (ScreenBox screenBox@((x, _), _))
-      | t == Player1 || t == Player2 = checkCollision (toHitBox pos size) screenBox
-      | otherwise = px < x
-
 instance Collidable Projectile Airplane where
   collides
     Projectile {projectileOrigin = o, projectilePos = pPos, projectileSize = pSize}
@@ -57,9 +49,3 @@ instance Collidable Projectile Projectile where
     Projectile {projectileOrigin = o2, projectilePos = pos2, projectileSize = size2}
       | o1 /= o2 = checkCollision (toHitBox pos1 size1) (toHitBox pos2 size2)
       | otherwise = False
-
-instance Collidable Projectile ScreenBox where
-  collides
-    Projectile {projectilePos = pos, projectileSize = size}
-    (ScreenBox screenBox) =
-      checkCollision (toHitBox pos size) screenBox

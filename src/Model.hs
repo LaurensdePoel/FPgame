@@ -15,7 +15,7 @@ data Status = InMenu | InGame
 
 type Position = Point
 
---This is unnecessary
+-- This is unnecessary
 instance Num Point where
   (+) :: Point -> Point -> Point
   (+) (x1, y1) (x2, y2) = (x1 + x2, y1 + y2)
@@ -43,7 +43,7 @@ type Velocity = Point
 
 data ProjectileType = None | Gun | DoubleGun | Rocket
 
-newtype Damage = Damage Int
+type Damage = Int
 
 data Origin = Players | Enemies deriving (Eq)
 
@@ -54,6 +54,22 @@ newtype ScreenBox = ScreenBox (Point, Point)
 
 data AirPlaneType = Player1 | Player2 | Fighter | Kamikaze deriving (Eq)
 
+data PowerUpTypes = HealthPack | PowerPack | Shield
+
+data PowerUpValue = NoValue | Value Int
+
+data PowerUpState = WorldSpace | PickedUp
+
+data PowerUp = PowerUp
+  { powerUpPos :: Position,
+    powerUpType :: PowerUpTypes,
+    powerUpState :: PowerUpState,
+    timeUntilDespawn :: Time,
+    powerUpDuration :: Time,
+    powerUpValue :: PowerUpValue,
+    powerUpSprite :: Picture
+  }
+
 data Airplane = Airplane
   { airplaneType :: AirPlaneType,
     airplanePos :: Position,
@@ -63,7 +79,8 @@ data Airplane = Airplane
     fireRate :: FireRate,
     timeLastShot :: Time,
     airplaneProjectile :: Projectile,
-    airplaneSprite :: Picture
+    airplaneSprite :: Picture,
+    airplanePowerUps :: [PowerUp]
   }
 
 data Projectile = Projectile
@@ -85,12 +102,11 @@ data GameState = Game
     enemies :: [Airplane],
     -- level :: Level,
     projectiles :: [Projectile],
-    -- powerUP :: [PowerUp],
-    pressedKeys :: S.Set Key,
-    window :: ScreenBox
+    powerUps :: [PowerUp],
+    pressedKeys :: S.Set Key
   }
 
---TODO add to glabal file
+-- TODO add to glabal file
 projectileSizeXY, airplaneSizeXY, gunOffset :: Float
 projectileSizeXY = 16.0
 airplaneSizeXY = 32.0
@@ -114,6 +130,7 @@ initialState assetlist =
               airplaneHealth = 100,
               fireRate = Single 30.0,
               timeLastShot = 0.0,
+              airplanePowerUps = [],
               airplaneProjectile =
                 Projectile
                   { projectileType = Gun,
@@ -121,7 +138,7 @@ initialState assetlist =
                     projectileSize = projectileSizeVar,
                     projectileVelocity = (10, 0),
                     projectileHealth = 1,
-                    projectileDamage = Damage 30,
+                    projectileDamage = 30,
                     projectileOrigin = Players,
                     projectileSprite = flip fixImageOrigin projectileSizeVar $ rotate 90 $ getTexture "bullet" assetlist
                   },
@@ -135,6 +152,7 @@ initialState assetlist =
               airplaneHealth = 100,
               fireRate = Single 30.0,
               timeLastShot = 0.0,
+              airplanePowerUps = [],
               airplaneProjectile =
                 Projectile
                   { projectileType = Gun,
@@ -142,7 +160,7 @@ initialState assetlist =
                     projectileSize = projectileSizeVar,
                     projectileVelocity = (10, 0),
                     projectileHealth = 1,
-                    projectileDamage = Damage 30,
+                    projectileDamage = 30,
                     projectileOrigin = Players,
                     projectileSprite = flip fixImageOrigin projectileSizeVar $ rotate 90 $ getTexture "bullet" assetlist
                   },
@@ -156,9 +174,10 @@ initialState assetlist =
               airplanePos = (-10, -180),
               airplaneSize = airplaneSizeVar,
               airplaneVelocity = (0, 0),
-              airplaneHealth = 70,
+              airplaneHealth = 100,
               fireRate = Burst 120.0,
               timeLastShot = 0.0,
+              airplanePowerUps = [],
               airplaneProjectile =
                 Projectile
                   { projectileType = Gun,
@@ -166,7 +185,7 @@ initialState assetlist =
                     projectileSize = projectileSizeVar,
                     projectileVelocity = (-10, 0),
                     projectileHealth = 1,
-                    projectileDamage = Damage 10,
+                    projectileDamage = 10,
                     projectileOrigin = Enemies,
                     projectileSprite = flip fixImageOrigin projectileSizeVar $ rotate (-90) $ getTexture "bullet" assetlist
                   },
@@ -176,7 +195,17 @@ initialState assetlist =
       tmpInt = 0,
       pressedKeys = S.empty,
       projectiles = [],
-      window = ScreenBox ((-200.0, 200.0), (200.0, -200.0))
+      powerUps =
+        [ PowerUp
+            { powerUpPos = (0, 0),
+              powerUpType = PowerPack,
+              powerUpState = WorldSpace,
+              timeUntilDespawn = 1000.0,
+              powerUpDuration = 600.0,
+              powerUpValue = Value 5,
+              powerUpSprite = flip fixImageOrigin airplaneSizeVar $ getTexture "healthPack" assetlist
+            }
+        ]
     }
 
 getTexture :: String -> Map String Picture -> Picture
@@ -184,6 +213,6 @@ getTexture s m = case Map.lookup s m of
   Nothing -> rotate (-90) $ Scale 0.25 0.25 (color red $ Text "error")
   Just x -> x
 
---TODO move to view and fix apply to all images when loading for the first time
+-- TODO move to view and fix apply to all images when loading for the first time
 fixImageOrigin :: Picture -> Size -> Picture
 fixImageOrigin pic (Size (x, y)) = translate (x * 0.5) (y * (-0.5)) pic
