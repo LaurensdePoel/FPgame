@@ -16,9 +16,7 @@ import View
 --         frame :: Flaot -> Picture
 --         frame seconds = render(render initialState)
 
-width, height, offset :: Int
-width = 1024
-height = 768
+offset :: Int
 offset = 100
 
 main :: IO ()
@@ -28,16 +26,17 @@ main = do
   tile1BMP <- loadBMP "assets/tiles/tile_01.bmp"
   projectile1BMP <- loadBMP "assets/projectiles/projectile_01.bmp"
   let -- Or FullScreen
-  -- Background color
-  -- Frames per second
-  -- Initial state
-  -- View function
-  -- Event function
-  -- Step function
-  -- background :: Color
-  -- background = black
+      -- Background color
+      -- Frames per second
+      -- Initial state
+      -- View function
+      -- Event function
+      -- Step function
+      -- background :: Color
+      -- background = black
+
   playIO
-    (InWindow "Nice Window" (width, height) (offset, offset))
+    (InWindow "Nice Window" (1124, 868) (offset, offset))
     black
     fps
     (initialState (Map.fromList [("player1", player1BMP), ("player2", player2BMP), ("bullet", projectile1BMP)]))

@@ -15,7 +15,7 @@ data Status = InMenu | InGame
 
 type Position = Point
 
---This is unnecessary
+-- This is unnecessary
 instance Num Point where
   (+) :: Point -> Point -> Point
   (+) (x1, y1) (x2, y2) = (x1 + x2, y1 + y2)
@@ -43,7 +43,7 @@ type Velocity = Point
 
 data ProjectileType = None | Gun | DoubleGun | Rocket
 
-newtype Damage = Damage Int
+type Damage = Int
 
 data Origin = Players | Enemies deriving (Eq)
 
@@ -113,7 +113,7 @@ initialState assetlist =
                     projectileSize = Size (30, 30),
                     projectileVelocity = (10, 0),
                     projectileHealth = 1,
-                    projectileDamage = Damage 30,
+                    projectileDamage = 30,
                     projectileOrigin = Players,
                     projectileSprite = rotate 90 $ getTexture "bullet" assetlist
                   },
@@ -134,7 +134,7 @@ initialState assetlist =
                     projectileSize = Size (1, 1),
                     projectileVelocity = (10, 0),
                     projectileHealth = 1,
-                    projectileDamage = Damage 30,
+                    projectileDamage = 30,
                     projectileOrigin = Players,
                     projectileSprite = rotate 90 $ getTexture "bullet" assetlist
                   },
@@ -148,7 +148,7 @@ initialState assetlist =
               airplanePos = (-10, -200),
               airplaneSize = Size (100, 100),
               airplaneVelocity = (0, 0),
-              airplaneHealth = 70,
+              airplaneHealth = 100,
               fireRate = Burst 120.0,
               timeLastShot = 0.0,
               airplaneProjectile =
@@ -158,7 +158,7 @@ initialState assetlist =
                     projectileSize = Size (30, 30),
                     projectileVelocity = (-10, 0),
                     projectileHealth = 1,
-                    projectileDamage = Damage 10,
+                    projectileDamage = 10,
                     projectileOrigin = Enemies,
                     projectileSprite = rotate (-90) $ getTexture "bullet" assetlist
                   },
@@ -168,8 +168,8 @@ initialState assetlist =
       tmpInt = 0,
       pressedKeys = S.empty,
       projectiles = [],
-      --TODO add check that pos x1 < x2 || neg x1 > x2 and pos y1 > y2 || neg y1 < y2
-      window = ScreenBox ((-200.0, 200.0), (200.0, -200.0))
+      -- TODO add check that pos x1 < x2 || neg x1 > x2 and pos y1 > y2 || neg y1 < y2
+      window = ScreenBox ((-400.0, 300.0), (400.0, -300.0))
     }
 
 getTexture :: String -> Map String Picture -> Picture
