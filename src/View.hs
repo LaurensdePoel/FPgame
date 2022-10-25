@@ -23,17 +23,4 @@ render ::
 render gState =
   pictures xs
   where
-    xs = mapDraw (projectiles gState) ++ mapDraw (players gState) ++ mapDraw (enemies gState)
-
-    --  The bottom and top walls.
-    wall :: Float -> Picture
-    wall offset =
-      translate 0 offset $
-        color wallColor $
-          rectangleSolid 300 10
-
-    wallColor = greyN 0.5
-    walls = pictures [wall 200, wall (-200)]
-
--- p1Airplane :: Airplane -> Picture
--- p1Airplane (Airplane _ pos _ _ _ pic) = uncurry translate pos pic
+    xs = draw (window gState) : mapDraw (projectiles gState) ++ mapDraw (players gState)

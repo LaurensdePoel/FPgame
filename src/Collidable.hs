@@ -31,23 +31,24 @@ instance Collidable Airplane Airplane where
   collides
     Airplane {airplaneType = type1, airplanePos = pos1, airplaneSize = size1}
     Airplane {airplaneType = type2, airplanePos = pos2, airplaneSize = size2}
-      | type1 == Player && type2 == Player = False
-      | type1 == Player = checkCollision (toHitBox pos1 size1) (toHitBox pos2 size2)
+      | type1 == Player1 && type2 == Player2 = False
+      | type1 == Player2 && type2 == Player1 = False
+      | type1 == Player1 || type1 == Player2 = checkCollision (toHitBox pos1 size1) (toHitBox pos2 size2)
       | otherwise = False
 
 instance Collidable Airplane ScreenBox where
   collides
     Airplane {airplaneType = t, airplanePos = pos@(px, _), airplaneSize = size}
     (ScreenBox screenBox@((x, _), _))
-      | t == Player = checkCollision (toHitBox pos size) screenBox
+      | t == Player1 || t == Player2 = checkCollision (toHitBox pos size) screenBox
       | otherwise = px < x
 
 instance Collidable Projectile Airplane where
   collides
     Projectile {projectileOrigin = o, projectilePos = pPos, projectileSize = pSize}
     Airplane {airplaneType = t, airplanePos = aPos, airplaneSize = aSize}
-      | o == Players && t == Player = False
-      | o == Enemies && t /= Player = False
+      | o == Players && (t == Player1 || t == Player2) = False
+      | o == Enemies && t /= Player1 && t /= Player2 = False
       | otherwise = checkCollision (toHitBox pPos pSize) (toHitBox aPos aSize)
 
 instance Collidable Projectile Projectile where

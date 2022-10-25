@@ -4,7 +4,6 @@
 module Updateable where
 
 import Data.Maybe
-import Graphics.Gloss
 import Model
 
 -------------------------------------------------
@@ -26,10 +25,10 @@ class Updateable a where
 -------------------------------------------------
 
 updatePosition :: Position -> Velocity -> Position
-updatePosition (pX, pY) (Velocity (vX, vY)) = (pX + vX, pY + vY)
+updatePosition (pX, pY) (vX, vY) = (pX + vX, pY + vY)
 
 updateVelocity :: Velocity -> Velocity
-updateVelocity (Velocity (x, y)) = Velocity (update x, update y)
+updateVelocity (x, y) = (update x, update y)
   where
     update z
       | signum z == 1 = if z > 0.2 then z - 0.2 else 0.0

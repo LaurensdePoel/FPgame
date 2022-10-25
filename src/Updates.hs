@@ -2,9 +2,50 @@
 module Updates where
 
 import Collidable
-import Graphics.Gloss
+import qualified Data.Set as S
+import Graphics.Gloss.Interface.IO.Interact
 import Model
 import Updateable
+
+-- Updates velocity based on pressed keys. Foldr loops trough every key and add new velocity to current Airplane
+updatePlayerVelocity :: S.Set Key -> Airplane -> Airplane
+updatePlayerVelocity activeKeys airplane =
+  foldr f e activeKeys
+  where
+    f = addVelocityBasedOnKey
+    e = airplane
+
+-- If key affects velocity of the player update the current velocity
+addVelocityBasedOnKey :: Key -> Airplane -> Airplane
+addVelocityBasedOnKey key airplane@Airplane {airplaneType = planeType} =
+  case planeType of
+    Player1
+      | key == Char 'w' -> airplane {airplaneVelocity = add (0, velocityStep)}
+      | key == Char 'a' -> airplane {airplaneVelocity = add (- velocityStep, 0)}
+      | key == Char 's' -> airplane {airplaneVelocity = add (0, - velocityStep)}
+      | key == Char 'd' -> airplane {airplaneVelocity = add (velocityStep, -0)}
+      | otherwise -> airplane
+    Player2
+      | key == SpecialKey KeyUp -> airplane {airplaneVelocity = add (0, velocityStep)}
+      | key == SpecialKey KeyLeft -> airplane {airplaneVelocity = add (- velocityStep, 0)}
+      | key == SpecialKey KeyDown -> airplane {airplaneVelocity = add (0, - velocityStep)}
+      | key == SpecialKey KeyRight -> airplane {airplaneVelocity = add (velocityStep, -0)}
+      | otherwise -> airplane
+    _ -> airplane
+  where
+    add :: Velocity -> Velocity
+    add vel = checkMinMax (airplaneVelocity airplane + vel)
+    checkMinMax :: Velocity -> Velocity
+    checkMinMax orignalVel@(vX, vY)
+      | vX < minVel = (minVel, vY)
+      | vY < minVel = (vX, minVel)
+      | vX > maxVel = (maxVel, vY)
+      | vY > maxVel = (vX, maxVel)
+      | otherwise = orignalVel
+    --TODO move values below to special HS file those values are base parameters
+    minVel = -12.0
+    maxVel = 12.0
+    velocityStep = 0.6
 
 updateFireRate :: Airplane -> Airplane
 updateFireRate airplane@Airplane {fireRate = r, timeLastShot = t} = case r of
@@ -27,13 +68,13 @@ shoot Airplane {airplanePos = p@(x, y), fireRate = r, airplaneProjectile = proje
     where
       (Size (px, _)) = projectileSize projectile
 
--- ToDO: handle airplane collides screenbox
+-- TODO: handle airplane collides screenbox
 updateAirplanes :: GameState -> GameState
-updateAirplanes gs@Game {players = players, enemies = enemies, projectiles = projectiles} = gs {players = players', enemies = enemies', projectiles = newProjectiles ++ projectiles} -- maybe moves, update fire rate, maybe add projectile to projectile list, take damage if collides with enemy plane(also other object) , maybe destroy
--- updateAirplanes gs@Game {players = players, enemies = enemies, projectiles = projectiles} = gs {players = updatedPlayers, enemies = updatedEnemies, projectiles = newProjectiles ++ projectiles} -- maybe moves, update fire rate, maybe add projectile to projectile list, take damage if collides with enemy plane(also other object) , maybe destroy
+-- updateAirplanes gs@GameState {players = players, enemies = enemies, projectiles = projectiles} = gs {players = players', enemies = enemies', projectiles = newProjectiles ++ projectiles}  -- maybe moves, update fire rate, maybe add projectile to projectile list, take damage if collides with enemy plane(also other object) , maybe destroy
+updateAirplanes gs@Game {players = players, enemies = enemies, projectiles = projectiles, pressedKeys = pressedKeys} = gs {players = updatedPlayers, enemies = updatedEnemies, projectiles = newProjectiles ++ projectiles} -- maybe moves, update fire rate, maybe add projectile to projectile list, take damage if collides with enemy plane(also other object) , maybe destroy
   where
     updatedPlayers :: [Airplane]
-    updatedPlayers = map (updateFireRate . move) players
+    updatedPlayers = map (updateFireRate . move . updatePlayerVelocity pressedKeys) players
 
     updatedEnemies :: [Airplane]
     updatedEnemies = map (updateFireRate . move) enemies
