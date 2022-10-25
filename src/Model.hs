@@ -90,7 +90,15 @@ data GameState = Game
     window :: ScreenBox
   }
 
--- deriving (Show)
+-- TODO add to glabal file
+projectileSizeXY, airplaneSizeXY, gunOffset :: Float
+projectileSizeXY = 16.0
+airplaneSizeXY = 32.0
+gunOffset = airplaneSizeXY * 0.5 - projectileSizeXY * 0.5
+
+projectileSizeVar, airplaneSizeVar :: Size
+projectileSizeVar = Size (projectileSizeXY, projectileSizeXY)
+airplaneSizeVar = Size (airplaneSizeXY, airplaneSizeXY)
 
 initialState :: Map String Picture -> GameState
 initialState assetlist =
@@ -101,7 +109,7 @@ initialState assetlist =
         [ Airplane
             { airplaneType = Player1,
               airplanePos = (-400, 0),
-              airplaneSize = Size (50, 50),
+              airplaneSize = airplaneSizeVar,
               airplaneVelocity = (0, 0),
               airplaneHealth = 100,
               fireRate = Single 30.0,
@@ -110,19 +118,19 @@ initialState assetlist =
                 Projectile
                   { projectileType = Gun,
                     projectilePos = (0, 0),
-                    projectileSize = Size (30, 30),
+                    projectileSize = projectileSizeVar,
                     projectileVelocity = (10, 0),
                     projectileHealth = 1,
                     projectileDamage = 30,
                     projectileOrigin = Players,
-                    projectileSprite = rotate 90 $ getTexture "bullet" assetlist
+                    projectileSprite = flip fixImageOrigin projectileSizeVar $ rotate 90 $ getTexture "bullet" assetlist
                   },
-              airplaneSprite = rotate 90 $ getTexture "player1" assetlist
+              airplaneSprite = flip fixImageOrigin airplaneSizeVar $ rotate 90 $ getTexture "player1" assetlist
             },
           Airplane
             { airplaneType = Player2,
               airplanePos = (-200, 0),
-              airplaneSize = Size (100, 100),
+              airplaneSize = airplaneSizeVar,
               airplaneVelocity = (0, 0),
               airplaneHealth = 100,
               fireRate = Single 30.0,
@@ -131,22 +139,22 @@ initialState assetlist =
                 Projectile
                   { projectileType = Gun,
                     projectilePos = (0, 0),
-                    projectileSize = Size (1, 1),
+                    projectileSize = projectileSizeVar,
                     projectileVelocity = (10, 0),
                     projectileHealth = 1,
                     projectileDamage = 30,
                     projectileOrigin = Players,
-                    projectileSprite = rotate 90 $ getTexture "bullet" assetlist
+                    projectileSprite = flip fixImageOrigin projectileSizeVar $ rotate 90 $ getTexture "bullet" assetlist
                   },
-              airplaneSprite = rotate 90 $ getTexture "player2" assetlist
+              airplaneSprite = flip fixImageOrigin airplaneSizeVar $ rotate 90 $ getTexture "player2" assetlist
             }
         ],
       enemies =
         [ -- tmp enemy
           Airplane
             { airplaneType = Fighter,
-              airplanePos = (-10, -200),
-              airplaneSize = Size (100, 100),
+              airplanePos = (-10, -180),
+              airplaneSize = airplaneSizeVar,
               airplaneVelocity = (0, 0),
               airplaneHealth = 100,
               fireRate = Burst 120.0,
@@ -155,14 +163,14 @@ initialState assetlist =
                 Projectile
                   { projectileType = Gun,
                     projectilePos = (0, 0),
-                    projectileSize = Size (30, 30),
+                    projectileSize = projectileSizeVar,
                     projectileVelocity = (-10, 0),
                     projectileHealth = 1,
                     projectileDamage = 10,
                     projectileOrigin = Enemies,
-                    projectileSprite = rotate (-90) $ getTexture "bullet" assetlist
+                    projectileSprite = flip fixImageOrigin projectileSizeVar $ rotate (-90) $ getTexture "bullet" assetlist
                   },
-              airplaneSprite = rotate (-90) $ getTexture "player1" assetlist
+              airplaneSprite = flip fixImageOrigin airplaneSizeVar $ rotate (-90) $ getTexture "player1" assetlist
             }
         ],
       tmpInt = 0,
@@ -176,3 +184,7 @@ getTexture :: String -> Map String Picture -> Picture
 getTexture s m = case Map.lookup s m of
   Nothing -> rotate (-90) $ Scale 0.25 0.25 (color red $ Text "error")
   Just x -> x
+
+-- TODO move to view and fix apply to all images when loading for the first time
+fixImageOrigin :: Picture -> Size -> Picture
+fixImageOrigin pic (Size (x, y)) = translate (x * 0.5) (y * (-0.5)) pic
