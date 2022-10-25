@@ -23,7 +23,7 @@ render ::
 render gState =
   pictures xs
   where
-    xs = draw (window gState) : mapDraw (projectiles gState) ++ mapDraw (players gState) ++ points
+    xs = draw (window gState) : mapDraw (projectiles gState) ++ mapDraw (players gState) ++ mapDraw (enemies gState) ++ points
 
     points = [point 0 0, point 200 200, point 200 (-200), point (-200) (-200), point (-200) 200]
     point x y = translate x y $ color red $ rectangleSolid 1 1

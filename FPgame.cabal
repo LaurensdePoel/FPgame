@@ -32,10 +32,10 @@ synopsis:           First Haskell Game
 -- license:            None
 
 -- The package author(s).
-author:             Laurens de Poel
+author:             Laurens de Poel, Mark Gasse
 
 -- An email address to which users can send suggestions, bug reports, and patches.
-maintainer:         l.m.depoel@students.uu.nl
+maintainer:         l.m.depoel@students.uu.nl, m.gasse@students.uu.nl
 
 -- A copyright notice.
 -- copyright:
