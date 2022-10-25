@@ -27,5 +27,3 @@ render gState =
 
     points = [point 0 0, point 200 200, point 200 (-200), point (-200) (-200), point (-200) 200]
     point x y = translate x y $ color red $ rectangleSolid 1 1
-    points = [point 0 0, point 200 200, point 200 (-200), point (-200) (-200), point (-200) 200]
-    point x y = translate x y $ color red $ rectangleSolid 1 1

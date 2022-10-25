@@ -122,7 +122,7 @@ initialState assetlist =
           Airplane
             { airplaneType = Player2,
               airplanePos = (-200, 0),
-              airplaneSize = Size (50, 50),
+              airplaneSize = Size (100, 100),
               airplaneVelocity = (0, 0),
               airplaneHealth = 100,
               fireRate = Single 30.0,
@@ -131,7 +131,7 @@ initialState assetlist =
                 Projectile
                   { projectileType = Gun,
                     projectilePos = (0, 0),
-                    projectileSize = Size (30, 30),
+                    projectileSize = Size (1, 1),
                     projectileVelocity = (10, 0),
                     projectileHealth = 1,
                     projectileDamage = Damage 30,
@@ -146,7 +146,7 @@ initialState assetlist =
           Airplane
             { airplaneType = Fighter,
               airplanePos = (-10, -200),
-              airplaneSize = Size (50, 50),
+              airplaneSize = Size (100, 100),
               airplaneVelocity = (0, 0),
               airplaneHealth = 70,
               fireRate = Burst 120.0,
