@@ -23,4 +23,4 @@ render ::
 render gState =
   pictures xs
   where
-    xs = draw (window gState) : mapDraw (projectiles gState) ++ mapDraw (players gState)
+    xs = draw (window gState) : mapDraw (projectiles gState) ++ mapDraw (players gState) ++ mapDraw (enemies gState)
