@@ -39,7 +39,7 @@ main = do
     (InWindow "Nice Window" (1124, 868) (offset, offset))
     black
     fps
-    (initialState (Map.fromList [("player1", player1BMP), ("player2", player2BMP), ("bullet", projectile1BMP)]))
+    (initialState (Map.fromList [("player1", player1BMP), ("player2", player2BMP), ("bullet", projectile1BMP), ("healthPack", tile1BMP)]))
     view
     input
     step

@@ -100,5 +100,8 @@ updateProjectiles gs@Game {players = players, enemies = enemies, projectiles = p
 destroyObjects :: GameState -> GameState
 destroyObjects gs@Game {players = players, enemies = enemies, projectiles = projectiles} = gs {players = destroyFromList players, enemies = destroyFromList enemies, projectiles = destroyFromList projectiles}
 
+updatePowerUps :: GameState -> GameState
+updatePowerUps gs@Game {powerUps = powerUps'} = gs {powerUps = map (updateTime) powerUps'}
+
 updateGameState :: GameState -> GameState
-updateGameState = destroyObjects . updateAirplanes . updateProjectiles
+updateGameState = destroyObjects . updateAirplanes . updateProjectiles . updatePowerUps

@@ -54,6 +54,22 @@ newtype ScreenBox = ScreenBox (Point, Point)
 
 data AirPlaneType = Player1 | Player2 | Fighter | Kamikaze deriving (Eq)
 
+data PowerUpTypes = HealthPack | PowerPack | Shield
+
+data PowerUpValue = NoValue | Value Int
+
+data PowerUpState = WorldSpace | PickedUp
+
+data PowerUp = PowerUp
+  { powerUpPos :: Position,
+    powerUpType :: PowerUpTypes,
+    powerUpState :: PowerUpState,
+    timeUntilDespawn :: Time,
+    powerUpDuration :: Time,
+    powerUpValue :: PowerUpValue,
+    powerUpSprite :: Picture
+  }
+
 data Airplane = Airplane
   { airplaneType :: AirPlaneType,
     airplanePos :: Position,
@@ -63,7 +79,8 @@ data Airplane = Airplane
     fireRate :: FireRate,
     timeLastShot :: Time,
     airplaneProjectile :: Projectile,
-    airplaneSprite :: Picture
+    airplaneSprite :: Picture,
+    airplanePowerUps :: [PowerUp]
   }
 
 data Projectile = Projectile
@@ -85,7 +102,7 @@ data GameState = Game
     enemies :: [Airplane],
     -- level :: Level,
     projectiles :: [Projectile],
-    -- powerUP :: [PowerUp],
+    powerUps :: [PowerUp],
     pressedKeys :: S.Set Key
   }
 
@@ -113,6 +130,7 @@ initialState assetlist =
               airplaneHealth = 100,
               fireRate = Single 30.0,
               timeLastShot = 0.0,
+              airplanePowerUps = [],
               airplaneProjectile =
                 Projectile
                   { projectileType = Gun,
@@ -134,6 +152,7 @@ initialState assetlist =
               airplaneHealth = 100,
               fireRate = Single 30.0,
               timeLastShot = 0.0,
+              airplanePowerUps = [],
               airplaneProjectile =
                 Projectile
                   { projectileType = Gun,
@@ -158,6 +177,7 @@ initialState assetlist =
               airplaneHealth = 100,
               fireRate = Burst 120.0,
               timeLastShot = 0.0,
+              airplanePowerUps = [],
               airplaneProjectile =
                 Projectile
                   { projectileType = Gun,
@@ -174,7 +194,18 @@ initialState assetlist =
         ],
       tmpInt = 0,
       pressedKeys = S.empty,
-      projectiles = []
+      projectiles = [],
+      powerUps =
+        [ PowerUp
+            { powerUpPos = (0, 0),
+              powerUpType = PowerPack,
+              powerUpState = WorldSpace,
+              timeUntilDespawn = 1000.0,
+              powerUpDuration = 600.0,
+              powerUpValue = Value 5,
+              powerUpSprite = flip fixImageOrigin airplaneSizeVar $ getTexture "healthPack" assetlist
+            }
+        ]
     }
 
 getTexture :: String -> Map String Picture -> Picture
