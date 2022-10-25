@@ -12,9 +12,6 @@ view = return . render
 viewPure :: GameState -> Picture
 viewPure = undefined
 
--- drawAirplane :: Airplane -> Picture
--- drawAirplane Airplane {airplanePos = pos, airplaneSprite = sprite} = uncurry translate pos sprite
-
 render ::
   -- | The game state to render.
   GameState ->
