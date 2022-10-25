@@ -41,19 +41,6 @@ type Time = Float
 
 type Velocity = Point
 
---   (-) :: Position -> Position -> Position
---   (-) (x1, y1) (x2, y2) = (x1 - x2, y1 - y2)
---   (*) :: Position -> Position -> Position
---   (*) (x1, y1) (x2, y2) = (x1 * x2, y1 * y2)
---   signum :: Position -> Position
---   signum (x, y) = (signum x, signum y)
---   abs :: Position -> Position
---   abs (x, y) = (abs x, abs y)
---   negate :: Position -> Position
---   negate (x, y) = (negate x, negate y)
---   fromInteger :: Integer -> Position
---   fromInteger x = (fromInteger x, fromInteger x)
-
 data ProjectileType = None | Gun | DoubleGun | Rocket
 
 newtype Damage = Damage Int
@@ -181,7 +168,8 @@ initialState assetlist =
       tmpInt = 0,
       pressedKeys = S.empty,
       projectiles = [],
-      window = ScreenBox ((-300.0, 300.0), (300.0, -300.0))
+      --TODO add check that pos x1 < x2 || neg x1 > x2 and pos y1 > y2 || neg y1 < y2
+      window = ScreenBox ((-200.0, 200.0), (200.0, -200.0))
     }
 
 getTexture :: String -> Map String Picture -> Picture
