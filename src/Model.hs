@@ -7,26 +7,29 @@
 module Model where
 
 import Data.Map as Map
+import qualified Data.Set as S
 import Graphics.Gloss
+import Graphics.Gloss.Interface.IO.Interact (Key)
 
 data Status = InMenu | InGame
 
 type Position = Point
 
-instance Num Position where
-  (+) :: Position -> Position -> Position
+--This is unnecessary
+instance Num Point where
+  (+) :: Point -> Point -> Point
   (+) (x1, y1) (x2, y2) = (x1 + x2, y1 + y2)
-  (-) :: Position -> Position -> Position
+  (-) :: Point -> Point -> Point
   (-) (x1, y1) (x2, y2) = (x1 - x2, y1 - y2)
-  (*) :: Position -> Position -> Position
+  (*) :: Point -> Point -> Point
   (*) (x1, y1) (x2, y2) = (x1 * x2, y1 * y2)
-  signum :: Position -> Position
+  signum :: Point -> Point
   signum (x, y) = (signum x, signum y)
-  abs :: Position -> Position
+  abs :: Point -> Point
   abs (x, y) = (abs x, abs y)
-  negate :: Position -> Position
+  negate :: Point -> Point
   negate (x, y) = (negate x, negate y)
-  fromInteger :: Integer -> Position
+  fromInteger :: Integer -> Point
   fromInteger x = (fromInteger x, fromInteger x)
 
 fps :: Int
@@ -36,7 +39,20 @@ newtype Size = Size Point
 
 type Time = Float
 
-newtype Velocity = Velocity Point
+type Velocity = Point
+
+--   (-) :: Position -> Position -> Position
+--   (-) (x1, y1) (x2, y2) = (x1 - x2, y1 - y2)
+--   (*) :: Position -> Position -> Position
+--   (*) (x1, y1) (x2, y2) = (x1 * x2, y1 * y2)
+--   signum :: Position -> Position
+--   signum (x, y) = (signum x, signum y)
+--   abs :: Position -> Position
+--   abs (x, y) = (abs x, abs y)
+--   negate :: Position -> Position
+--   negate (x, y) = (negate x, negate y)
+--   fromInteger :: Integer -> Position
+--   fromInteger x = (fromInteger x, fromInteger x)
 
 data ProjectileType = None | Gun | DoubleGun | Rocket
 
@@ -48,6 +64,8 @@ data Origin = Players | Enemies deriving (Eq)
 data FireRate = Single Time | Burst Time
 
 newtype ScreenBox = ScreenBox (Point, Point)
+
+data AirPlaneType = Player1 | Player2 | Fighter | Kamikaze deriving (Eq)
 
 -- class Collidable a b where
 --   collides :: a -> b -> Bool
@@ -76,8 +94,6 @@ data Airplane = Airplane
     airplaneSprite :: Picture
   }
 
-data AirPlaneType = Player | Fighter | Kamikaze deriving (Eq)
-
 data Projectile = Projectile
   { projectileType :: ProjectileType,
     projectilePos :: Position,
@@ -97,8 +113,8 @@ data GameState = Game
     enemies :: [Airplane],
     -- level :: Level,
     projectiles :: [Projectile],
-    -- players :: [Player],
     -- powerUP :: [PowerUp],
+    pressedKeys :: S.Set Key,
     window :: ScreenBox
   }
 
@@ -111,10 +127,10 @@ initialState assetlist =
       status = InGame,
       players =
         [ Airplane
-            { airplaneType = Player,
+            { airplaneType = Player1,
               airplanePos = (-400, 0),
               airplaneSize = Size (50, 50),
-              airplaneVelocity = Velocity (5, 5),
+              airplaneVelocity = (0, 0),
               airplaneHealth = 100,
               fireRate = Single 30.0,
               timeLastShot = 0.0,
@@ -123,19 +139,41 @@ initialState assetlist =
                   { projectileType = Gun,
                     projectilePos = (0, 0),
                     projectileSize = Size (30, 30),
-                    projectileVelocity = Velocity (10, 0),
+                    projectileVelocity = (10, 0),
                     projectileHealth = 1,
                     projectileDamage = Damage 30,
                     projectileOrigin = Players,
                     projectileSprite = rotate 90 $ getTexture "bullet" assetlist
                   },
               airplaneSprite = rotate 90 $ getTexture "player1" assetlist
+            },
+          Airplane
+            { airplaneType = Player2,
+              airplanePos = (-200, 0),
+              airplaneSize = Size (50, 50),
+              airplaneVelocity = (0, 0),
+              airplaneHealth = 100,
+              fireRate = Single 30.0,
+              timeLastShot = 0.0,
+              airplaneProjectile =
+                Projectile
+                  { projectileType = Gun,
+                    projectilePos = (0, 0),
+                    projectileSize = Size (30, 30),
+                    projectileVelocity = (10, 0),
+                    projectileHealth = 1,
+                    projectileDamage = Damage 30,
+                    projectileOrigin = Players,
+                    projectileSprite = rotate 90 $ getTexture "bullet" assetlist
+                  },
+              airplaneSprite = rotate 90 $ getTexture "player2" assetlist
             }
         ],
       enemies = [],
       tmpInt = 0,
+      pressedKeys = S.empty,
       projectiles = [],
-      window = ScreenBox ((-1000.0, -1000.0), (1000.0, 1000.0))
+      window = ScreenBox ((-300.0, 300.0), (300.0, -300.0))
     }
 
 getTexture :: String -> Map String Picture -> Picture
