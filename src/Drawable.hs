@@ -31,3 +31,7 @@ instance Drawable Projectile where
 instance Drawable PowerUp where
   draw :: PowerUp -> Picture
   draw PowerUp {powerUpPos = pos, powerUpSprite = sprite} = uncurry translate pos sprite
+
+instance Drawable Particle where
+  draw :: Particle -> Picture
+  draw Particle {particlePosition = pos, particleSprites = sprites} = uncurry translate pos $ head sprites

@@ -7,6 +7,7 @@
 module Model where
 
 import Data.Map as Map
+import Data.Maybe
 import qualified Data.Set as S
 import Graphics.Gloss
 import Graphics.Gloss.Interface.IO.Interact (Key)
@@ -58,6 +59,14 @@ data PowerUpTypes = HealthPack Int | PowerPack Float
 
 data PowerUpState = WorldSpace | PickedUp
 
+data Particle = Particle
+  { particlePosition :: Position,
+    particleSize :: Size,
+    particleInterval :: Time,
+    particleTimer :: Time,
+    particleSprites :: [Picture]
+  }
+
 data PowerUp = PowerUp
   { powerUpPos :: Position,
     powerUpSize :: Size,
@@ -101,6 +110,8 @@ data GameState = Game
     -- level :: Level,
     projectiles :: [Projectile],
     powerUps :: [PowerUp],
+    particleMap :: Map String Particle,
+    particles :: [Particle],
     pressedKeys :: S.Set Key
   }
 
@@ -203,13 +214,37 @@ initialState assetlist =
               powerUpDuration = 500.0,
               powerUpSprite = flip fixImageOrigin airplaneSizeVar $ getTexture "powerPack" assetlist
             }
-        ]
+        ],
+      particles =
+        [ Particle
+            { particlePosition = (0, 0),
+              particleSize = Size (10, 10),
+              particleInterval = 60,
+              particleTimer = 60,
+              particleSprites = [getTexture "powerPack" assetlist, getTexture "bullet" assetlist, getTexture "player1" assetlist, getTexture "player2" assetlist]
+            }
+        ],
+      particleMap =
+        Map.fromList
+          [ ( "explosion",
+              Particle
+                { particlePosition = (0, 0),
+                  particleSize = Size (10, 10),
+                  particleInterval = 60,
+                  particleTimer = 60,
+                  particleSprites = [getTexture "powerPack" assetlist, getTexture "bullet" assetlist, getTexture "player1" assetlist, getTexture "player2" assetlist]
+                }
+            )
+          ]
     }
 
 getTexture :: String -> Map String Picture -> Picture
 getTexture s m = case Map.lookup s m of
   Nothing -> rotate (-90) $ Scale 0.25 0.25 (color red $ Text "error")
   Just x -> x
+
+getParticle :: String -> Map String Particle -> Particle
+getParticle key _map = fromMaybe Particle {particlePosition = (10, 10), particleSize = Size (10, 10), particleInterval = 60, particleTimer = 60, particleSprites = [Scale 0.25 0.25 (color red $ Text "error")]} (Map.lookup key _map)
 
 -- TODO move to view and fix apply to all images when loading for the first time
 fixImageOrigin :: Picture -> Size -> Picture

@@ -1,7 +1,9 @@
 -- | This module defines the Updates of entities in the game
 module Updates where
 
+import Animateable
 import Collidable
+import Config
 import Damageable
 import Data.Maybe
 import qualified Data.Set as S
@@ -37,14 +39,14 @@ addVelocityBasedOnKey key airplane@Airplane {airplaneType = planeType} =
   case planeType of
     Player1
       | key == Char 'w' -> airplane {airplaneVelocity = add (0, velocityStep)}
-      | key == Char 'a' -> airplane {airplaneVelocity = add (- velocityStep, 0)}
-      | key == Char 's' -> airplane {airplaneVelocity = add (0, - velocityStep)}
+      | key == Char 'a' -> airplane {airplaneVelocity = add (-velocityStep, 0)}
+      | key == Char 's' -> airplane {airplaneVelocity = add (0, -velocityStep)}
       | key == Char 'd' -> airplane {airplaneVelocity = add (velocityStep, -0)}
       | otherwise -> airplane
     Player2
       | key == SpecialKey KeyUp -> airplane {airplaneVelocity = add (0, velocityStep)}
-      | key == SpecialKey KeyLeft -> airplane {airplaneVelocity = add (- velocityStep, 0)}
-      | key == SpecialKey KeyDown -> airplane {airplaneVelocity = add (0, - velocityStep)}
+      | key == SpecialKey KeyLeft -> airplane {airplaneVelocity = add (-velocityStep, 0)}
+      | key == SpecialKey KeyDown -> airplane {airplaneVelocity = add (0, -velocityStep)}
       | key == SpecialKey KeyRight -> airplane {airplaneVelocity = add (velocityStep, -0)}
       | otherwise -> airplane
     _ -> airplane
@@ -113,7 +115,7 @@ updateProjectiles gs@Game {players = players, enemies = enemies, projectiles = p
 
 -- destroys all objects with zero health
 destroyObjects :: GameState -> GameState
-destroyObjects gs@Game {players = players, enemies = enemies, projectiles = projectiles} = gs {players = destroyFromList players, enemies = destroyFromList enemies, projectiles = destroyFromList projectiles}
+destroyObjects gs@Game {players = players, enemies = enemies, projectiles = projectiles, particles = _particles, particleMap = _particleMap} = gs {players = destroyFromList players, enemies = destroyFromList enemies, projectiles = destroyFromList projectiles}
 
 ckeckInput :: GameState -> GameState
 ckeckInput gs@Game {pressedKeys = _pressedKeys} = singleKeyPress (SpecialKey KeyEsc) gs pauseMenu
@@ -151,8 +153,11 @@ updatePowerUps gs@Game {players = players', powerUps = powerUps'} = gs {players 
             Burst x' -> player {fireRate = Burst (x' * (1 / x))}
           HealthPack _ -> player
 
+updateParticles :: GameState -> GameState
+updateParticles gs@Game {particles = _particles} = gs {particles = map (\particle -> let p = updateTime particle in if readyToExecute p then nextSprite p else p) _particles}
+
 updateGameState :: GameState -> GameState
-updateGameState = ckeckInput . destroyObjects . updateAirplanes . updateProjectiles . updatePowerUps
+updateGameState = ckeckInput . destroyObjects . updateParticles . updateAirplanes . updateProjectiles . updatePowerUps
 
 pauseMenu :: GameState -> GameState
 pauseMenu gs@Game {status = _status} = gs {status = toggleStatus}

@@ -52,3 +52,12 @@ instance Timeable PowerUp where
       WorldSpace
         | despawnTime <= 0.0 -> True
         | otherwise -> False
+
+instance Timeable Particle where
+  updateTime :: Particle -> Particle
+  updateTime p@Particle {particleTimer = timer} = p {particleTimer = max 0 (timer - 1)}
+
+  readyToExecute :: Particle -> Bool
+  readyToExecute Particle {particleTimer = timer}
+    | timer <= 0 = True
+    | otherwise = False
