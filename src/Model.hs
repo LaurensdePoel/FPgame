@@ -54,9 +54,7 @@ newtype ScreenBox = ScreenBox (Point, Point)
 
 data AirPlaneType = Player1 | Player2 | Fighter | Kamikaze deriving (Eq)
 
-data PowerUpTypes = HealthPack | PowerPack | Shield
-
-data PowerUpValue = NoValue | Value Int
+data PowerUpTypes = HealthPack Int | PowerPack Float
 
 data PowerUpState = WorldSpace | PickedUp
 
@@ -67,7 +65,6 @@ data PowerUp = PowerUp
     powerUpState :: PowerUpState,
     timeUntilDespawn :: Time,
     powerUpDuration :: Time,
-    powerUpValue :: PowerUpValue,
     powerUpSprite :: Picture
   }
 
@@ -200,12 +197,11 @@ initialState assetlist =
         [ PowerUp
             { powerUpPos = (-400, 70),
               powerUpSize = Size (10, 10),
-              powerUpType = PowerPack,
+              powerUpType = PowerPack 0.0125,
               powerUpState = WorldSpace,
               timeUntilDespawn = 1000.0,
-              powerUpDuration = 600.0,
-              powerUpValue = Value 5,
-              powerUpSprite = flip fixImageOrigin airplaneSizeVar $ getTexture "healthPack" assetlist
+              powerUpDuration = 500.0,
+              powerUpSprite = flip fixImageOrigin airplaneSizeVar $ getTexture "PowerPack" assetlist
             }
         ]
     }
