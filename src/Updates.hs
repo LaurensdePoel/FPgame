@@ -10,18 +10,6 @@ import Model
 import Timeable
 import Updateable
 
--- singleKeyPressStatus :: GameState -> GameState
--- singleKeyPressStatus gs@Game {status = _status, pressedKeys = _pressedKeys}
---   | S.member (SpecialKey KeyEsc) _pressedKeys = gs {status = toggleStatus, pressedKeys = S.delete (SpecialKey KeyEsc) _pressedKeys}
---   | otherwise = gs
---   where
---     toggleStatus :: Status
---     toggleStatus = case _status of
---       InMenu -> InGame
---       InGame -> InMenu
-
--- Updates velocity based on pressed keys. Foldr loops trough every key and add new velocity to current Airplane
-
 -- TODO maybe add this to Input.hs so other functions can also use keypress thats is beeing hold down
 updatePlayerVelocity :: S.Set Key -> Airplane -> Airplane
 updatePlayerVelocity activeKeys airplane =

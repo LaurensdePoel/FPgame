@@ -40,4 +40,4 @@ instance Drawable Menu where
 
 instance Drawable Field where
   draw :: Field -> Picture
-  draw Field {fieldName = _fieldName, fieldPosition = _fieldPosition} = Scale 0.25 0.25 $ translate `uncurry` _fieldPosition $ color blue (Text _fieldName)
+  draw Field {fieldName = _fieldName, fieldPosition = _fieldPosition} = Scale 0.25 0.25 $ translate `uncurry` _fieldPosition $ color white (Text _fieldName)

@@ -223,7 +223,8 @@ data Menu
   = Menu
       { header :: Picture,
         fields :: [Field],
-        menuBackground :: Picture
+        menuBackground :: Picture,
+        returnMenu :: Menu
       }
   | NoMenu
 
@@ -236,29 +237,53 @@ data Field = Field
 initMenu :: Menu
 initMenu =
   Menu
-    { fields = [playField, creditsField, exitField]
+    { fields = [playField, creditsField, exitField],
+      returnMenu = NoMenu
     }
+  where
+    playField :: Field
+    playField =
+      Field
+        { fieldName = "Play",
+          fieldPosition = (0, 200),
+          subMenu = initPlayMenu
+        }
 
-playField :: Field
-playField =
-  Field
-    { fieldName = "Play",
-      fieldPosition = (0, 200),
-      subMenu = NoMenu
-    }
+    creditsField :: Field
+    creditsField =
+      Field
+        { fieldName = "Credits",
+          fieldPosition = (0, 0),
+          subMenu = NoMenu
+        }
 
-creditsField :: Field
-creditsField =
-  Field
-    { fieldName = "Credits",
-      fieldPosition = (0, 0),
-      subMenu = NoMenu
-    }
+    exitField :: Field
+    exitField =
+      Field
+        { fieldName = "Exit",
+          fieldPosition = (0, -200),
+          subMenu = NoMenu
+        }
 
-exitField :: Field
-exitField =
-  Field
-    { fieldName = "Exit",
-      fieldPosition = (0, -200),
-      subMenu = NoMenu
+initPlayMenu :: Menu
+initPlayMenu =
+  Menu
+    { fields = [onePlayer, twoPlayer],
+      returnMenu = initMenu
     }
+  where
+    onePlayer :: Field
+    onePlayer =
+      Field
+        { fieldName = "1 Player",
+          fieldPosition = (0, 200),
+          subMenu = NoMenu
+        }
+
+    twoPlayer :: Field
+    twoPlayer =
+      Field
+        { fieldName = "2 Player",
+          fieldPosition = (0, 0),
+          subMenu = NoMenu
+        }
