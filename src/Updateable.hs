@@ -19,7 +19,7 @@ class Updateable a where
   destroyFromList :: [a] -> [a]
   destroyFromList = mapMaybe destroy
 
-  damage :: Int -> a -> a
+-- damage :: Int -> a -> a
 
 -------------------------------------------------
 -- Helper functions
@@ -63,13 +63,13 @@ instance Updateable Airplane where
     | h <= 0 = Nothing
     | otherwise = Just airplane
 
-  damage :: Int -> Airplane -> Airplane
-  damage d airplane@Airplane {airplaneHealth = h} = airplane {airplaneHealth = newHealth}
-    where
-      damage = h - d
-      newHealth
-        | damage < 0 = 0
-        | otherwise = damage
+-- damage :: Int -> Airplane -> Airplane
+-- damage d airplane@Airplane {airplaneHealth = h} = airplane {airplaneHealth = newHealth}
+--   where
+--     damage = h - d
+--     newHealth
+--       | damage < 0 = 0
+--       | otherwise = damage
 
 instance Updateable Projectile where
   move :: Projectile -> Projectile
@@ -85,10 +85,10 @@ instance Updateable Projectile where
     | h <= 0 = Nothing
     | otherwise = Just projectile
 
-  damage :: Int -> Projectile -> Projectile
-  damage d projectile@Projectile {projectileHealth = h} = projectile {projectileHealth = newHealth}
-    where
-      damage = h - d
-      newHealth
-        | damage < 0 = 0
-        | otherwise = damage
+-- damage :: Int -> Projectile -> Projectile
+-- damage d projectile@Projectile {projectileHealth = h} = projectile {projectileHealth = newHealth}
+--   where
+--     damage = h - d
+--     newHealth
+--       | damage < 0 = 0
+--       | otherwise = damage
