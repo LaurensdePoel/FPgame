@@ -201,7 +201,7 @@ initialState assetlist =
               powerUpState = WorldSpace,
               timeUntilDespawn = 1000.0,
               powerUpDuration = 500.0,
-              powerUpSprite = flip fixImageOrigin airplaneSizeVar $ getTexture "PowerPack" assetlist
+              powerUpSprite = flip fixImageOrigin airplaneSizeVar $ getTexture "powerPack" assetlist
             }
         ]
     }

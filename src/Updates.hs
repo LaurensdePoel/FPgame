@@ -24,14 +24,14 @@ addVelocityBasedOnKey key airplane@Airplane {airplaneType = planeType} =
   case planeType of
     Player1
       | key == Char 'w' -> airplane {airplaneVelocity = add (0, velocityStep)}
-      | key == Char 'a' -> airplane {airplaneVelocity = add (- velocityStep, 0)}
-      | key == Char 's' -> airplane {airplaneVelocity = add (0, - velocityStep)}
+      | key == Char 'a' -> airplane {airplaneVelocity = add (-velocityStep, 0)}
+      | key == Char 's' -> airplane {airplaneVelocity = add (0, -velocityStep)}
       | key == Char 'd' -> airplane {airplaneVelocity = add (velocityStep, -0)}
       | otherwise -> airplane
     Player2
       | key == SpecialKey KeyUp -> airplane {airplaneVelocity = add (0, velocityStep)}
-      | key == SpecialKey KeyLeft -> airplane {airplaneVelocity = add (- velocityStep, 0)}
-      | key == SpecialKey KeyDown -> airplane {airplaneVelocity = add (0, - velocityStep)}
+      | key == SpecialKey KeyLeft -> airplane {airplaneVelocity = add (-velocityStep, 0)}
+      | key == SpecialKey KeyDown -> airplane {airplaneVelocity = add (0, -velocityStep)}
       | key == SpecialKey KeyRight -> airplane {airplaneVelocity = add (velocityStep, -0)}
       | otherwise -> airplane
     _ -> airplane
@@ -111,7 +111,7 @@ updatePowerUps gs@Game {players = players', powerUps = powerUps'} = gs {players 
     updatedPlayers2 = map (\player -> player {airplanePowerUps = map updateTime (airplanePowerUps player)}) updatedPlayers
 
     updatedPlayers3 = map (\player -> foldr (\powerUp r -> if readyToExecute powerUp then removePowerUpEffect r powerUp else r) player (airplanePowerUps player)) updatedPlayers2
-    updatedPlayers4 = map (\player -> player {airplanePowerUps = mapMaybe (destroy . updateTime) (airplanePowerUps player)}) updatedPlayers3
+    updatedPlayers4 = map (\player -> player {airplanePowerUps = mapMaybe (destroy) (airplanePowerUps player)}) updatedPlayers3
 
     applyPowerUp :: Airplane -> PowerUp -> Airplane
     applyPowerUp
@@ -132,7 +132,7 @@ updatePowerUps gs@Game {players = players', powerUps = powerUps'} = gs {players 
         case puType of
           PowerPack x -> case fireRate' of
             Single x' -> player {fireRate = Single (x' * (1 / x))}
-            Burst x' -> player {fireRate = Single (x' * (1 / x))}
+            Burst x' -> player {fireRate = Burst (x' * (1 / x))}
           HealthPack _ -> player
 
 updateGameState :: GameState -> GameState
