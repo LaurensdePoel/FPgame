@@ -5,6 +5,7 @@ import Collidable
 import qualified Data.Set as S
 import Graphics.Gloss.Interface.IO.Interact
 import Input
+import Menu
 import Model
 import Timeable
 import Updateable
@@ -113,19 +114,14 @@ updateProjectiles gs@Game {players = players, enemies = enemies, projectiles = p
 destroyObjects :: GameState -> GameState
 destroyObjects gs@Game {players = players, enemies = enemies, projectiles = projectiles} = gs {players = destroyFromList players, enemies = destroyFromList enemies, projectiles = destroyFromList projectiles}
 
-ckeckInput :: GameState -> GameState
-ckeckInput gs@Game {pressedKeys = _pressedKeys} = singleKeyPress (SpecialKey KeyEsc) gs pauseMenu
+checkPause :: GameState -> GameState
+checkPause gs@Game {pressedKeys = _pressedKeys} = singleKeyPress (SpecialKey KeyEsc) gs pauseMenu
 
 updatePowerUps :: GameState -> GameState
 updatePowerUps gs@Game {powerUps = powerUps'} = gs {powerUps = map (updateTime) powerUps'}
 
 updateGameState :: GameState -> GameState
-updateGameState = ckeckInput . destroyObjects . updateAirplanes . updateProjectiles . updatePowerUps
+updateGameState = checkPause . destroyObjects . updateAirplanes . updateProjectiles . updatePowerUps
 
-pauseMenu :: GameState -> GameState
-pauseMenu gs@Game {status = _status} = gs {status = toggleStatus}
-  where
-    toggleStatus :: Status
-    toggleStatus = case _status of
-      InMenu -> InGame
-      InGame -> InMenu
+updateMenu :: GameState -> GameState
+updateMenu = checkPause . checkMenuInput

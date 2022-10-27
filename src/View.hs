@@ -17,7 +17,9 @@ render ::
   GameState ->
   -- | A picture of this game state.
   Picture
-render gState =
+render gs =
   pictures xs
   where
-    xs = mapDraw (projectiles gState) ++ mapDraw (players gState) ++ mapDraw (enemies gState)
+    xs = draw (menu gs) : mapDraw (projectiles gs) ++ mapDraw (players gs) ++ mapDraw (enemies gs)
+
+--fieldsPic = fields (menu gs)

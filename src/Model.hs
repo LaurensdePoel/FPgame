@@ -103,7 +103,8 @@ data GameState = Game
     -- level :: Level,
     projectiles :: [Projectile],
     powerUps :: [PowerUp],
-    pressedKeys :: S.Set Key
+    pressedKeys :: S.Set Key,
+    menu :: Menu
   }
 
 -- TODO add to glabal file
@@ -205,7 +206,8 @@ initialState assetlist =
               powerUpValue = Value 5,
               powerUpSprite = flip fixImageOrigin airplaneSizeVar $ getTexture "healthPack" assetlist
             }
-        ]
+        ],
+      menu = initMenu
     }
 
 getTexture :: String -> Map String Picture -> Picture
@@ -216,3 +218,47 @@ getTexture s m = case Map.lookup s m of
 -- TODO move to view and fix apply to all images when loading for the first time
 fixImageOrigin :: Picture -> Size -> Picture
 fixImageOrigin pic (Size (x, y)) = translate (x * 0.5) (y * (-0.5)) pic
+
+data Menu
+  = Menu
+      { header :: Picture,
+        fields :: [Field],
+        menuBackground :: Picture
+      }
+  | NoMenu
+
+data Field = Field
+  { fieldName :: String,
+    fieldPosition :: Position,
+    subMenu :: Menu
+  }
+
+initMenu :: Menu
+initMenu =
+  Menu
+    { fields = [playField, creditsField, exitField]
+    }
+
+playField :: Field
+playField =
+  Field
+    { fieldName = "Play",
+      fieldPosition = (0, 200),
+      subMenu = NoMenu
+    }
+
+creditsField :: Field
+creditsField =
+  Field
+    { fieldName = "Credits",
+      fieldPosition = (0, 0),
+      subMenu = NoMenu
+    }
+
+exitField :: Field
+exitField =
+  Field
+    { fieldName = "Exit",
+      fieldPosition = (0, -200),
+      subMenu = NoMenu
+    }
