@@ -3,6 +3,7 @@
 -- | This module defines the Updateable type class
 module Updateable where
 
+import Config as C
 import Data.Maybe
 import Model
 
@@ -41,7 +42,21 @@ updateVelocity (x, y) = (update x, update y)
 instance Updateable Airplane where
   move :: Airplane -> Airplane
   -- move airplane@Airplane {airplanePos = p, airplaneVelocity = v} = airplane {airplanePos = updatePosition p v}
-  move airplane@Airplane {airplanePos = p, airplaneVelocity = v} = airplane {airplanePos = updatePosition p v, airplaneVelocity = updateVelocity v}
+  move airplane@Airplane {airplanePos = p, airplaneVelocity = v, airplaneType = t, airplaneHealth = h} = airplane {airplanePos = updatedPosition, airplaneVelocity = updatedVelocity, airplaneHealth = updatedHealth}
+    where
+      pos@(x, y) = updatePosition p v
+
+      updatedVelocity
+        | t == Player1 || t == Player2 = updateVelocity v
+        | otherwise = v
+
+      updatedPosition
+        | t == Player1 || t == Player2 = (max C.screenMinX (min x C.screenMaxX), max C.screenMinY (min y C.screenMaxY))
+        | otherwise = pos
+
+      updatedHealth
+        | t == Player1 || t == Player2 = h
+        | otherwise = if x < C.screenMinX then 0 else h
 
   destroy :: Airplane -> Maybe Airplane
   destroy airplane@Airplane {airplaneHealth = h}
@@ -58,7 +73,12 @@ instance Updateable Airplane where
 
 instance Updateable Projectile where
   move :: Projectile -> Projectile
-  move projectile@Projectile {projectilePos = p, projectileVelocity = v} = projectile {projectilePos = updatePosition p v}
+  move projectile@Projectile {projectilePos = p, projectileVelocity = v, projectileHealth = h} = projectile {projectilePos = updatedPos, projectileHealth = updatedHealth}
+    where
+      updatedPos@(x, y) = updatePosition p v
+      updatedHealth
+        | x < C.screenMinX || x > C.screenMaxX || y < C.screenMinY || y > C.screenMaxY = 0
+        | otherwise = h
 
   destroy :: Projectile -> Maybe Projectile
   destroy projectile@Projectile {projectileHealth = h}
