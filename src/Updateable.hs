@@ -19,8 +19,6 @@ class Updateable a where
   destroyFromList :: [a] -> [a]
   destroyFromList = mapMaybe destroy
 
--- damage :: Int -> a -> a
-
 -------------------------------------------------
 -- Helper functions
 -------------------------------------------------
@@ -63,14 +61,6 @@ instance Updateable Airplane where
     | h <= 0 = Nothing
     | otherwise = Just airplane
 
--- damage :: Int -> Airplane -> Airplane
--- damage d airplane@Airplane {airplaneHealth = h} = airplane {airplaneHealth = newHealth}
---   where
---     damage = h - d
---     newHealth
---       | damage < 0 = 0
---       | otherwise = damage
-
 instance Updateable Projectile where
   move :: Projectile -> Projectile
   move projectile@Projectile {projectilePos = p, projectileVelocity = v, projectileHealth = h} = projectile {projectilePos = updatedPos, projectileHealth = updatedHealth}
@@ -85,10 +75,15 @@ instance Updateable Projectile where
     | h <= 0 = Nothing
     | otherwise = Just projectile
 
--- damage :: Int -> Projectile -> Projectile
--- damage d projectile@Projectile {projectileHealth = h} = projectile {projectileHealth = newHealth}
---   where
---     damage = h - d
---     newHealth
---       | damage < 0 = 0
---       | otherwise = damage
+instance Updateable PowerUp where
+  move :: PowerUp -> PowerUp
+  move powerUp = powerUp -- A powerUp is stationary in the current version
+
+  destroy :: PowerUp -> Maybe PowerUp
+  destroy pw@PowerUp {powerUpState = state, timeUntilDespawn = despawnTime, powerUpDuration = duration} = case state of
+    PickedUp
+      | duration <= 0 -> Nothing
+      | otherwise -> Just pw
+    WorldSpace
+      | despawnTime <= 0 -> Nothing
+      | otherwise -> Just pw
