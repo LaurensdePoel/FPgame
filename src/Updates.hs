@@ -2,6 +2,8 @@
 module Updates where
 
 import Collidable
+import Damageable
+import Data.Maybe
 import qualified Data.Set as S
 import Graphics.Gloss.Interface.IO.Interact
 import Input
@@ -117,7 +119,37 @@ ckeckInput :: GameState -> GameState
 ckeckInput gs@Game {pressedKeys = _pressedKeys} = singleKeyPress (SpecialKey KeyEsc) gs pauseMenu
 
 updatePowerUps :: GameState -> GameState
-updatePowerUps gs@Game {powerUps = powerUps'} = gs {powerUps = map (updateTime) powerUps'}
+updatePowerUps gs@Game {players = players', powerUps = powerUps'} = gs {players = updatedPlayers4, powerUps = updatedPowerUps2}
+  where
+    updatedPowerUps = mapMaybe (destroy . updateTime) powerUps'
+    updatedPowerUps2 = map (\powerUp -> foldr (\player r -> if player `collides` powerUp then r {timeUntilDespawn = 0.0} else r) powerUp players') updatedPowerUps
+    updatedPlayers = map (\player -> foldr (\powerUp r -> if player `collides` powerUp then applyPowerUp r powerUp else r) player updatedPowerUps) players'
+    updatedPlayers2 = map (\player -> player {airplanePowerUps = map updateTime (airplanePowerUps player)}) updatedPlayers
+
+    updatedPlayers3 = map (\player -> foldr (\powerUp r -> if readyToExecute powerUp then removePowerUpEffect r powerUp else r) player (airplanePowerUps player)) updatedPlayers2
+    updatedPlayers4 = map (\player -> player {airplanePowerUps = mapMaybe (destroy) (airplanePowerUps player)}) updatedPlayers3
+
+    applyPowerUp :: Airplane -> PowerUp -> Airplane
+    applyPowerUp
+      player@Airplane {fireRate = fireRate', airplaneHealth = health, airplanePowerUps = ups}
+      pu@PowerUp {powerUpType = puType} =
+        case puType of
+          PowerPack x -> case fireRate' of
+            Single x' -> player {fireRate = Single (x' * x), airplanePowerUps = _pu : ups}
+            Burst x' -> player {fireRate = Single (x' * x), airplanePowerUps = _pu : ups}
+          HealthPack x -> player {airplaneHealth = health + x}
+        where
+          _pu = pu {powerUpState = PickedUp}
+
+    removePowerUpEffect :: Airplane -> PowerUp -> Airplane
+    removePowerUpEffect
+      player@Airplane {fireRate = fireRate'}
+      PowerUp {powerUpType = puType} =
+        case puType of
+          PowerPack x -> case fireRate' of
+            Single x' -> player {fireRate = Single (x' * (1 / x))}
+            Burst x' -> player {fireRate = Burst (x' * (1 / x))}
+          HealthPack _ -> player
 
 updateGameState :: GameState -> GameState
 updateGameState = ckeckInput . destroyObjects . updateAirplanes . updateProjectiles . updatePowerUps
