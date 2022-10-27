@@ -62,6 +62,7 @@ data PowerUpState = WorldSpace | PickedUp
 
 data PowerUp = PowerUp
   { powerUpPos :: Position,
+    powerUpSize :: Size,
     powerUpType :: PowerUpTypes,
     powerUpState :: PowerUpState,
     timeUntilDespawn :: Time,
@@ -198,6 +199,7 @@ initialState assetlist =
       powerUps =
         [ PowerUp
             { powerUpPos = (0, 0),
+              powerUpSize = Size (10, 10),
               powerUpType = PowerPack,
               powerUpState = WorldSpace,
               timeUntilDespawn = 1000.0,

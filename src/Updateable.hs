@@ -80,10 +80,10 @@ instance Updateable PowerUp where
   move powerUp = powerUp -- A powerUp is stationary in the current version
 
   destroy :: PowerUp -> Maybe PowerUp
-  destroy pw@PowerUp {powerUpState = state, timeUntilDespawn = despawnTime, powerUpDuration = duration} = case state of
+  destroy pu@PowerUp {powerUpState = state, timeUntilDespawn = despawnTime, powerUpDuration = duration} = case state of
     PickedUp
       | duration <= 0 -> Nothing
-      | otherwise -> Just pw
+      | otherwise -> Just pu
     WorldSpace
       | despawnTime <= 0 -> Nothing
-      | otherwise -> Just pw
+      | otherwise -> Just pu
