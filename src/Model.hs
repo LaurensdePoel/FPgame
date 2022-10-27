@@ -11,7 +11,7 @@ import qualified Data.Set as S
 import Graphics.Gloss
 import Graphics.Gloss.Interface.IO.Interact (Key)
 
-data Status = InMenu | InGame
+data Status = InMenu | InGame deriving (Eq)
 
 type Position = Point
 
