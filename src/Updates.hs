@@ -6,11 +6,24 @@ import Damageable
 import Data.Maybe
 import qualified Data.Set as S
 import Graphics.Gloss.Interface.IO.Interact
+import Input
 import Model
 import Timeable
 import Updateable
 
+-- singleKeyPressStatus :: GameState -> GameState
+-- singleKeyPressStatus gs@Game {status = _status, pressedKeys = _pressedKeys}
+--   | S.member (SpecialKey KeyEsc) _pressedKeys = gs {status = toggleStatus, pressedKeys = S.delete (SpecialKey KeyEsc) _pressedKeys}
+--   | otherwise = gs
+--   where
+--     toggleStatus :: Status
+--     toggleStatus = case _status of
+--       InMenu -> InGame
+--       InGame -> InMenu
+
 -- Updates velocity based on pressed keys. Foldr loops trough every key and add new velocity to current Airplane
+
+-- TODO maybe add this to Input.hs so other functions can also use keypress thats is beeing hold down
 updatePlayerVelocity :: S.Set Key -> Airplane -> Airplane
 updatePlayerVelocity activeKeys airplane =
   foldr f e activeKeys
@@ -24,14 +37,14 @@ addVelocityBasedOnKey key airplane@Airplane {airplaneType = planeType} =
   case planeType of
     Player1
       | key == Char 'w' -> airplane {airplaneVelocity = add (0, velocityStep)}
-      | key == Char 'a' -> airplane {airplaneVelocity = add (-velocityStep, 0)}
-      | key == Char 's' -> airplane {airplaneVelocity = add (0, -velocityStep)}
+      | key == Char 'a' -> airplane {airplaneVelocity = add (- velocityStep, 0)}
+      | key == Char 's' -> airplane {airplaneVelocity = add (0, - velocityStep)}
       | key == Char 'd' -> airplane {airplaneVelocity = add (velocityStep, -0)}
       | otherwise -> airplane
     Player2
       | key == SpecialKey KeyUp -> airplane {airplaneVelocity = add (0, velocityStep)}
-      | key == SpecialKey KeyLeft -> airplane {airplaneVelocity = add (-velocityStep, 0)}
-      | key == SpecialKey KeyDown -> airplane {airplaneVelocity = add (0, -velocityStep)}
+      | key == SpecialKey KeyLeft -> airplane {airplaneVelocity = add (- velocityStep, 0)}
+      | key == SpecialKey KeyDown -> airplane {airplaneVelocity = add (0, - velocityStep)}
       | key == SpecialKey KeyRight -> airplane {airplaneVelocity = add (velocityStep, -0)}
       | otherwise -> airplane
     _ -> airplane
@@ -102,6 +115,9 @@ updateProjectiles gs@Game {players = players, enemies = enemies, projectiles = p
 destroyObjects :: GameState -> GameState
 destroyObjects gs@Game {players = players, enemies = enemies, projectiles = projectiles} = gs {players = destroyFromList players, enemies = destroyFromList enemies, projectiles = destroyFromList projectiles}
 
+ckeckInput :: GameState -> GameState
+ckeckInput gs@Game {pressedKeys = _pressedKeys} = singleKeyPress (SpecialKey KeyEsc) gs pauseMenu
+
 updatePowerUps :: GameState -> GameState
 updatePowerUps gs@Game {players = players', powerUps = powerUps'} = gs {players = updatedPlayers4, powerUps = updatedPowerUps2}
   where
@@ -136,4 +152,12 @@ updatePowerUps gs@Game {players = players', powerUps = powerUps'} = gs {players 
           HealthPack _ -> player
 
 updateGameState :: GameState -> GameState
-updateGameState = destroyObjects . updateAirplanes . updateProjectiles . updatePowerUps
+updateGameState = ckeckInput . destroyObjects . updateAirplanes . updateProjectiles . updatePowerUps
+
+pauseMenu :: GameState -> GameState
+pauseMenu gs@Game {status = _status} = gs {status = toggleStatus}
+  where
+    toggleStatus :: Status
+    toggleStatus = case _status of
+      InMenu -> InGame
+      InGame -> InMenu

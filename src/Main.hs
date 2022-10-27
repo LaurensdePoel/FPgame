@@ -4,6 +4,7 @@ import Controller
 import Data.Map as Map
 import Graphics.Gloss
 import Graphics.Gloss.Interface.IO.Game
+import Input
 import Model
 import View
 
