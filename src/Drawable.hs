@@ -1,3 +1,5 @@
+{-# LANGUAGE InstanceSigs #-}
+
 -- | This module defines the drawable type class
 module Drawable where
 
@@ -19,7 +21,13 @@ class Drawable a where
 -------------------------------------------------
 
 instance Drawable Airplane where
-  draw Airplane {airplanePos = p, airplaneSprite = s} = uncurry translate p s
+  draw :: Airplane -> Picture
+  draw Airplane {airplanePos = pos, airplaneSprite = sprite} = uncurry translate pos sprite
 
 instance Drawable Projectile where
-  draw Projectile {projectilePos = p, projectileSprite = s} = uncurry translate p s
+  draw :: Projectile -> Picture
+  draw Projectile {projectilePos = pos, projectileSprite = sprite} = uncurry translate pos sprite
+
+instance Drawable PowerUp where
+  draw :: PowerUp -> Picture
+  draw PowerUp {powerUpPos = pos, powerUpSprite = sprite} = uncurry translate pos sprite

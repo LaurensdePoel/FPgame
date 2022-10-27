@@ -3,6 +3,7 @@ module Updates where
 
 import Collidable
 import Damageable
+import Data.Maybe
 import qualified Data.Set as S
 import Graphics.Gloss.Interface.IO.Interact
 import Model
@@ -102,7 +103,12 @@ destroyObjects :: GameState -> GameState
 destroyObjects gs@Game {players = players, enemies = enemies, projectiles = projectiles} = gs {players = destroyFromList players, enemies = destroyFromList enemies, projectiles = destroyFromList projectiles}
 
 updatePowerUps :: GameState -> GameState
-updatePowerUps gs@Game {powerUps = powerUps'} = gs {powerUps = map (updateTime) powerUps'}
+updatePowerUps gs@Game {players = players', powerUps = powerUps'} = gs {players = updatedPlayers2, powerUps = updatedPowerUps2}
+  where
+    updatedPowerUps = mapMaybe (destroy . updateTime) powerUps'
+    updatedPowerUps2 = map (\powerUp -> foldr (\player r -> if player `collides` powerUp then r {timeUntilDespawn = 0.0} else r) powerUp players') updatedPowerUps
+    updatedPlayers = map (\player -> foldr (\powerUp r -> if player `collides` powerUp then r {airplanePowerUps = powerUp : airplanePowerUps player} else r) player updatedPowerUps) players'
+    updatedPlayers2 = map (\player -> player {airplanePowerUps = mapMaybe (destroy . updateTime) (airplanePowerUps player)}) updatedPlayers
 
 updateGameState :: GameState -> GameState
 updateGameState = destroyObjects . updateAirplanes . updateProjectiles . updatePowerUps

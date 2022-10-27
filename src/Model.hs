@@ -198,7 +198,7 @@ initialState assetlist =
       projectiles = [],
       powerUps =
         [ PowerUp
-            { powerUpPos = (0, 0),
+            { powerUpPos = (-400, 70),
               powerUpSize = Size (10, 10),
               powerUpType = PowerPack,
               powerUpState = WorldSpace,
