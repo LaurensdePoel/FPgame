@@ -17,9 +17,16 @@ render ::
   GameState ->
   -- | A picture of this game state.
   Picture
-render gs =
-  pictures xs
+render gs@Game {status = _status} = case _status of
+  InMenu -> drawMenu
+  InGame -> drawGame
   where
-    xs = draw (menu gs) : mapDraw (projectiles gs) ++ mapDraw (players gs) ++ mapDraw (enemies gs)
+    drawMenu :: Picture
+    drawMenu = draw (menu gs)
+
+    drawGame :: Picture
+    drawGame = pictures $ mapDraw (projectiles gs) ++ mapDraw (players gs) ++ mapDraw (enemies gs)
+
+--xs = draw (menu gs) :
 
 --fieldsPic = fields (menu gs)

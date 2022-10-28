@@ -20,7 +20,7 @@ checkMenuInput gs@Game {pressedKeys = _pressedKeys, menu = _menu}
   | pressed (SpecialKey KeyUp) = moveMenu fieldUp gs {pressedKeys = S.delete (SpecialKey KeyUp) _pressedKeys}
   | pressed (Char 's') = moveMenu fieldDown gs {pressedKeys = S.delete (Char 's') _pressedKeys}
   | pressed (SpecialKey KeyDown) = moveMenu fieldDown gs {pressedKeys = S.delete (SpecialKey KeyDown) _pressedKeys}
-  | pressed (Char 'd') = nextMenu gs {pressedKeys = S.delete (Char 'd') _pressedKeys}
+  | pressed (Char 'd') = nextMenuV2 gs {pressedKeys = S.delete (Char 'd') _pressedKeys}
   | pressed (SpecialKey KeyRight) = nextMenu gs {pressedKeys = S.delete (SpecialKey KeyRight) _pressedKeys}
   | pressed (SpecialKey KeyEnter) = nextMenu gs {pressedKeys = S.delete (SpecialKey KeyEnter) _pressedKeys}
   | pressed (Char 'a') = previousMenu gs {pressedKeys = S.delete (Char 'a') _pressedKeys}
@@ -56,6 +56,15 @@ nextMenu gs@Game {menu = _menu} = gs {menu = check (subMenu $ head (fields _menu
     check newMenu = case newMenu of
       Menu {} -> newMenu
       NoMenu -> _menu
+      NoMenuButFunction f -> _menu
+
+nextMenuV2 :: GameState -> GameState
+nextMenuV2 gs@Game {menu = _menu} = newMenu (subMenu $ head (fields _menu))
+  where
+    newMenu newMenu = case newMenu of
+      Menu {} -> gs {menu = newMenu}
+      NoMenu -> gs
+      NoMenuButFunction f -> f gs
 
 -- Load the parent menu as current menu if there isn't a parent menu do nothing and return current menu
 previousMenu :: GameState -> GameState
@@ -64,3 +73,4 @@ previousMenu gs@Game {menu = _menu} = gs {menu = check (returnMenu _menu)}
     check newMenu = case newMenu of
       Menu {} -> newMenu
       NoMenu -> _menu
+      NoMenuButFunction f -> _menu

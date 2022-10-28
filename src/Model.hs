@@ -97,14 +97,14 @@ data Projectile = Projectile
 data GameState = Game
   { elapsedTime :: Float,
     status :: Status,
-    tmpInt :: Int,
     players :: [Airplane],
     enemies :: [Airplane],
     -- level :: Level,
     projectiles :: [Projectile],
     powerUps :: [PowerUp],
     pressedKeys :: S.Set Key,
-    menu :: Menu
+    menu :: Menu,
+    tmpassetList :: Map String Picture
   }
 
 -- TODO add to glabal file
@@ -121,8 +121,15 @@ initialState :: Map String Picture -> GameState
 initialState assetlist =
   Game
     { elapsedTime = 0,
-      status = InGame,
-      players =
+      status = InMenu,
+      players = [],
+      enemies = [],
+      projectiles = [],
+      powerUps = [],
+      pressedKeys = S.empty,
+      menu = initMenu,
+      tmpassetList = assetlist
+      {-players =
         [ Airplane
             { airplaneType = Player1,
               airplanePos = (-400, 0),
@@ -207,7 +214,7 @@ initialState assetlist =
               powerUpSprite = flip fixImageOrigin airplaneSizeVar $ getTexture "healthPack" assetlist
             }
         ],
-      menu = initMenu
+        -}
     }
 
 getTexture :: String -> Map String Picture -> Picture
@@ -221,12 +228,13 @@ fixImageOrigin pic (Size (x, y)) = translate (x * 0.5) (y * (-0.5)) pic
 
 data Menu
   = Menu
-      { header :: Picture,
+      { --header :: Picture,
         fields :: [Field],
-        menuBackground :: Picture,
+        --menuBackground :: Picture,
         returnMenu :: Menu
       }
   | NoMenu
+  | NoMenuButFunction (GameState -> GameState)
 
 data Field = Field
   { fieldName :: String,
@@ -241,29 +249,12 @@ initMenu =
       returnMenu = NoMenu
     }
   where
-    playField :: Field
-    playField =
-      Field
-        { fieldName = "Play",
-          fieldPosition = (0, 200),
-          subMenu = initPlayMenu
-        }
+    playField, creditsField, exitField :: Field
+    playField = Field {fieldName = "Play", fieldPosition = (0, 200), subMenu = initPlayMenu}
 
-    creditsField :: Field
-    creditsField =
-      Field
-        { fieldName = "Credits",
-          fieldPosition = (0, 0),
-          subMenu = NoMenu
-        }
+    creditsField = Field {fieldName = "Credits", fieldPosition = (0, 0), subMenu = NoMenu}
 
-    exitField :: Field
-    exitField =
-      Field
-        { fieldName = "Exit",
-          fieldPosition = (0, -200),
-          subMenu = NoMenu
-        }
+    exitField = Field {fieldName = "Exit", fieldPosition = (0, -200), subMenu = NoMenu}
 
 initPlayMenu :: Menu
 initPlayMenu =
@@ -272,18 +263,90 @@ initPlayMenu =
       returnMenu = initMenu
     }
   where
-    onePlayer :: Field
-    onePlayer =
-      Field
-        { fieldName = "1 Player",
-          fieldPosition = (0, 200),
-          subMenu = NoMenu
-        }
+    onePlayer, twoPlayer :: Field
+    onePlayer = Field {fieldName = "1 Player", fieldPosition = (0, 200), subMenu = NoMenuButFunction start1player}
 
-    twoPlayer :: Field
-    twoPlayer =
-      Field
-        { fieldName = "2 Player",
-          fieldPosition = (0, 0),
-          subMenu = NoMenu
-        }
+    twoPlayer = Field {fieldName = "2 Player", fieldPosition = (0, 0), subMenu = NoMenuButFunction start2player}
+
+-- Toggles the status in the GameState.
+start1player :: GameState -> GameState
+start1player gs@Game {tmpassetList = _assetList} =
+  gs
+    { players =
+        [ Airplane
+            { airplaneType = Player1,
+              airplanePos = (-400, 0),
+              airplaneSize = airplaneSizeVar,
+              airplaneVelocity = (0, 0),
+              airplaneHealth = 100,
+              fireRate = Single 30.0,
+              timeLastShot = 0.0,
+              airplanePowerUps = [],
+              airplaneProjectile =
+                Projectile
+                  { projectileType = Gun,
+                    projectilePos = (0, 0),
+                    projectileSize = projectileSizeVar,
+                    projectileVelocity = (10, 0),
+                    projectileHealth = 1,
+                    projectileDamage = 30,
+                    projectileOrigin = Players,
+                    projectileSprite = flip fixImageOrigin projectileSizeVar $ rotate 90 $ getTexture "bullet" _assetList
+                  },
+              airplaneSprite = flip fixImageOrigin airplaneSizeVar $ rotate 90 $ getTexture "player1" _assetList
+            }
+        ],
+      status = InGame
+    }
+
+start2player :: GameState -> GameState
+start2player gs@Game {tmpassetList = _assetList} =
+  gs
+    { players =
+        [ Airplane
+            { airplaneType = Player1,
+              airplanePos = (-400, 0),
+              airplaneSize = airplaneSizeVar,
+              airplaneVelocity = (0, 0),
+              airplaneHealth = 100,
+              fireRate = Single 30.0,
+              timeLastShot = 0.0,
+              airplanePowerUps = [],
+              airplaneProjectile =
+                Projectile
+                  { projectileType = Gun,
+                    projectilePos = (0, 0),
+                    projectileSize = projectileSizeVar,
+                    projectileVelocity = (10, 0),
+                    projectileHealth = 1,
+                    projectileDamage = 30,
+                    projectileOrigin = Players,
+                    projectileSprite = flip fixImageOrigin projectileSizeVar $ rotate 90 $ getTexture "bullet" _assetList
+                  },
+              airplaneSprite = flip fixImageOrigin airplaneSizeVar $ rotate 90 $ getTexture "player1" _assetList
+            },
+          Airplane
+            { airplaneType = Player2,
+              airplanePos = (-200, 0),
+              airplaneSize = airplaneSizeVar,
+              airplaneVelocity = (0, 0),
+              airplaneHealth = 100,
+              fireRate = Single 30.0,
+              timeLastShot = 0.0,
+              airplanePowerUps = [],
+              airplaneProjectile =
+                Projectile
+                  { projectileType = Gun,
+                    projectilePos = (0, 0),
+                    projectileSize = projectileSizeVar,
+                    projectileVelocity = (10, 0),
+                    projectileHealth = 1,
+                    projectileDamage = 30,
+                    projectileOrigin = Players,
+                    projectileSprite = flip fixImageOrigin projectileSizeVar $ rotate 90 $ getTexture "bullet" _assetList
+                  },
+              airplaneSprite = flip fixImageOrigin airplaneSizeVar $ rotate 90 $ getTexture "player2" _assetList
+            }
+        ],
+      status = InGame
+    }
