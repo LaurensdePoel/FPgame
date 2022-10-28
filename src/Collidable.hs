@@ -1,3 +1,4 @@
+{-# LANGUAGE InstanceSigs #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 
 -- | This module defines the Collidable type class
@@ -35,6 +36,7 @@ instance Collidable Airplane Airplane where
       | type1 == Player2 && type2 == Player1 = False
       | type1 == Player1 || type1 == Player2 = checkCollision (toHitBox pos1 size1) (toHitBox pos2 size2)
       | otherwise = False
+
 instance Collidable Projectile Airplane where
   collides
     Projectile {projectileOrigin = o, projectilePos = pPos, projectileSize = pSize}
@@ -49,3 +51,14 @@ instance Collidable Projectile Projectile where
     Projectile {projectileOrigin = o2, projectilePos = pos2, projectileSize = size2}
       | o1 /= o2 = checkCollision (toHitBox pos1 size1) (toHitBox pos2 size2)
       | otherwise = False
+
+instance Collidable Airplane PowerUp where
+  collides :: Airplane -> PowerUp -> Bool
+  collides
+    Airplane {airplaneType = apType, airplanePos = apPosition, airplaneSize = apSize}
+    PowerUp {powerUpState = puState, powerUpPos = puPosition, powerUpSize = puSize} =
+      case puState of
+        PickedUp -> False
+        WorldSpace
+          | apType == Player1 || apType == Player2 -> checkCollision (toHitBox apPosition apSize) (toHitBox puPosition puSize)
+          | otherwise -> False

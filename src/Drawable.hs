@@ -22,11 +22,16 @@ class Drawable a where
 
 instance Drawable Airplane where
   draw :: Airplane -> Picture
-  draw Airplane {airplanePos = p, airplaneSprite = s} = uncurry translate p s
+  draw Airplane {airplanePos = pos, airplaneSprite = sprite} = uncurry translate pos sprite
 
 instance Drawable Projectile where
   draw :: Projectile -> Picture
-  draw Projectile {projectilePos = p, projectileSprite = s} = uncurry translate p s
+  draw :: Projectile -> Picture
+  draw Projectile {projectilePos = pos, projectileSprite = sprite} = uncurry translate pos sprite
+
+instance Drawable PowerUp where
+  draw :: PowerUp -> Picture
+  draw PowerUp {powerUpPos = pos, powerUpSprite = sprite} = uncurry translate pos sprite
 
 instance Drawable Menu where
   draw :: Menu -> Picture
@@ -34,9 +39,6 @@ instance Drawable Menu where
     pictures $
       Scale 1.3 1.3 (draw (head _fields)) : map draw (tail _fields)
   draw NoMenu = Blank -- tmp
-
---where
---  drawSelected Field {fieldName = _name, fieldPosition = _position} = translate `uncurry` _position $ Scale 0.25 0.25 (color blue $ Text _name)
 
 instance Drawable Field where
   draw :: Field -> Picture

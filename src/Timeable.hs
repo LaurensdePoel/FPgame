@@ -14,6 +14,10 @@ class Timeable a where
   readyToExecute :: a -> Bool
 
 -------------------------------------------------
+-- Helper functions
+-------------------------------------------------
+
+-------------------------------------------------
 -- Instances
 -------------------------------------------------
 
@@ -34,15 +38,17 @@ instance Timeable Airplane where
 
 instance Timeable PowerUp where
   updateTime :: PowerUp -> PowerUp
-  updateTime powerUp@PowerUp {powerUpState = state, timeUntilDespawn = despawnTime, powerUpDuration = duration} = case state of
-    PickedUp -> powerUp {powerUpDuration = max 0.0 (duration - 1.0)}
-    WorldSpace -> powerUp {timeUntilDespawn = max 0.0 (despawnTime - 1.0)}
+  updateTime powerUp@PowerUp {powerUpState = state, timeUntilDespawn = despawnTime, powerUpDuration = duration} =
+    case state of
+      PickedUp -> powerUp {powerUpDuration = max 0.0 (duration - 1.0)}
+      WorldSpace -> powerUp {timeUntilDespawn = max 0.0 (despawnTime - 1.0)}
 
   readyToExecute :: PowerUp -> Bool
-  readyToExecute PowerUp {powerUpState = state, timeUntilDespawn = despawnTime, powerUpDuration = duration} = True -- case state of
-  -- PickedUp
-  --   | powerUpDuration <= 0.0 -> True
-  --   | otherwise -> False
-  -- WorldSpace
-  --   | despawnTime <= 0.0 -> True
-  --   | otherwise -> False
+  readyToExecute PowerUp {powerUpState = state, timeUntilDespawn = despawnTime, powerUpDuration = duration} =
+    case state of
+      PickedUp
+        | duration <= 0.0 -> True
+        | otherwise -> False
+      WorldSpace
+        | despawnTime <= 0.0 -> True
+        | otherwise -> False

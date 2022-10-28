@@ -25,8 +25,4 @@ render gs@Game {status = _status} = case _status of
     drawMenu = draw (menu gs)
 
     drawGame :: Picture
-    drawGame = pictures $ mapDraw (projectiles gs) ++ mapDraw (players gs) ++ mapDraw (enemies gs)
-
---xs = draw (menu gs) :
-
---fieldsPic = fields (menu gs)
+    drawGame = pictures $ mapDraw (projectiles gs) ++ mapDraw (players gs) ++ mapDraw (enemies gs) ++ mapDraw (powerUps gs)
