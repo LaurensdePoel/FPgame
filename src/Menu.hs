@@ -20,7 +20,7 @@ checkMenuInput gs@Game {pressedKeys = _pressedKeys, menu = _menu}
   | pressed (SpecialKey KeyUp) = moveMenu fieldUp gs {pressedKeys = S.delete (SpecialKey KeyUp) _pressedKeys}
   | pressed (Char 's') = moveMenu fieldDown gs {pressedKeys = S.delete (Char 's') _pressedKeys}
   | pressed (SpecialKey KeyDown) = moveMenu fieldDown gs {pressedKeys = S.delete (SpecialKey KeyDown) _pressedKeys}
-  | pressed (Char 'd') = nextMenuV2 gs {pressedKeys = S.delete (Char 'd') _pressedKeys}
+  | pressed (Char 'd') = nextMenu gs {pressedKeys = S.delete (Char 'd') _pressedKeys}
   | pressed (SpecialKey KeyRight) = nextMenu gs {pressedKeys = S.delete (SpecialKey KeyRight) _pressedKeys}
   | pressed (SpecialKey KeyEnter) = nextMenu gs {pressedKeys = S.delete (SpecialKey KeyEnter) _pressedKeys}
   | pressed (Char 'a') = previousMenu gs {pressedKeys = S.delete (Char 'a') _pressedKeys}
@@ -51,15 +51,7 @@ fieldDown (x : xs) = xs ++ [x]
 
 -- Load the child menu as current menu if there isn't a child menu do nothing and return current menu
 nextMenu :: GameState -> GameState
-nextMenu gs@Game {menu = _menu} = gs {menu = check (subMenu $ head (fields _menu))}
-  where
-    check newMenu = case newMenu of
-      Menu {} -> newMenu
-      NoMenu -> _menu
-      NoMenuButFunction f -> _menu
-
-nextMenuV2 :: GameState -> GameState
-nextMenuV2 gs@Game {menu = _menu} = newMenu (subMenu $ head (fields _menu))
+nextMenu gs@Game {menu = _menu} = newMenu (subMenu $ head (fields _menu))
   where
     newMenu newMenu = case newMenu of
       Menu {} -> gs {menu = newMenu}
