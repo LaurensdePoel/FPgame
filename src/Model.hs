@@ -312,6 +312,17 @@ start1player gs@Game {tmpassetList = _assetList} =
       status = InGame,
       projectiles = [],
       enemies = [],
+      powerUps =
+        [ PowerUp
+            { powerUpPos = (-400, 70),
+              powerUpSize = Size (10, 10),
+              powerUpType = PowerPack 0.0125,
+              powerUpState = WorldSpace,
+              timeUntilDespawn = 1000.0,
+              powerUpDuration = 500.0,
+              powerUpSprite = flip fixImageOrigin airplaneSizeVar $ getTexture "powerPack" _assetList
+            }
+        ],
       menu = initPauseMenu
     }
 
@@ -367,5 +378,16 @@ start2player gs@Game {tmpassetList = _assetList} =
       status = InGame,
       projectiles = [],
       enemies = [],
+      powerUps =
+        [ PowerUp
+            { powerUpPos = (-400, 70),
+              powerUpSize = Size (10, 10),
+              powerUpType = PowerPack 0.0125,
+              powerUpState = WorldSpace,
+              timeUntilDespawn = 1000.0,
+              powerUpDuration = 500.0,
+              powerUpSprite = flip fixImageOrigin airplaneSizeVar $ getTexture "powerPack" _assetList
+            }
+        ],
       menu = initPauseMenu
     }

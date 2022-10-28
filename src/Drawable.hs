@@ -26,7 +26,6 @@ instance Drawable Airplane where
 
 instance Drawable Projectile where
   draw :: Projectile -> Picture
-  draw :: Projectile -> Picture
   draw Projectile {projectilePos = pos, projectileSprite = sprite} = uncurry translate pos sprite
 
 instance Drawable PowerUp where
