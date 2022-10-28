@@ -268,6 +268,21 @@ initPlayMenu =
 
     twoPlayer = Field {fieldName = "2 Player", fieldPosition = (0, 0), subMenu = NoMenuButFunction start2player}
 
+initPauseMenu :: Menu
+initPauseMenu =
+  Menu
+    { fields = [resume, quit],
+      returnMenu = NoMenu
+    }
+  where
+    resume, quit :: Field
+    resume = Field {fieldName = "Resume", fieldPosition = (0, 200), subMenu = NoMenuButFunction resumeGame}
+
+    quit = Field {fieldName = "Quit", fieldPosition = (0, 0), subMenu = initMenu}
+
+resumeGame :: GameState -> GameState
+resumeGame gs = gs {status = InGame}
+
 -- Toggles the status in the GameState.
 start1player :: GameState -> GameState
 start1player gs@Game {tmpassetList = _assetList} =
@@ -296,7 +311,10 @@ start1player gs@Game {tmpassetList = _assetList} =
               airplaneSprite = flip fixImageOrigin airplaneSizeVar $ rotate 90 $ getTexture "player1" _assetList
             }
         ],
-      status = InGame
+      status = InGame,
+      projectiles = [],
+      enemies = [],
+      menu = initPauseMenu
     }
 
 start2player :: GameState -> GameState
@@ -348,5 +366,8 @@ start2player gs@Game {tmpassetList = _assetList} =
               airplaneSprite = flip fixImageOrigin airplaneSizeVar $ rotate 90 $ getTexture "player2" _assetList
             }
         ],
-      status = InGame
+      status = InGame,
+      projectiles = [],
+      enemies = [],
+      menu = initPauseMenu
     }
