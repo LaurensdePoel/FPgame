@@ -115,7 +115,7 @@ updateProjectiles gs@Game {players = players, enemies = enemies, projectiles = p
 
 -- destroys all objects with zero health
 destroyObjects :: GameState -> GameState
-destroyObjects gs@Game {players = players, enemies = enemies, projectiles = projectiles, particles = _particles, particleMap = _particleMap} = gs {players = destroyFromList players, enemies = destroyFromList enemies, projectiles = destroyFromList projectiles}
+destroyObjects gs@Game {players = players, enemies = enemies, projectiles = projectiles, particles = _particles} = gs {players = destroyFromList players, enemies = destroyFromList enemies, projectiles = destroyFromList projectiles, particles = destroyFromList _particles}
 
 ckeckInput :: GameState -> GameState
 ckeckInput gs@Game {pressedKeys = _pressedKeys} = singleKeyPress (SpecialKey KeyEsc) gs pauseMenu
@@ -154,7 +154,11 @@ updatePowerUps gs@Game {players = players', powerUps = powerUps'} = gs {players 
           HealthPack _ -> player
 
 updateParticles :: GameState -> GameState
-updateParticles gs@Game {particles = _particles} = gs {particles = map (\particle -> let p = updateTime particle in if readyToExecute p then nextSprite p else p) _particles}
+updateParticles gs@Game {particles = _particles, players = players, enemies = enemies, projectiles = projectiles, particleMap = _particleMap} = gs {particles = map (\particle -> let p = updateTime particle in if readyToExecute p then nextSprite p else p) (_particles ++ newParticles ++ newParticles2 ++ newParticles3)}
+  where
+    newParticles = mapMaybe (\player -> if 0 >= airplaneHealth player then let newParticle = getParticle "explosion2" _particleMap in Just newParticle {particlePosition = airplanePos player} else Nothing) players
+    newParticles2 = mapMaybe (\enemy -> if 0 >= airplaneHealth enemy then let newParticle = getParticle "explosion2" _particleMap in Just newParticle {particlePosition = airplanePos enemy} else Nothing) enemies
+    newParticles3 = mapMaybe (\projectile -> if 0 >= projectileHealth projectile then let newParticle = getParticle "explosion" _particleMap in Just newParticle {particlePosition = projectilePos projectile} else Nothing) projectiles
 
 updateGameState :: GameState -> GameState
 updateGameState = ckeckInput . destroyObjects . updateParticles . updateAirplanes . updateProjectiles . updatePowerUps

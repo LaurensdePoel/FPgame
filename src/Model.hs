@@ -215,24 +215,25 @@ initialState assetlist =
               powerUpSprite = flip fixImageOrigin airplaneSizeVar $ getTexture "powerPack" assetlist
             }
         ],
-      particles =
-        [ Particle
-            { particlePosition = (0, 0),
-              particleSize = Size (10, 10),
-              particleInterval = 60,
-              particleTimer = 60,
-              particleSprites = [getTexture "powerPack" assetlist, getTexture "bullet" assetlist, getTexture "player1" assetlist, getTexture "player2" assetlist]
-            }
-        ],
+      particles = [],
       particleMap =
         Map.fromList
           [ ( "explosion",
               Particle
                 { particlePosition = (0, 0),
-                  particleSize = Size (10, 10),
-                  particleInterval = 60,
-                  particleTimer = 60,
-                  particleSprites = [getTexture "powerPack" assetlist, getTexture "bullet" assetlist, getTexture "player1" assetlist, getTexture "player2" assetlist]
+                  particleSize = Size (0, 0),
+                  particleInterval = 8,
+                  particleTimer = 8,
+                  particleSprites = [getTexture "explosionPart1" assetlist, getTexture "explosionPart2" assetlist, getTexture "explosionPart3" assetlist, getTexture "explosionPart4" assetlist, getTexture "explosionPart5" assetlist]
+                }
+            ),
+            ( "explosion2",
+              Particle
+                { particlePosition = (0, 0),
+                  particleSize = Size (0, 0),
+                  particleInterval = 8,
+                  particleTimer = 8,
+                  particleSprites = [getTexture "explosion2Part1" assetlist, getTexture "explosion2Part2" assetlist, getTexture "explosion2Part3" assetlist, getTexture "explosion2Part4" assetlist, getTexture "explosion2Part5" assetlist]
                 }
             )
           ]
