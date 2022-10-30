@@ -377,7 +377,31 @@ start2player gs@Game {tmpassetList = _assetList} =
         ],
       status = InGame,
       projectiles = [],
-      enemies = [],
+      enemies =
+        [ -- tmp enemy
+          Airplane
+            { airplaneType = Fighter,
+              airplanePos = (-10, -180),
+              airplaneSize = airplaneSizeVar,
+              airplaneVelocity = (0, 0),
+              airplaneHealth = 100,
+              fireRate = Burst 120.0,
+              timeLastShot = 0.0,
+              airplanePowerUps = [],
+              airplaneProjectile =
+                Projectile
+                  { projectileType = Gun,
+                    projectilePos = (0, 0),
+                    projectileSize = projectileSizeVar,
+                    projectileVelocity = (-10, 0),
+                    projectileHealth = 1,
+                    projectileDamage = 10,
+                    projectileOrigin = Enemies,
+                    projectileSprite = flip fixImageOrigin projectileSizeVar $ rotate (-90) $ getTexture "bullet" _assetList
+                  },
+              airplaneSprite = flip fixImageOrigin airplaneSizeVar $ rotate (-90) $ getTexture "player1" _assetList
+            }
+        ],
       powerUps =
         [ PowerUp
             { powerUpPos = (-400, 70),
