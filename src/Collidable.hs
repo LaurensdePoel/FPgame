@@ -14,6 +14,20 @@ import Model
 class Collidable a b where
   collides :: a -> b -> Bool
 
+  applyOnCollisions :: Collidable a b => (a -> b -> (a, b)) -> [a] -> [b] -> ([a], [b])
+  applyOnCollisions _ [] bs = ([], bs)
+  applyOnCollisions _ as [] = (as, [])
+  applyOnCollisions f (a : as) bs = let (_a, _bs) = applyOnCollisions f as bs in let (__as, __bs) = applyOnCollision f a _bs in (__as : _a, __bs)
+    where
+      applyOnCollision :: Collidable a b => (a -> b -> (a, b)) -> a -> [b] -> (a, [b])
+      applyOnCollision _ a2 [] = (a2, [])
+      applyOnCollision f2 a2 (b2 : bs2) =
+        case a2 `collides` b2 of
+          True -> let (updatedA, updatedB) = f2 _a2 b2 in (updatedA, updatedB : _bs2)
+          False -> (_a2, b2 : _bs2)
+        where
+          (_a2, _bs2) = applyOnCollision f2 a2 bs2
+
 -------------------------------------------------
 -- Helper functions
 -------------------------------------------------
