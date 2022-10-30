@@ -175,8 +175,10 @@ movementHandler gs@Game {players = _players, enemies = _enemies, projectiles = _
 particleHandler :: GameState -> GameState
 particleHandler gs@Game {particles = _particles, particleMap = _particleMap} = gs {particles = _particles ++ newParticles ++ newParticles2}
   where
-    newParticles = mapMaybe (\airplane -> if isNothing $ destroy airplane then let newParticle = getParticle "explosion2" _particleMap in Just newParticle {particlePosition = airplanePos airplane} else Nothing) (players gs ++ enemies gs)
-    newParticles2 = mapMaybe (\projectile -> if isNothing $ destroy projectile then let newParticle = getParticle "explosion" _particleMap in Just newParticle {particlePosition = projectilePos projectile} else Nothing) $ projectiles gs
+    newParticles = mapMaybe (\airplane -> if isNothing $ destroy airplane then let newParticle = getParticle "explosion2" _particleMap in Just newParticle {particlePosition = centerPosition (airplanePos airplane) (airplaneSize airplane)} else Nothing) (players gs ++ enemies gs)
+    newParticles2 = mapMaybe (\projectile -> if isNothing $ destroy projectile then let newParticle = getParticle "explosion" _particleMap in Just newParticle {particlePosition = centerPosition (projectilePos projectile) (projectileSize projectile)} else Nothing) $ projectiles gs
+    centerPosition :: Position -> Size -> Position
+    centerPosition (x, y) (Size (xx, yy)) = (x + (xx * 0.5), y - (yy * 0.5))
 
 -- Handles collision (events on collision) between all entities which are collidable
 collisionHandler :: GameState -> GameState
