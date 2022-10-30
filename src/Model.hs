@@ -59,6 +59,17 @@ data PowerUpTypes = HealthPack Int | PowerPack Float
 
 data PowerUpState = WorldSpace | PickedUp
 
+data AnimationState = Idle | Moving
+
+data Sprites = Sprites
+  { spritesState :: AnimationState,
+    spritePos :: Position,
+    spritesInterval :: Time,
+    spritesTimer :: Time,
+    idleSprites :: [Picture],
+    movingSprites :: [Picture]
+  }
+
 data Particle = Particle
   { particlePosition :: Position,
     particleSize :: Size,
@@ -74,7 +85,8 @@ data PowerUp = PowerUp
     powerUpState :: PowerUpState,
     timeUntilDespawn :: Time,
     powerUpDuration :: Time,
-    powerUpSprite :: Picture
+    -- powerUpSprite :: Picture,
+    powerUpSprites :: Sprites
   }
 
 data Airplane = Airplane
@@ -210,9 +222,18 @@ initialState assetlist =
               powerUpSize = Size (10, 10),
               powerUpType = PowerPack 0.0125,
               powerUpState = WorldSpace,
-              timeUntilDespawn = 1000.0,
-              powerUpDuration = 500.0,
-              powerUpSprite = flip fixImageOrigin airplaneSizeVar $ getTexture "powerPack" assetlist
+              timeUntilDespawn = 300.0,
+              powerUpDuration = 300.0,
+              -- powerUpSprite = flip fixImageOrigin airplaneSizeVar $ getTexture "powerPack" assetlist,
+              powerUpSprites =
+                Sprites
+                  { spritesState = Idle,
+                    spritePos = (0, 0),
+                    spritesInterval = 10.0,
+                    spritesTimer = 10.0,
+                    idleSprites = [getTexture "powerPackSprite1" assetlist, getTexture "powerPackSprite2" assetlist],
+                    movingSprites = []
+                  }
             }
         ],
       particles = [],
@@ -234,6 +255,15 @@ initialState assetlist =
                   particleInterval = 8,
                   particleTimer = 8,
                   particleSprites = [getTexture "explosion2Part1" assetlist, getTexture "explosion2Part2" assetlist, getTexture "explosion2Part3" assetlist, getTexture "explosion2Part4" assetlist, getTexture "explosion2Part5" assetlist]
+                }
+            ),
+            ( "5SecondTimer",
+              Particle
+                { particlePosition = (-400, 80),
+                  particleSize = Size (10, 10),
+                  particleInterval = 60,
+                  particleTimer = 60,
+                  particleSprites = [getTexture "5" assetlist, getTexture "4" assetlist, getTexture "3" assetlist, getTexture "2" assetlist, getTexture "1" assetlist]
                 }
             )
           ]
