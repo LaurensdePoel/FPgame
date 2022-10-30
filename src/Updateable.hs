@@ -87,3 +87,12 @@ instance Updateable PowerUp where
     WorldSpace
       | despawnTime <= 0 -> Nothing
       | otherwise -> Just pu
+
+instance Updateable Particle where
+  move :: Particle -> Particle
+  move particle = particle -- A Particle is stationary in the current version
+
+  destroy :: Particle -> Maybe Particle
+  destroy p@Particle {particleSprites = sprites}
+    | null sprites = Nothing
+    | otherwise = Just p
