@@ -5,6 +5,7 @@ import Data.Map as Map
 import Graphics.Gloss
 import Graphics.Gloss.Interface.IO.Game
 import Input
+import Menu
 import Model
 import View
 

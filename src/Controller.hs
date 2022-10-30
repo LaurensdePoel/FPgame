@@ -8,7 +8,7 @@ import Updates
 -- | Handle one iteration of the game
 step :: Float -> GameState -> IO GameState
 step seconds gs@Game {status = status', elapsedTime = elapsedTime'}
-  | status' == InMenu = return $ ckeckInput gs
+  | status' == InMenu = return $ updateMenu gs
   | status' == InGame = return $ updateGameState $ gs {elapsedTime = updateTime}
   | otherwise = return gs
   where

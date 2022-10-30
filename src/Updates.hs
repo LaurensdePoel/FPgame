@@ -9,6 +9,7 @@ import Data.Maybe
 import qualified Data.Set as S
 import Graphics.Gloss.Interface.IO.Interact
 import Input
+import Menu
 import Model
 import Timeable
 import Updateable
@@ -96,8 +97,8 @@ shoot Airplane {airplanePos = (x, y), fireRate = r, airplaneProjectile = project
 -- destroyObjects :: GameState -> GameState
 -- destroyObjects gs@Game {players = players, enemies = enemies, projectiles = projectiles, particles = _particles} = gs {players = destroyFromList players, enemies = destroyFromList enemies, projectiles = destroyFromList projectiles, particles = destroyFromList _particles}
 
-ckeckInput :: GameState -> GameState
-ckeckInput gs@Game {pressedKeys = _pressedKeys} = singleKeyPress (SpecialKey KeyEsc) gs pauseMenu
+checkPause :: GameState -> GameState
+checkPause gs@Game {pressedKeys = _pressedKeys} = singleKeyPress (SpecialKey KeyEsc) gs pauseMenu
 
 -- updatePowerUps :: GameState -> GameState
 -- updatePowerUps gs@Game {players = players', powerUps = powerUps'} = gs {players = updatedPlayers4, powerUps = updatedPowerUps2}
@@ -141,15 +142,15 @@ ckeckInput gs@Game {pressedKeys = _pressedKeys} = singleKeyPress (SpecialKey Key
 --     newParticles3 = mapMaybe (\projectile -> if 0 >= projectileHealth projectile then let newParticle = getParticle "explosion" _particleMap in Just newParticle {particlePosition = projectilePos projectile} else Nothing) projectiles
 
 updateGameState :: GameState -> GameState
-updateGameState = ckeckInput . garbageCollector . particleHandler . collisionHandler . timeHandler . movementHandler -- . destroyObjects . updateParticles . updateAirplanes . updateProjectiles . updatePowerUps
+updateGameState = checkPause . garbageCollector . particleHandler . collisionHandler . timeHandler . movementHandler -- . destroyObjects . updateParticles . updateAirplanes . updateProjectiles . updatePowerUps
 
-pauseMenu :: GameState -> GameState
-pauseMenu gs@Game {status = _status} = gs {status = toggleStatus}
-  where
-    toggleStatus :: Status
-    toggleStatus = case _status of
-      InMenu -> InGame
-      InGame -> InMenu
+-- pauseMenu :: GameState -> GameState
+-- pauseMenu gs@Game {status = _status} = gs {status = toggleStatus}
+--   where
+--     toggleStatus :: Status
+--     toggleStatus = case _status of
+--       InMenu -> InGame
+--       InGame -> InMenu
 
 -- Handles all timers of entities
 timeHandler :: GameState -> GameState
@@ -243,3 +244,6 @@ powerUpEffect
       updateBuffer value multiplier
         | applyEffect = (value * multiplier)
         | otherwise = (value * (1 / multiplier))
+
+updateMenu :: GameState -> GameState
+updateMenu = checkPause . checkMenuInput
