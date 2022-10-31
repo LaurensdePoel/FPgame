@@ -1,13 +1,10 @@
 {-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
 
-{-# HLINT ignore "Use null" #-}
-
 -- | This module defines the Updates of entities in the game
 module Updates where
 
 import Animateable
 import Collidable
-import Config
 import Damageable
 import Data.Maybe
 import qualified Data.Set as S
@@ -157,22 +154,46 @@ updateGameState = debugButtons . checkPause . levelHandler . garbageCollector . 
 --       InGame -> InMenu
 
 debugButtons :: GameState -> GameState
-debugButtons = debugSpawnButton
+debugButtons = debugSpawnButton . debugKillEnemyButton
   where
     debugSpawnButton :: GameState -> GameState
     debugSpawnButton gs@Game {pressedKeys = _pressedKeys} = singleKeyPress (Char 't') gs nextWave
 
+    debugKillEnemyButton :: GameState -> GameState
+    debugKillEnemyButton gs@Game {pressedKeys = _pressedKeys} = singleKeyPress (Char 'k') gs killTopEnemy
+      where
+        killTopEnemy gs@Game {enemies = _enemies} 
+          | null _enemies = gs 
+          | otherwise = gs {enemies = tail _enemies}
+
 -- Handles levels and waves
 levelHandler :: GameState -> GameState
-levelHandler gs@Game {level = _level, enemies = _enemies} = if readyToExecute _level then nextWave gs else gs
+levelHandler gs@Game {level = _level, enemies = _enemies, players = _players}
+  | ifAllPlayersDied = gs {status = InMenu, menu = initDefeatMenu, pressedKeys = emptyKeys}
+  | ifCurrentWaveKilled && ifAllWavesCleared = gs {status = InMenu, menu = initVictoryMenu, pressedKeys = emptyKeys}
+  -- | ifCurrentWaveKilled = gs {level = _level {waves = nextWaveDelay1Second $ waves _level}}
+  | ifCurrentWaveKilled = nextWave gs
+  | readyToExecute _level = nextWave gs
+  | otherwise = gs
+  where
+    ifCurrentWaveKilled :: Bool
+    ifCurrentWaveKilled = null _enemies
+    ifAllWavesCleared :: Bool
+    ifAllWavesCleared = null (waves _level)
+    ifAllPlayersDied :: Bool
+    ifAllPlayersDied = null _players
+
+    nextWaveDelay1Second :: [Wave] -> [Wave]
+    nextWaveDelay1Second [] = []
+    nextWaveDelay1Second (x : xs) = x {waveTimer = 1.0} : xs
 
 nextWave :: GameState -> GameState
 nextWave gs@Game {level = _level, enemies = _enemies}
-  | ifAllWavesCleared = gs -- handle what happens if all waves are cleared
+  | ifAllWavesCleared = gs -- do nothing if all waves are cleared --TODO better if we can disable timer
   | otherwise = gs {enemies = _enemies ++ spawnNextWave, level = _level {waves = removeWaveAfterSpawn}}
   where
-    -- Dont use null will crash
-    ifAllWavesCleared = length (waves _level) == 0
+    ifAllWavesCleared :: Bool
+    ifAllWavesCleared = null (waves _level)
 
     spawnNextWave :: [Enemy]
     spawnNextWave = enemiesInWave $ head (waves _level)

@@ -153,6 +153,9 @@ projectileSizeVar, airplaneSizeVar :: Size
 projectileSizeVar = Size (projectileSizeXY, projectileSizeXY)
 airplaneSizeVar = Size (airplaneSizeXY, airplaneSizeXY)
 
+debugInitLevel :: Assets -> Level
+debugInitLevel assetlist = Level {levelNr = 1, waves = [Wave [createBasicEnemy Fighter (500, -350) assetlist, createBasicEnemy Fighter (300, -200) assetlist] 200, Wave [createBasicEnemy Fighter (500, 350) assetlist] 200, Wave [createBasicEnemy Fighter (300, 100) assetlist] 200]}
+
 initialState :: Assets -> GameState
 initialState assetlist =
   Game
@@ -160,7 +163,7 @@ initialState assetlist =
       status = InMenu,
       players = [],
       enemies = [],
-      level = Level {levelNr = 1, waves = [Wave [createBasicEnemy Fighter (500, -350) assetlist, createBasicEnemy Fighter (300, -200) assetlist] 99, Wave [createBasicEnemy Fighter (500, 350) assetlist] 99]},
+      level = Level 0 [],
       projectiles = [],
       powerUps = [],
       pressedKeys = S.empty,
@@ -265,6 +268,34 @@ initPauseMenu =
 
     quit = Field {fieldName = "Quit", fieldPosition = (0, 0), subMenu = initMenu}
 
+initVictoryMenu :: Menu
+initVictoryMenu =
+  Menu
+    { fields = [nextLevel, selectLevel, mainMenu],
+      returnMenu = NoMenu
+    }
+  where
+    nextLevel, selectLevel, mainMenu :: Field
+    nextLevel = Field {fieldName = "Next Level", fieldPosition = (0, 200), subMenu = NoMenuButFunction start1player}
+
+    selectLevel = Field {fieldName = "Select Level", fieldPosition = (0, 0), subMenu = initPlayMenu}
+
+    mainMenu = Field {fieldName = "Main Menu", fieldPosition = (0, -200), subMenu = initMenu}
+
+initDefeatMenu :: Menu
+initDefeatMenu =
+  Menu
+    { fields = [retryLevel, selectLevel, mainMenu],
+      returnMenu = NoMenu
+    }
+  where
+    retryLevel, selectLevel, mainMenu :: Field
+    retryLevel = Field {fieldName = "Retry Level", fieldPosition = (0, 200), subMenu = NoMenuButFunction start1player}
+
+    selectLevel = Field {fieldName = "Select Level", fieldPosition = (0, 0), subMenu = initPlayMenu}
+
+    mainMenu = Field {fieldName = "Main Menu", fieldPosition = (0, -200), subMenu = initMenu}
+
 resumeGame :: GameState -> GameState
 resumeGame gs = gs {status = InGame}
 
@@ -299,6 +330,7 @@ start1player gs@Game {tmpassetList = _assetList} =
       status = InGame,
       projectiles = [],
       enemies = [],
+      level = debugInitLevel _assetList,
       powerUps =
         [ PowerUp
             { powerUpPos = (-400, 70),
@@ -373,6 +405,7 @@ start2player gs@Game {tmpassetList = _assetList} =
         ],
       status = InGame,
       projectiles = [],
+      level = debugInitLevel _assetList,
       enemies =
         [ -- tmp enemy
           Airplane
