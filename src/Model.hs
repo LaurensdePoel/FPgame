@@ -6,6 +6,7 @@
 --   which represent the state of the game
 module Model where
 
+import Assets
 import Data.Map as Map
 import Data.Maybe
 import qualified Data.Set as S
@@ -113,19 +114,33 @@ data Projectile = Projectile
     projectileSprite :: Picture
   }
 
+type Enemy = Airplane
+
+-- type Wave = ([Enemy], Time)
+
+data Wave = Wave
+  { enemiesInWave :: [Enemy],
+    waveTimer :: Time
+  }
+
+data Level = Level
+  { levelNr :: Int,
+    waves :: [Wave]
+  }
+
 data GameState = Game
   { elapsedTime :: Float,
     status :: Status,
     players :: [Airplane],
-    enemies :: [Airplane],
-    -- level :: Level,
+    enemies :: [Enemy],
+    level :: Level,
     projectiles :: [Projectile],
     powerUps :: [PowerUp],
     particleMap :: Map String Particle,
     particles :: [Particle],
     pressedKeys :: S.Set Key,
     menu :: Menu,
-    tmpassetList :: Map String Picture
+    tmpassetList :: Assets
   }
 
 -- TODO add to glabal file
@@ -138,13 +153,17 @@ projectileSizeVar, airplaneSizeVar :: Size
 projectileSizeVar = Size (projectileSizeXY, projectileSizeXY)
 airplaneSizeVar = Size (airplaneSizeXY, airplaneSizeXY)
 
-initialState :: Map String Picture -> GameState
+debugInitLevel :: Assets -> Level
+debugInitLevel assetlist = Level {levelNr = 1, waves = [Wave [createBasicEnemy Fighter (500, -350) assetlist, createBasicEnemy Fighter (300, -200) assetlist] 200, Wave [createBasicEnemy Fighter (500, 350) assetlist] 200, Wave [createBasicEnemy Fighter (300, 100) assetlist] 200]}
+
+initialState :: Assets -> GameState
 initialState assetlist =
   Game
     { elapsedTime = 0,
       status = InMenu,
       players = [],
       enemies = [],
+      level = Level 0 [],
       projectiles = [],
       powerUps = [],
       pressedKeys = S.empty,
@@ -249,6 +268,34 @@ initPauseMenu =
 
     quit = Field {fieldName = "Quit", fieldPosition = (0, 0), subMenu = initMenu}
 
+initVictoryMenu :: Menu
+initVictoryMenu =
+  Menu
+    { fields = [nextLevel, selectLevel, mainMenu],
+      returnMenu = NoMenu
+    }
+  where
+    nextLevel, selectLevel, mainMenu :: Field
+    nextLevel = Field {fieldName = "Next Level", fieldPosition = (0, 200), subMenu = NoMenuButFunction start1player}
+
+    selectLevel = Field {fieldName = "Select Level", fieldPosition = (0, 0), subMenu = initPlayMenu}
+
+    mainMenu = Field {fieldName = "Main Menu", fieldPosition = (0, -200), subMenu = initMenu}
+
+initDefeatMenu :: Menu
+initDefeatMenu =
+  Menu
+    { fields = [retryLevel, selectLevel, mainMenu],
+      returnMenu = NoMenu
+    }
+  where
+    retryLevel, selectLevel, mainMenu :: Field
+    retryLevel = Field {fieldName = "Retry Level", fieldPosition = (0, 200), subMenu = NoMenuButFunction start1player}
+
+    selectLevel = Field {fieldName = "Select Level", fieldPosition = (0, 0), subMenu = initPlayMenu}
+
+    mainMenu = Field {fieldName = "Main Menu", fieldPosition = (0, -200), subMenu = initMenu}
+
 resumeGame :: GameState -> GameState
 resumeGame gs = gs {status = InGame}
 
@@ -283,6 +330,7 @@ start1player gs@Game {tmpassetList = _assetList} =
       status = InGame,
       projectiles = [],
       enemies = [],
+      level = debugInitLevel _assetList,
       powerUps =
         [ PowerUp
             { powerUpPos = (-400, 70),
@@ -357,6 +405,7 @@ start2player gs@Game {tmpassetList = _assetList} =
         ],
       status = InGame,
       projectiles = [],
+      level = debugInitLevel _assetList,
       enemies =
         [ -- tmp enemy
           Airplane
@@ -385,4 +434,29 @@ start2player gs@Game {tmpassetList = _assetList} =
       powerUps = [],
       particles = [],
       menu = initPauseMenu
+    }
+
+createBasicEnemy :: AirPlaneType -> Position -> Assets -> Enemy
+createBasicEnemy enemytype position assetList =
+  Airplane
+    { airplaneType = enemytype,
+      airplanePos = position,
+      airplaneSize = airplaneSizeVar,
+      airplaneVelocity = (0, 0),
+      airplaneHealth = 10,
+      fireRate = Burst 120.0,
+      timeLastShot = 0.0,
+      airplanePowerUps = [],
+      airplaneProjectile =
+        Projectile
+          { projectileType = Gun,
+            projectilePos = (0, 0),
+            projectileSize = projectileSizeVar,
+            projectileVelocity = (-10, 0),
+            projectileHealth = 1,
+            projectileDamage = 10,
+            projectileOrigin = Enemies,
+            projectileSprite = flip fixImageOrigin projectileSizeVar $ rotate (-90) $ getTexture "double-bullet" assetList
+          },
+      airplaneSprite = flip fixImageOrigin airplaneSizeVar $ rotate (-90) $ getTexture "ship_0000" assetList
     }

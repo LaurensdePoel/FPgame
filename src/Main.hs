@@ -36,7 +36,6 @@ main = do
   -- explosion2Part3BMP <- loadBMP "assets/tiles/tile_0006x.bmp"
   -- explosion2Part4BMP <- loadBMP "assets/tiles/tile_0007x.bmp"
   -- explosion2Part5BMP <- loadBMP "assets/tiles/tile_0008x.bmp"
-
   let
   playIO
     (InWindow "Nice Window" (1124, 868) (offset, offset))

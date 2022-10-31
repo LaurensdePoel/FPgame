@@ -18,3 +18,6 @@ singleKeyPress :: Key -> GameState -> (GameState -> GameState) -> GameState
 singleKeyPress key gs@Game {pressedKeys = _pressedKeys} f
   | S.member key _pressedKeys = f gs {pressedKeys = S.delete key _pressedKeys}
   | otherwise = gs
+
+emptyKeys :: S.Set Key
+emptyKeys = S.empty

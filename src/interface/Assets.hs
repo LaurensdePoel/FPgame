@@ -9,7 +9,9 @@ import System.FilePath
 assetsPath :: FilePath
 assetsPath = "assets/"
 
-getAssets :: IO (Map String Picture)
+type Assets = (Map String Picture)
+
+getAssets :: IO Assets
 getAssets = do
   -- get all subdirectories in current path
   pathDirs <- getDirectories assetsPath

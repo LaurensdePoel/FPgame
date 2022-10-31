@@ -27,6 +27,7 @@ checkMenuInput gs@Game {pressedKeys = _pressedKeys, menu = _menu}
   | pressed (SpecialKey KeyLeft) = previousMenu gs {pressedKeys = S.delete (SpecialKey KeyLeft) _pressedKeys}
   | pressed (SpecialKey KeyDelete) = previousMenu gs {pressedKeys = S.delete (SpecialKey KeyDelete) _pressedKeys}
   | pressed (SpecialKey KeyBackspace) = previousMenu gs {pressedKeys = S.delete (SpecialKey KeyBackspace) _pressedKeys}
+  | pressed (SpecialKey KeyEsc) = previousMenu gs {pressedKeys = S.delete (SpecialKey KeyEsc) _pressedKeys}
   | otherwise = gs
   where
     pressed :: Key -> Bool
