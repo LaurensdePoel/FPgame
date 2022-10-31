@@ -28,14 +28,14 @@ addVelocityBasedOnKey key airplane@Airplane {airplaneType = planeType} =
   case planeType of
     Player1
       | key == Char 'w' -> airplane {airplaneVelocity = add (0, velocityStep)}
-      | key == Char 'a' -> airplane {airplaneVelocity = add (-velocityStep, 0)}
-      | key == Char 's' -> airplane {airplaneVelocity = add (0, -velocityStep)}
+      | key == Char 'a' -> airplane {airplaneVelocity = add (- velocityStep, 0)}
+      | key == Char 's' -> airplane {airplaneVelocity = add (0, - velocityStep)}
       | key == Char 'd' -> airplane {airplaneVelocity = add (velocityStep, -0)}
       | otherwise -> airplane
     Player2
       | key == SpecialKey KeyUp -> airplane {airplaneVelocity = add (0, velocityStep)}
-      | key == SpecialKey KeyLeft -> airplane {airplaneVelocity = add (-velocityStep, 0)}
-      | key == SpecialKey KeyDown -> airplane {airplaneVelocity = add (0, -velocityStep)}
+      | key == SpecialKey KeyLeft -> airplane {airplaneVelocity = add (- velocityStep, 0)}
+      | key == SpecialKey KeyDown -> airplane {airplaneVelocity = add (0, - velocityStep)}
       | key == SpecialKey KeyRight -> airplane {airplaneVelocity = add (velocityStep, -0)}
       | otherwise -> airplane
     _ -> airplane
@@ -246,4 +246,4 @@ powerUpEffect
         | otherwise = (value * (1 / multiplier))
 
 updateMenu :: GameState -> GameState
-updateMenu = checkPause . checkMenuInput
+updateMenu = checkMenuInput
