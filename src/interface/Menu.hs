@@ -53,8 +53,8 @@ fieldDown (x : xs) = xs ++ [x]
 nextMenu :: GameState -> GameState
 nextMenu gs@Game {menu = _menu} = newMenu (subMenu $ head (fields _menu))
   where
-    newMenu newMenu = case newMenu of
-      Menu {} -> gs {menu = newMenu}
+    newMenu _newMenu = case _newMenu of
+      Menu {} -> gs {menu = _newMenu}
       NoMenu -> gs
       NoMenuButFunction f -> f gs
 
@@ -65,4 +65,4 @@ previousMenu gs@Game {menu = _menu} = gs {menu = check (returnMenu _menu)}
     check newMenu = case newMenu of
       Menu {} -> newMenu
       NoMenu -> _menu
-      NoMenuButFunction f -> _menu
+      NoMenuButFunction _ -> _menu
