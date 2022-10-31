@@ -8,6 +8,7 @@ import Collidable
 import Damageable
 import Data.Maybe
 import qualified Data.Set as S
+import Foreign (toBool)
 import Graphics.Gloss.Interface.IO.Interact
 import Input
 import Menu
@@ -162,18 +163,20 @@ debugButtons = debugSpawnButton . debugKillEnemyButton
     debugKillEnemyButton :: GameState -> GameState
     debugKillEnemyButton gs@Game {pressedKeys = _pressedKeys} = singleKeyPress (Char 'k') gs killTopEnemy
       where
-        killTopEnemy gs@Game {enemies = _enemies} 
-          | null _enemies = gs 
+        killTopEnemy gs@Game {enemies = _enemies}
+          | null _enemies = gs
           | otherwise = gs {enemies = tail _enemies}
 
 -- Handles levels and waves
 levelHandler :: GameState -> GameState
 levelHandler gs@Game {level = _level, enemies = _enemies, players = _players}
+  -- Enter Defeat menu
   | ifAllPlayersDied = gs {status = InMenu, menu = initDefeatMenu, pressedKeys = emptyKeys}
+  -- Enter Victory menu
   | ifCurrentWaveKilled && ifAllWavesCleared = gs {status = InMenu, menu = initVictoryMenu, pressedKeys = emptyKeys}
-  -- | ifCurrentWaveKilled = gs {level = _level {waves = nextWaveDelay1Second $ waves _level}}
-  | ifCurrentWaveKilled = nextWave gs
-  | readyToExecute _level = nextWave gs
+  -- Next Wave
+  | ifCurrentWaveKilled || ifWaveTimerExpired = nextWave gs
+  -- Do Nothing
   | otherwise = gs
   where
     ifCurrentWaveKilled :: Bool
@@ -182,10 +185,8 @@ levelHandler gs@Game {level = _level, enemies = _enemies, players = _players}
     ifAllWavesCleared = null (waves _level)
     ifAllPlayersDied :: Bool
     ifAllPlayersDied = null _players
-
-    nextWaveDelay1Second :: [Wave] -> [Wave]
-    nextWaveDelay1Second [] = []
-    nextWaveDelay1Second (x : xs) = x {waveTimer = 1.0} : xs
+    ifWaveTimerExpired :: Bool
+    ifWaveTimerExpired = readyToExecute _level
 
 nextWave :: GameState -> GameState
 nextWave gs@Game {level = _level, enemies = _enemies}
