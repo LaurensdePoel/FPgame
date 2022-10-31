@@ -1,3 +1,7 @@
+{-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
+
+{-# HLINT ignore "Use null" #-}
+
 -- | This module defines the Updates of entities in the game
 module Updates where
 
@@ -142,7 +146,7 @@ checkPause gs@Game {pressedKeys = _pressedKeys} = singleKeyPress (SpecialKey Key
 --     newParticles3 = mapMaybe (\projectile -> if 0 >= projectileHealth projectile then let newParticle = getParticle "explosion" _particleMap in Just newParticle {particlePosition = projectilePos projectile} else Nothing) projectiles
 
 updateGameState :: GameState -> GameState
-updateGameState = checkPause . garbageCollector . particleHandler . collisionHandler . timeHandler . movementHandler -- . destroyObjects . updateParticles . updateAirplanes . updateProjectiles . updatePowerUps
+updateGameState = debugButtons . checkPause . levelHandler . garbageCollector . particleHandler . collisionHandler . timeHandler . movementHandler -- . destroyObjects . updateParticles . updateAirplanes . updateProjectiles . updatePowerUps
 
 -- pauseMenu :: GameState -> GameState
 -- pauseMenu gs@Game {status = _status} = gs {status = toggleStatus}
@@ -152,16 +156,41 @@ updateGameState = checkPause . garbageCollector . particleHandler . collisionHan
 --       InMenu -> InGame
 --       InGame -> InMenu
 
+debugButtons :: GameState -> GameState
+debugButtons = debugSpawnButton
+  where
+    debugSpawnButton :: GameState -> GameState
+    debugSpawnButton gs@Game {pressedKeys = _pressedKeys} = singleKeyPress (Char 't') gs nextWave
+
+-- Handles levels and waves
+levelHandler :: GameState -> GameState
+levelHandler gs@Game {level = _level, enemies = _enemies} = if readyToExecute _level then nextWave gs else gs
+
+nextWave :: GameState -> GameState
+nextWave gs@Game {level = _level, enemies = _enemies}
+  | ifAllWavesCleared = gs -- handle what happens if all waves are cleared
+  | otherwise = gs {enemies = _enemies ++ spawnNextWave, level = _level {waves = removeWaveAfterSpawn}}
+  where
+    -- Dont use null will crash
+    ifAllWavesCleared = length (waves _level) == 0
+
+    spawnNextWave :: [Enemy]
+    spawnNextWave = enemiesInWave $ head (waves _level)
+
+    removeWaveAfterSpawn :: [Wave]
+    removeWaveAfterSpawn = tail $ waves _level
+
 -- Handles all timers of entities
 timeHandler :: GameState -> GameState
-timeHandler gs@Game {players = _players, enemies = _enemies, projectiles = _projectiles, powerUps = _powerUps, particles = _particles} =
-  gs {players = updatedPlayers, enemies = updatedEnemies, projectiles = updatedProjectiles, powerUps = updatedPowerUps, particles = updatedParticles}
+timeHandler gs@Game {players = _players, enemies = _enemies, level = _level, projectiles = _projectiles, powerUps = _powerUps, particles = _particles} =
+  gs {players = updatedPlayers, enemies = updatedEnemies, level = updatedLevel, projectiles = updatedProjectiles, powerUps = updatedPowerUps, particles = updatedParticles}
   where
     updatedPlayers = map (\player -> updateTime player {airplanePowerUps = map updateTime (airplanePowerUps player)}) _players
     updatedEnemies = map updateTime _enemies
     updatedProjectiles = _projectiles ++ (concatMap shoot $ filter readyToExecute (updatedPlayers ++ updatedEnemies))
     updatedPowerUps = map updateTime _powerUps
     updatedParticles = map (onChange nextSprite) _particles
+    updatedLevel = updateTime _level
 
 -- Handles all movement of entities
 movementHandler :: GameState -> GameState
