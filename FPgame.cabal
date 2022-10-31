@@ -68,7 +68,8 @@ executable FPgame
                         gloss,
                         random,
                         containers,
-                        directory
+                        directory,
+                        filepath
 
     -- Directories containing source files.
     hs-source-dirs:   src, src/instances, src/interface

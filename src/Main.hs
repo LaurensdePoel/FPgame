@@ -24,13 +24,8 @@ offset = 100
 
 main :: IO ()
 main = do
-  -- player1BMP <- loadBMP "assets/ships/player_01.bmp"
-  -- player2BMP <- loadBMP "assets/ships/player_02.bmp"
   assets <- getAssets
   -- tile1BMP <- loadBMP "assets/tiles/tile_01.bmp"
-  -- powerPackSprite1BMP <- loadBMP "assets/tiles/tile_0025.bmp"
-  -- powerPackSprite2BMP <- loadBMP "assets/tiles/tile_0025x.bmp"
-  -- projectile1BMP <- loadBMP "assets/projectiles/projectile_01.bmp"
   -- explosionPart1BMP <- loadBMP "assets/tiles/tile_0004.bmp"
   -- explosionPart2BMP <- loadBMP "assets/tiles/tile_0005.bmp"
   -- explosionPart3BMP <- loadBMP "assets/tiles/tile_0006.bmp"
@@ -41,21 +36,8 @@ main = do
   -- explosion2Part3BMP <- loadBMP "assets/tiles/tile_0006x.bmp"
   -- explosion2Part4BMP <- loadBMP "assets/tiles/tile_0007x.bmp"
   -- explosion2Part5BMP <- loadBMP "assets/tiles/tile_0008x.bmp"
-  -- number1BMP <- loadBMP "assets/tiles/tile_0020.bmp"
-  -- number2BMP <- loadBMP "assets/tiles/tile_0021.bmp"
-  -- number3BMP <- loadBMP "assets/tiles/tile_0022.bmp"
-  -- number4BMP <- loadBMP "assets/tiles/tile_0023.bmp"
-  -- number5BMP <- loadBMP "assets/tiles/tile_0031.bmp"
 
-  let -- Or FullScreen
-  -- Background color
-  -- Frames per second
-  -- Initial state
-  -- View function
-  -- Event function
-  -- Step function
-  -- background :: Color
-  -- background = black
+  let
   playIO
     (InWindow "Nice Window" (1124, 868) (offset, offset))
     black

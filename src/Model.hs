@@ -185,7 +185,7 @@ initialState assetlist =
 
 getTexture :: String -> Map String Picture -> Picture
 getTexture s m = case Map.lookup s m of
-  Nothing -> rotate (-90) $ Scale 0.25 0.25 (color red $ Text "error")
+  Nothing -> rotate (-90) $ Scale 0.25 0.25 (color red $ Text s)
   Just x -> x
 
 getParticle :: String -> Map String Particle -> Particle
@@ -277,7 +277,7 @@ start1player gs@Game {tmpassetList = _assetList} =
                     projectileOrigin = Players,
                     projectileSprite = flip fixImageOrigin projectileSizeVar $ rotate 90 $ getTexture "bullet" _assetList
                   },
-              airplaneSprite = flip fixImageOrigin airplaneSizeVar $ rotate 90 $ getTexture "player1" _assetList
+              airplaneSprite = flip fixImageOrigin airplaneSizeVar $ rotate 90 $ getTexture "player_1" _assetList
             }
         ],
       status = InGame,
@@ -297,7 +297,7 @@ start1player gs@Game {tmpassetList = _assetList} =
                     spritePos = (0, 0),
                     spritesInterval = 10.0,
                     spritesTimer = 10.0,
-                    idleSprites = [getTexture "powerPackSprite1" _assetList, getTexture "powerPackSprite2" _assetList],
+                    idleSprites = [getTexture "power-pack_1" _assetList, getTexture "power-pack_2" _assetList],
                     movingSprites = []
                   }
             }
@@ -330,7 +330,7 @@ start2player gs@Game {tmpassetList = _assetList} =
                     projectileOrigin = Players,
                     projectileSprite = flip fixImageOrigin projectileSizeVar $ rotate 90 $ getTexture "bullet" _assetList
                   },
-              airplaneSprite = flip fixImageOrigin airplaneSizeVar $ rotate 90 $ getTexture "player_01" _assetList
+              airplaneSprite = flip fixImageOrigin airplaneSizeVar $ rotate 90 $ getTexture "player_1" _assetList
             },
           Airplane
             { airplaneType = Player2,
@@ -352,7 +352,7 @@ start2player gs@Game {tmpassetList = _assetList} =
                     projectileOrigin = Players,
                     projectileSprite = flip fixImageOrigin projectileSizeVar $ rotate 90 $ getTexture "bullet" _assetList
                   },
-              airplaneSprite = flip fixImageOrigin airplaneSizeVar $ rotate 90 $ getTexture "player_02" _assetList
+              airplaneSprite = flip fixImageOrigin airplaneSizeVar $ rotate 90 $ getTexture "player_2" _assetList
             }
         ],
       status = InGame,
@@ -377,9 +377,9 @@ start2player gs@Game {tmpassetList = _assetList} =
                     projectileHealth = 1,
                     projectileDamage = 10,
                     projectileOrigin = Enemies,
-                    projectileSprite = flip fixImageOrigin projectileSizeVar $ rotate (-90) $ getTexture "bullet" _assetList
+                    projectileSprite = flip fixImageOrigin projectileSizeVar $ rotate (-90) $ getTexture "double-bullet" _assetList
                   },
-              airplaneSprite = flip fixImageOrigin airplaneSizeVar $ rotate (-90) $ getTexture "player1" _assetList
+              airplaneSprite = flip fixImageOrigin airplaneSizeVar $ rotate (-90) $ getTexture "ship_0000" _assetList
             }
         ],
       powerUps = [],
