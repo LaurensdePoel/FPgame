@@ -6,24 +6,23 @@ module Damageable where
 import Model
 
 -------------------------------------------------
--- Timeable class
+-- * Timeable class
 -------------------------------------------------
 
 class Damageable a where
-  damage :: Int -> a -> a
+  -- | Applies damage to the Damageable
+  takeDamage :: Int -> a -> a
 
 -------------------------------------------------
--- Helper functions
--------------------------------------------------
-
--------------------------------------------------
--- Instances
+-- * Instances
 -------------------------------------------------
 
 instance Damageable Airplane where
-  damage :: Int -> Airplane -> Airplane
-  damage damage' airplane@Airplane {airplaneHealth = health} = airplane {airplaneHealth = max 0 (health - damage')}
+  -- | Apply damage to the airplane
+  takeDamage :: Int -> Airplane -> Airplane
+  takeDamage damage airplane@Airplane {airplaneHealth = health} = airplane {airplaneHealth = max 0 (health - damage)}
 
 instance Damageable Projectile where
-  damage :: Int -> Projectile -> Projectile
-  damage damage' projectile@Projectile {projectileHealth = health} = projectile {projectileHealth = max 0 (health - damage')}
+  -- | Apply damage to the projectile
+  takeDamage :: Int -> Projectile -> Projectile
+  takeDamage damage projectile@Projectile {projectileHealth = health} = projectile {projectileHealth = max 0 (health - damage)}

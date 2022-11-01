@@ -51,3 +51,7 @@ velocityStep :: Float
 velocityStep = 0.6
 
 -- ** Enemey base values
+
+-- * Multipliers 
+velocityReduction :: Float
+velocityReduction = 0.2

@@ -39,7 +39,7 @@ checkPause gs = singleKeyPress (SpecialKey KeyEsc) gs pauseMenu
 -- Currently defined keys:
 --
 --    - 'f' = Force next wave
---    - 'k' = Kill olderst enemy
+--    - 'k' = Kill oldest enemy
 debugButtons :: GameState -> GameState
 debugButtons = debugSpawnButton . debugKillEnemyButton
   where
@@ -47,7 +47,7 @@ debugButtons = debugSpawnButton . debugKillEnemyButton
     debugSpawnButton :: GameState -> GameState
     debugSpawnButton gs@GameState {pressedKeys = _pressedKeys} = singleKeyPress (Char 'f') gs nextWave
 
-    -- Kill olderst enemy
+    -- Kill oldest enemy
     debugKillEnemyButton :: GameState -> GameState
     debugKillEnemyButton gs@GameState {pressedKeys = _pressedKeys} = singleKeyPress (Char 'k') gs killTopEnemy
       where
