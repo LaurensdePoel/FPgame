@@ -44,7 +44,7 @@ instance Drawable PowerUp where
 
 instance Drawable Particle where
   draw :: Particle -> Picture
-  draw Particle {particlePosition = pos, particleSprites = sprites} = uncurry translate pos $ head sprites
+  draw Particle {particlePosition = pos, particleSprites = sprites} = translate `uncurry` pos $ head sprites
 
 instance Drawable Sprites where
   draw :: Sprites -> Picture

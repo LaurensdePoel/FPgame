@@ -27,6 +27,7 @@ checkMenuInput gs@Game {pressedKeys = _pressedKeys, menu = _menu}
   | pressed (SpecialKey KeyLeft) = previousMenu gs {pressedKeys = S.delete (SpecialKey KeyLeft) _pressedKeys}
   | pressed (SpecialKey KeyDelete) = previousMenu gs {pressedKeys = S.delete (SpecialKey KeyDelete) _pressedKeys}
   | pressed (SpecialKey KeyBackspace) = previousMenu gs {pressedKeys = S.delete (SpecialKey KeyBackspace) _pressedKeys}
+  | pressed (SpecialKey KeyEsc) = previousMenu gs {pressedKeys = S.delete (SpecialKey KeyEsc) _pressedKeys}
   | otherwise = gs
   where
     pressed :: Key -> Bool
@@ -53,8 +54,8 @@ fieldDown (x : xs) = xs ++ [x]
 nextMenu :: GameState -> GameState
 nextMenu gs@Game {menu = _menu} = newMenu (subMenu $ head (fields _menu))
   where
-    newMenu newMenu = case newMenu of
-      Menu {} -> gs {menu = newMenu}
+    newMenu _newMenu = case _newMenu of
+      Menu {} -> gs {menu = _newMenu}
       NoMenu -> gs
       NoMenuButFunction f -> f gs
 
@@ -65,4 +66,4 @@ previousMenu gs@Game {menu = _menu} = gs {menu = check (returnMenu _menu)}
     check newMenu = case newMenu of
       Menu {} -> newMenu
       NoMenu -> _menu
-      NoMenuButFunction f -> _menu
+      NoMenuButFunction _ -> _menu

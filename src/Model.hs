@@ -6,6 +6,7 @@
 --   which represent the state of the game
 module Model where
 
+import Assets
 import Data.Map as Map
 import Data.Maybe
 import qualified Data.Set as S
@@ -117,19 +118,33 @@ data Projectile = Projectile
     projectileSprite :: Picture
   }
 
+type Enemy = Airplane
+
+-- type Wave = ([Enemy], Time)
+
+data Wave = Wave
+  { enemiesInWave :: [Enemy],
+    waveTimer :: Time
+  }
+
+data Level = Level
+  { levelNr :: Int,
+    waves :: [Wave]
+  }
+
 data GameState = Game
   { elapsedTime :: Float,
     status :: Status,
     players :: [Airplane],
-    enemies :: [Airplane],
-    -- level :: Level,
+    enemies :: [Enemy],
+    level :: Level,
     projectiles :: [Projectile],
     powerUps :: [PowerUp],
     particleMap :: Map String Particle,
     particles :: [Particle],
     pressedKeys :: S.Set Key,
     menu :: Menu,
-    tmpassetList :: Map String Picture
+    tmpassetList :: Assets
   }
 
 -- TODO add to glabal file
@@ -142,13 +157,17 @@ projectileSizeVar, airplaneSizeVar :: Size
 projectileSizeVar = Size (projectileSizeXY, projectileSizeXY)
 airplaneSizeVar = Size (airplaneSizeXY, airplaneSizeXY)
 
-initialState :: Map String Picture -> GameState
+debugInitLevel :: Assets -> Level
+debugInitLevel assetlist = Level {levelNr = 1, waves = [Wave [createBasicEnemy Fighter (500, -350) assetlist, createBasicEnemy Fighter (300, -200) assetlist] 200, Wave [createBasicEnemy Fighter (500, 350) assetlist] 200, Wave [createBasicEnemy Fighter (300, 100) assetlist] 200]}
+
+initialState :: Assets -> GameState
 initialState assetlist =
   Game
     { elapsedTime = 0,
       status = InMenu,
       players = [],
       enemies = [],
+      level = Level 0 [],
       projectiles = [],
       powerUps = [],
       pressedKeys = S.empty,
@@ -184,142 +203,12 @@ initialState assetlist =
                 }
             )
           ],
-      tmpassetList =
-        assetlist
-        {-players =
-                [ Airplane
-                    { airplaneType = Player1,
-                      airplanePos = (-400, 0),
-                      airplaneSize = airplaneSizeVar,
-                      airplaneVelocity = (0, 0),
-                      airplaneHealth = 100,
-                      fireRate = Single 30.0,
-                      timeLastShot = 0.0,
-                      airplanePowerUps = [],
-                      airplaneProjectile =
-                        Projectile
-                          { projectileType = Gun,
-                            projectilePos = (0, 0),
-                            projectileSize = projectileSizeVar,
-                            projectileVelocity = (10, 0),
-                            projectileHealth = 1,
-                            projectileDamage = 30,
-                            projectileOrigin = Players,
-                            projectileSprite = flip fixImageOrigin projectileSizeVar $ rotate 90 $ getTexture "bullet" assetlist
-                          },
-                      airplaneSprite = flip fixImageOrigin airplaneSizeVar $ rotate 90 $ getTexture "player1" assetlist
-                    },
-                  Airplane
-                    { airplaneType = Player2,
-                      airplanePos = (-200, 0),
-                      airplaneSize = airplaneSizeVar,
-                      airplaneVelocity = (0, 0),
-                      airplaneHealth = 100,
-                      fireRate = Single 30.0,
-                      timeLastShot = 0.0,
-                      airplanePowerUps = [],
-                      airplaneProjectile =
-                        Projectile
-                          { projectileType = Gun,
-                            projectilePos = (0, 0),
-                            projectileSize = projectileSizeVar,
-                            projectileVelocity = (10, 0),
-                            projectileHealth = 1,
-                            projectileDamage = 30,
-                            projectileOrigin = Players,
-                            projectileSprite = flip fixImageOrigin projectileSizeVar $ rotate 90 $ getTexture "bullet" assetlist
-                          },
-                      airplaneSprite = flip fixImageOrigin airplaneSizeVar $ rotate 90 $ getTexture "player2" assetlist
-                    }
-                ],
-              enemies =
-                [ -- tmp enemy
-                  Airplane
-                    { airplaneType = Fighter,
-                      airplanePos = (-10, -180),
-                      airplaneSize = airplaneSizeVar,
-                      airplaneVelocity = (0, 0),
-                      airplaneHealth = 100,
-                      fireRate = Burst 120.0,
-                      timeLastShot = 0.0,
-                      airplanePowerUps = [],
-                      airplaneProjectile =
-                        Projectile
-                          { projectileType = Gun,
-                            projectilePos = (0, 0),
-                            projectileSize = projectileSizeVar,
-                            projectileVelocity = (-10, 0),
-                            projectileHealth = 1,
-                            projectileDamage = 10,
-                            projectileOrigin = Enemies,
-                            projectileSprite = flip fixImageOrigin projectileSizeVar $ rotate (-90) $ getTexture "bullet" assetlist
-                          },
-                      airplaneSprite = flip fixImageOrigin airplaneSizeVar $ rotate (-90) $ getTexture "player1" assetlist
-                    }
-                ],
-              tmpInt = 0,
-              pressedKeys = S.empty,
-              projectiles = [],
-              powerUps =
-                [ PowerUp
-                    { powerUpPos = (-400, 70),
-                      powerUpSize = Size (10, 10),
-                      powerUpType = PowerPack 0.0125,
-                      powerUpState = WorldSpace,
-                      timeUntilDespawn = 300.0,
-                      powerUpDuration = 300.0,
-                      -- powerUpSprite = flip fixImageOrigin airplaneSizeVar $ getTexture "powerPack" assetlist,
-                      powerUpSprites =
-                        Sprites
-                          { spritesState = Idle,
-                            spritePos = (0, 0),
-                            spritesInterval = 10.0,
-                            spritesTimer = 10.0,
-                            idleSprites = [getTexture "powerPackSprite1" assetlist, getTexture "powerPackSprite2" assetlist],
-                            movingSprites = []
-                          }
-                    }
-                ],
-        <<<<<<< HEAD
-              particles = [],
-              particleMap =
-                Map.fromList
-                  [ ( "explosion",
-                      Particle
-                        { particlePosition = (0, 0),
-                          particleSize = Size (0, 0),
-                          particleInterval = 8,
-                          particleTimer = 8,
-                          particleSprites = [getTexture "explosionPart1" assetlist, getTexture "explosionPart2" assetlist, getTexture "explosionPart3" assetlist, getTexture "explosionPart4" assetlist, getTexture "explosionPart5" assetlist]
-                        }
-                    ),
-                    ( "explosion2",
-                      Particle
-                        { particlePosition = (0, 0),
-                          particleSize = Size (0, 0),
-                          particleInterval = 8,
-                          particleTimer = 8,
-                          particleSprites = [getTexture "explosion2Part1" assetlist, getTexture "explosion2Part2" assetlist, getTexture "explosion2Part3" assetlist, getTexture "explosion2Part4" assetlist, getTexture "explosion2Part5" assetlist]
-                        }
-                    ),
-                    ( "5SecondTimer",
-                      Particle
-                        { particlePosition = (-400, 80),
-                          particleSize = Size (10, 10),
-                          particleInterval = 60,
-                          particleTimer = 60,
-                          particleSprites = [getTexture "5" assetlist, getTexture "4" assetlist, getTexture "3" assetlist, getTexture "2" assetlist, getTexture "1" assetlist]
-                        }
-                    )
-                  ]
-        =======
-                -}
-        -- >>>>>>> main
+      tmpassetList = assetlist
     }
 
 getTexture :: String -> Map String Picture -> Picture
 getTexture s m = case Map.lookup s m of
-  Nothing -> rotate (-90) $ Scale 0.25 0.25 (color red $ Text "error")
+  Nothing -> rotate (-90) $ Scale 0.25 0.25 (color red $ Text s)
   Just x -> x
 
 getParticle :: String -> Map String Particle -> Particle
@@ -383,6 +272,34 @@ initPauseMenu =
 
     quit = Field {fieldName = "Quit", fieldPosition = (0, 0), subMenu = initMenu}
 
+initVictoryMenu :: Menu
+initVictoryMenu =
+  Menu
+    { fields = [nextLevel, selectLevel, mainMenu],
+      returnMenu = NoMenu
+    }
+  where
+    nextLevel, selectLevel, mainMenu :: Field
+    nextLevel = Field {fieldName = "Next Level", fieldPosition = (0, 200), subMenu = NoMenuButFunction start1player}
+
+    selectLevel = Field {fieldName = "Select Level", fieldPosition = (0, 0), subMenu = initPlayMenu}
+
+    mainMenu = Field {fieldName = "Main Menu", fieldPosition = (0, -200), subMenu = initMenu}
+
+initDefeatMenu :: Menu
+initDefeatMenu =
+  Menu
+    { fields = [retryLevel, selectLevel, mainMenu],
+      returnMenu = NoMenu
+    }
+  where
+    retryLevel, selectLevel, mainMenu :: Field
+    retryLevel = Field {fieldName = "Retry Level", fieldPosition = (0, 200), subMenu = NoMenuButFunction start1player}
+
+    selectLevel = Field {fieldName = "Select Level", fieldPosition = (0, 0), subMenu = initPlayMenu}
+
+    mainMenu = Field {fieldName = "Main Menu", fieldPosition = (0, -200), subMenu = initMenu}
+
 resumeGame :: GameState -> GameState
 resumeGame gs = gs {status = InGame}
 
@@ -414,7 +331,7 @@ start1player gs@Game {tmpassetList = _assetList} =
                       projectileOrigin = Players,
                       projectileSprite = flip fixImageOrigin projectileSizeVar $ rotate 90 $ getTexture "bullet" _assetList
                     },
-              airplaneSprite = flip fixImageOrigin airplaneSizeVar $ rotate 90 $ getTexture "player1" _assetList
+              airplaneSprite = flip fixImageOrigin airplaneSizeVar $ rotate 90 $ getTexture "player_1" _assetList
             }
         ],
       status = InGame,
@@ -435,6 +352,7 @@ start1player gs@Game {tmpassetList = _assetList} =
               airplaneSprite = flip fixImageOrigin airplaneSizeVar $ getTexture "player1" _assetList
             }
         ],
+      level = debugInitLevel _assetList,
       powerUps =
         [ PowerUp
             { powerUpPos = (-400, 70),
@@ -449,7 +367,7 @@ start1player gs@Game {tmpassetList = _assetList} =
                     spritePos = (0, 0),
                     spritesInterval = 10.0,
                     spritesTimer = 10.0,
-                    idleSprites = [getTexture "powerPackSprite1" _assetList, getTexture "powerPackSprite2" _assetList],
+                    idleSprites = [getTexture "power-pack_1" _assetList, getTexture "power-pack_2" _assetList],
                     movingSprites = []
                   }
             }
@@ -485,7 +403,7 @@ start2player gs@Game {tmpassetList = _assetList} =
                       projectileOrigin = Players,
                       projectileSprite = flip fixImageOrigin projectileSizeVar $ rotate 90 $ getTexture "bullet" _assetList
                     },
-              airplaneSprite = flip fixImageOrigin airplaneSizeVar $ rotate 90 $ getTexture "player1" _assetList
+              airplaneSprite = flip fixImageOrigin airplaneSizeVar $ rotate 90 $ getTexture "player_1" _assetList
             },
           Airplane
             { airplaneType = Player2,
@@ -510,19 +428,21 @@ start2player gs@Game {tmpassetList = _assetList} =
                       projectileOrigin = Players,
                       projectileSprite = flip fixImageOrigin projectileSizeVar $ rotate 90 $ getTexture "bullet" _assetList
                     },
-              airplaneSprite = flip fixImageOrigin airplaneSizeVar $ rotate 90 $ getTexture "player2" _assetList
+              airplaneSprite = flip fixImageOrigin airplaneSizeVar $ rotate 90 $ getTexture "player_2" _assetList
             }
         ],
       status = InGame,
       projectiles = [],
+      level = debugInitLevel _assetList,
       enemies =
-        [ Airplane
-            { airplaneType = FlyBy,
-              airplanePos = (400, 200),
+        [ -- tmp enemy
+          Airplane
+            { airplaneType = Fighter,
+              airplanePos = (-10, -180),
               airplaneDestinationPos = (0, 0),
               airplaneSize = airplaneSizeVar,
-              airplaneVelocity = (-4, 0),
-              airplaneMaxVelocity = (-6, 6),
+              airplaneVelocity = (0, 0),
+              airplaneMaxVelocity = (-12, 12),
               airplaneHealth = 100,
               fireRate = Burst 120.0,
               timeLastShot = 0.0,
@@ -537,51 +457,40 @@ start2player gs@Game {tmpassetList = _assetList} =
                       projectileHealth = 1,
                       projectileDamage = 10,
                       projectileOrigin = Enemies,
-                      projectileSprite = flip fixImageOrigin projectileSizeVar $ rotate (-90) $ getTexture "bullet" _assetList
+                      projectileSprite = flip fixImageOrigin projectileSizeVar $ rotate (-90) $ getTexture "double-bullet" _assetList
                     },
-              airplaneSprite = flip fixImageOrigin airplaneSizeVar $ rotate (-90) $ getTexture "player1" _assetList
-            },
-          Airplane
-            { airplaneType = Fighter,
-              airplanePos = (400, -200),
-              airplaneDestinationPos = (0, 0),
-              airplaneSize = airplaneSizeVar,
-              airplaneVelocity = (-2, 0),
-              airplaneMaxVelocity = (-3, 3),
-              airplaneHealth = 100,
-              fireRate = Single 30.0,
-              timeLastShot = 0.0,
-              airplanePowerUps = [],
-              airplaneGun =
-                AirplaneGun
-                  Projectile
-                    { projectileType = Gun,
-                      projectilePos = (0, 0),
-                      projectileSize = projectileSizeVar,
-                      projectileVelocity = (-10, 0),
-                      projectileHealth = 1,
-                      projectileDamage = 10,
-                      projectileOrigin = Enemies,
-                      projectileSprite = flip fixImageOrigin projectileSizeVar $ rotate (-90) $ getTexture "bullet" _assetList
-                    },
-              airplaneSprite = flip fixImageOrigin airplaneSizeVar $ rotate (-90) $ getTexture "player1" _assetList
-            },
-          Airplane
-            { airplaneType = Kamikaze,
-              airplanePos = (500, -400),
-              airplaneDestinationPos = (0, 0),
-              airplaneSize = airplaneSizeVar,
-              airplaneVelocity = (-2, 0),
-              airplaneMaxVelocity = (-9, 9),
-              airplaneHealth = 500,
-              fireRate = Single 3000000.0,
-              timeLastShot = 0.0,
-              airplanePowerUps = [],
-              airplaneGun = None,
-              airplaneSprite = flip fixImageOrigin airplaneSizeVar $ rotate (-90) $ getTexture "player2" _assetList
+              airplaneSprite = flip fixImageOrigin airplaneSizeVar $ rotate (-90) $ getTexture "ship_0000" _assetList
             }
         ],
       powerUps = [],
       particles = [],
       menu = initPauseMenu
+    }
+
+createBasicEnemy :: AirPlaneType -> Position -> Assets -> Enemy
+createBasicEnemy enemytype position assetList =
+  Airplane
+    { airplaneType = enemytype,
+      airplanePos = position,
+      airplaneDestinationPos = (0, 0),
+      airplaneSize = airplaneSizeVar,
+      airplaneVelocity = (0, 0),
+      airplaneMaxVelocity = (-12, 12),
+      airplaneHealth = 10,
+      fireRate = Burst 120.0,
+      timeLastShot = 0.0,
+      airplanePowerUps = [],
+      airplaneGun =
+        AirplaneGun
+          Projectile
+            { projectileType = Gun,
+              projectilePos = (0, 0),
+              projectileSize = projectileSizeVar,
+              projectileVelocity = (-10, 0),
+              projectileHealth = 1,
+              projectileDamage = 10,
+              projectileOrigin = Enemies,
+              projectileSprite = flip fixImageOrigin projectileSizeVar $ rotate (-90) $ getTexture "double-bullet" assetList
+            },
+      airplaneSprite = flip fixImageOrigin airplaneSizeVar $ rotate (-90) $ getTexture "ship_0000" assetList
     }

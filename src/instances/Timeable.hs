@@ -75,3 +75,24 @@ instance Timeable Sprites where
   readyToExecute Sprites {spritesTimer = timer}
     | timer <= 0 = True
     | otherwise = False
+
+instance Timeable Level where
+  updateTime :: Level -> Level
+  updateTime level@Level {waves = _waves} = level {waves = updateCurrentWave _waves}
+    where
+      updateCurrentWave :: [Wave] -> [Wave]
+      updateCurrentWave [] = []
+      updateCurrentWave (x : xs) = updateTime x : xs
+
+  readyToExecute :: Level -> Bool
+  readyToExecute Level {waves = []} = False
+  readyToExecute Level {waves = x : _} = readyToExecute x
+
+instance Timeable Wave where
+  updateTime :: Wave -> Wave
+  updateTime wave@Wave {waveTimer = _waveTimer} = wave {waveTimer = max 0.0 (_waveTimer - 1)}
+
+  readyToExecute :: Wave -> Bool
+  readyToExecute Wave {waveTimer = _waveTimer}
+    | _waveTimer <= 0 = True
+    | otherwise = False
