@@ -7,7 +7,9 @@ import Animateable
 import Model
 
 -------------------------------------------------
--- Timeable class
+
+-- * Timeable class
+
 -------------------------------------------------
 
 class Timeable a where
@@ -21,7 +23,9 @@ class Timeable a where
 -------------------------------------------------
 
 -------------------------------------------------
--- Instances
+
+-- * Instances
+
 -------------------------------------------------
 
 instance Timeable Airplane where

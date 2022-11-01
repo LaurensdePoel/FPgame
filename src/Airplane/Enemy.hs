@@ -2,23 +2,25 @@ module Enemy where
 
 import Model
 
--- TODO Enemy.hs
 -- TODO Naming refactor
--- TODO in folder Airplane
 -- TODO values in Config.hs
 
+-- | Check if the Airplane has reaced its seeked destination
 isDestinationReached :: Airplane -> Bool
-isDestinationReached Airplane {airplanePos = currentPosition, airplaneDestinationPos = destination} = abs (destination - currentPosition) < (0.2, 0.2)
+isDestinationReached Airplane {airplanePos = _currentPosition, airplaneDestinationPos = _destination} =
+  abs (_destination - _currentPosition) < (0.2, 0.2)
 
+-- | gets the position of the closest player based on the fighters current position
 closestPlayer :: Airplane -> [Airplane] -> Position
-closestPlayer Airplane {airplanePos = currentPos} [] = currentPos
-closestPlayer Airplane {airplanePos = currentPos} (p : ps) = foldr (\Airplane {airplanePos = _p} r -> if isCloser _p r then _p else r) (airplanePos p) ps
+closestPlayer Airplane {airplanePos = _currentPos} [] = _currentPos
+closestPlayer Airplane {airplanePos = _currentPos} (player : ps) =
+  foldr (\Airplane {airplanePos = _playerPos} r -> if isCloser _playerPos r then _playerPos else r) (airplanePos player) ps
   where
     isCloser :: Position -> Position -> Bool
     isCloser newPos pos = distance newPos < distance pos
 
     distance :: Position -> Float
-    distance (x, y) = sqrt (((x - fst currentPos) ** 2) + ((y - snd currentPos) ** 2))
+    distance (x, y) = sqrt (((x - fst _currentPos) ** 2) + ((y - snd _currentPos) ** 2))
 
 enemyBehaviourHandler :: GameState -> GameState
 enemyBehaviourHandler gs@GameState {players = _players, enemies = _enemies} = gs {enemies = updatedEnemies}
@@ -45,5 +47,6 @@ enemyBehaviourHandler gs@GameState {players = _players, enemies = _enemies} = gs
         maxMin :: Float -> Float -> Float -> Float
         maxMin minValue maxValue value = max minValue (min maxValue value)
 
+        minVel, maxVel :: Float
         minVel = fst $ airplaneMaxVelocity enemy
         maxVel = snd $ airplaneMaxVelocity enemy

@@ -3,7 +3,10 @@ module Airplane where
 import Config
 import Model
 
--- TODO handle if Airplane has prijectileType None <- Now warning is given
+-- TODO values in Config.hs
+-- TODO Naming refactor
+-- TODO handle if Airplane has prijectileType None <- Now a warning is given
+
 shoot :: Airplane -> [Projectile]
 shoot Airplane {airplanePos = (x, y), fireRate = r, airplaneGun = (AirplaneGun projectile)} = case r of
   Single _ -> [projectile {projectilePos = (x + gunOffset, y - gunOffset)}]

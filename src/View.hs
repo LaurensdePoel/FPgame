@@ -6,9 +6,11 @@ import Drawable
 import Graphics.Gloss
 import Model
 
+-- | Function 'view' creates a IO picture from the GameState
 view :: GameState -> IO Picture
 view = return . render
 
+-- | Converts the GameState to a Picture
 render ::
   -- | The game state to render.
   GameState ->

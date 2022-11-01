@@ -1,7 +1,7 @@
 {-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
 
 -- | This module defines the Updates of entities in the game
-module Updates where
+module Handler where
 
 import Airplane
 import Animateable
@@ -11,16 +11,16 @@ import Damageable
 import Data.Maybe
 import Init
 import Input
+import Level
 import Model
 import Player
 import Timeable (Timeable (onChange, readyToExecute, updateTime))
 import Updateable
 
--- ! FILENAME HANDLER !!
 -- TODO Naming refactor
 -- TODO REWRITE FUNCTIONS
 
--- Handles levels and waves
+-- | Handles levels and waves -- TODO Rewrite so more functonality is inside Level.hs
 levelHandler :: GameState -> GameState
 levelHandler gs@GameState {levels = _levels, enemies = _enemies, players = _players}
   -- Enter Defeat menu
@@ -41,7 +41,7 @@ levelHandler gs@GameState {levels = _levels, enemies = _enemies, players = _play
     ifWaveTimerExpired :: Bool
     ifWaveTimerExpired = readyToExecute _levels
 
--- Handles all timers of entities
+-- | Handles all timers of entities
 timeHandler :: GameState -> GameState
 timeHandler gs@GameState {players = _players, enemies = _enemies, levels = _levels, projectiles = _projectiles, powerUps = _powerUps, particles = _particles} =
   gs {players = updatedPlayers, enemies = updatedEnemies, levels = updatedLevel, projectiles = updatedProjectiles, powerUps = updatedPowerUps, particles = updatedParticles}
@@ -53,7 +53,7 @@ timeHandler gs@GameState {players = _players, enemies = _enemies, levels = _leve
     updatedParticles = map (onChange nextSprite) _particles
     updatedLevel = updateTime _levels
 
--- Handles all movement of entities
+-- | Handles all movement of entities
 movementHandler :: GameState -> GameState
 movementHandler gs@GameState {players = _players, enemies = _enemies, projectiles = _projectiles} =
   gs {players = updatedPlayers, enemies = updatedEnemies, projectiles = updatedProjectiles}
@@ -62,16 +62,17 @@ movementHandler gs@GameState {players = _players, enemies = _enemies, projectile
     updatedEnemies = map move _enemies
     updatedProjectiles = map move _projectiles
 
--- Handles all particles (creating new particles on certain events)
+-- | Handles all particles (creating new particles on certain events)
 particleHandler :: GameState -> GameState
-particleHandler gs@GameState {particles = _particles, particleMap = _particleMap} = gs {particles = _particles ++ newParticles ++ newParticles2}
+particleHandler gs@GameState {particles = _particles, particleMap = _particleMap} =
+  gs {particles = _particles ++ newParticles ++ newParticles2}
   where
     newParticles = mapMaybe (\airplane -> if isNothing $ destroy airplane then let newParticle = getParticle "explosion2" _particleMap in Just newParticle {particlePosition = centerPosition (airplanePos airplane) (airplaneSize airplane)} else Nothing) (players gs ++ enemies gs)
     newParticles2 = mapMaybe (\projectile -> if isNothing $ destroy projectile then let newParticle = getParticle "explosion" _particleMap in Just newParticle {particlePosition = centerPosition (projectilePos projectile) (projectileSize projectile)} else Nothing) $ projectiles gs
     centerPosition :: Position -> Size -> Position
     centerPosition (x, y) (xx, yy) = (x + (xx * 0.5), y - (yy * 0.5))
 
--- Handles collision (events on collision) between all entities which are collidable
+-- | Handles collision (events on collision) between all entities which are collidable
 collisionHandler :: GameState -> GameState
 collisionHandler gs@GameState {players = _players, enemies = _enemies, projectiles = _projectiles, powerUps = _powerUps} =
   gs {players = updatedPlayers, enemies = updatedEnemies, projectiles = updatedProjectiles3, powerUps = updatedPowerUps}
@@ -103,7 +104,7 @@ collisionHandler gs@GameState {players = _players, enemies = _enemies, projectil
     pickUp :: Airplane -> PowerUp -> (Airplane, PowerUp)
     pickUp a b = (powerUpEffect True a b, b {timeUntilDespawn = 0.0})
 
--- Removes all entities which satisfy their condition to be destroyed
+-- | Removes all entities which satisfy their condition to be destroyed
 garbageCollector :: GameState -> GameState
 garbageCollector gs@GameState {players = _players, enemies = _enemies, projectiles = _projectiles, powerUps = _powerUps, particles = _particles} =
   gs {players = updatedPlayers, enemies = destroyFromList _enemies, projectiles = destroyFromList _projectiles, powerUps = destroyFromList _powerUps, particles = destroyFromList _particles}
@@ -116,20 +117,3 @@ garbageCollector gs@GameState {players = _players, enemies = _enemies, projectil
           case player of
             Just _player -> let updatedPlayer = foldr (\powerUp r -> if readyToExecute powerUp then powerUpEffect False r powerUp else r) _player (airplanePowerUps _player) in Just updatedPlayer {airplanePowerUps = mapMaybe destroy (airplanePowerUps _player)}
             Nothing -> Nothing
-
--- ! Airplane.hs
-
--- ! Level.hs
-nextWave :: GameState -> GameState
-nextWave gs@GameState {levels = _levels, enemies = _enemies}
-  | ifAllWavesCleared = gs -- do nothing if all waves are cleared --TODO better if we can disable timer
-  | otherwise = gs {enemies = _enemies ++ spawnNextWave, levels = _levels {waves = removeWaveAfterSpawn}}
-  where
-    ifAllWavesCleared :: Bool
-    ifAllWavesCleared = null (waves _levels)
-
-    spawnNextWave :: [Enemy]
-    spawnNextWave = enemiesInWave $ head (waves _levels)
-
-    removeWaveAfterSpawn :: [Wave]
-    removeWaveAfterSpawn = tail $ waves _levels

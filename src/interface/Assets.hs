@@ -29,6 +29,14 @@ getAssets = do
   sprites <- mapM loadAssets allAssets
   return $ fromList sprites
 
+loadAssets :: FilePath -> IO (String, Picture)
+loadAssets filePath = do
+  assets <- loadBMP filePath
+  return (getFileName, assets)
+  where
+    -- only get filename from filePath -> assets/projectiles/bullet.bmp = bullet
+    getFileName = takeWhile ('.' /=) $ takeFileName filePath
+
 combinePath :: [FilePath] -> [[FilePath]] -> [[FilePath]]
 combinePath [] _ = []
 combinePath _ [] = []
@@ -39,18 +47,10 @@ getDirectories filePath = do
   allFiles <- listDirectory filePath
   filterM (doesDirectoryExist . (filePath </>)) allFiles
 
-loadAssets :: FilePath -> IO (String, Picture)
-loadAssets filePath = do
-  assets <- loadBMP filePath
-  return (getFileName, assets)
-  where
-    -- only leave filename -> assets/projectiles/bullet.bmp = bullet
-    getFileName = takeWhile ('.' /=) $ takeFileName filePath
-
 -- TODO enemySpriteRotation playerSpriteRotation
 getTexture :: String -> Assets -> Picture
-getTexture s m = case Dict.lookup s m of
-  Nothing -> rotate (-90) $ Scale 0.25 0.25 (color red $ Text s)
+getTexture spriteName assetList = case Dict.lookup spriteName assetList of
+  Nothing -> rotate (-90) $ Scale 0.25 0.25 (color red $ Text spriteName)
   Just x -> x
 
 -- TODO MARK FIX THIS
@@ -58,4 +58,4 @@ getParticle :: String -> Map String Particle -> Particle
 getParticle key _map = fromMaybe Particle {particlePosition = (0, 0), particleSize = (10, 10), particleInterval = 60, particleTimer = 60, particleSprites = [Scale 0.25 0.25 (color red $ Text "error")]} (Dict.lookup key _map)
 
 fixImageOrigin :: Picture -> Size -> Picture
-fixImageOrigin pic (x, y) = translate (x * 0.5) (y * (-0.5)) pic
+fixImageOrigin pic (width, height) = translate (width * 0.5) (height * (-0.5)) pic

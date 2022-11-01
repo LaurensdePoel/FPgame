@@ -3,10 +3,11 @@ module Controller where
 
 import Enemy
 import Graphics.Gloss.Interface.IO.Game
+import Handler
 import Input
+import Level
 import Menu
 import Model
-import Updates
 
 -- | Handle one iteration of the game
 --

@@ -7,62 +7,37 @@
 --   which represent the state of the game
 module Model where
 
--- TODO REORDER
--- TODO NAMECHANGE
-
 import Data.Map as Map
 import qualified Data.Set as S
 import Graphics.Gloss
 import Graphics.Gloss.Interface.IO.Interact (Key)
 
+-- * GameState
+
 data Status = InMenu | InGame deriving (Eq)
-
-type Position = Point
-
-instance Num Point where
-  (+) :: Point -> Point -> Point
-  (+) (x1, y1) (x2, y2) = (x1 + x2, y1 + y2)
-  (-) :: Point -> Point -> Point
-  (-) (x1, y1) (x2, y2) = (x1 - x2, y1 - y2)
-  (*) :: Point -> Point -> Point
-  (*) (x1, y1) (x2, y2) = (x1 * x2, y1 * y2)
-  signum :: Point -> Point
-  signum (x, y) = (signum x, signum y)
-  abs :: Point -> Point
-  abs (x, y) = (abs x, abs y)
-  negate :: Point -> Point
-  negate (x, y) = (negate x, negate y)
-  fromInteger :: Integer -> Point
-  fromInteger x = (fromInteger x, fromInteger x)
-
-type Assets = (Map String Picture)
-
-type Size = Point
 
 type Time = Float
 
-type Velocity = Point
+data GameState = GameState
+  { elapsedTime :: Float,
+    status :: Status,
+    players :: [Airplane],
+    enemies :: [Enemy],
+    levels :: Level,
+    projectiles :: [Projectile],
+    powerUps :: [PowerUp],
+    particleMap :: Map String Particle,
+    particles :: [Particle],
+    pressedKeys :: S.Set Key,
+    menu :: Menu,
+    tmpassetList :: Assets
+  }
 
-data ProjectileType = Gun | DoubleGun | Rocket
+-- * Assets and Sprites
 
-type Damage = Int
-
-data Origin = Players | Enemies deriving (Eq)
-
--- firerate timelastshot
-data FireRate = Single Time | Burst Time
-
-newtype ScreenBox = ScreenBox (Point, Point)
-
-data AirPlaneType = Player1 | Player2 | Fighter | Kamikaze | FlyBy deriving (Eq)
-
-data PowerUpTypes = HealthPack Int | PowerPack Float
-
-data PowerUpState = WorldSpace | PickedUp
+type Assets = (Map String Picture)
 
 data AnimationState = Idle | Moving
-
-data AirplaneGun = AirplaneGun Projectile | None
 
 data Sprites = Sprites
   { spritesState :: AnimationState,
@@ -81,6 +56,12 @@ data Particle = Particle
     particleSprites :: [Picture]
   }
 
+-- * Items
+
+data PowerUpTypes = HealthPack Int | PowerPack Float
+
+data PowerUpState = WorldSpace | PickedUp
+
 data PowerUp = PowerUp
   { powerUpPos :: Position,
     powerUpSize :: Size,
@@ -88,9 +69,16 @@ data PowerUp = PowerUp
     powerUpState :: PowerUpState,
     timeUntilDespawn :: Time,
     powerUpDuration :: Time,
-    -- powerUpSprite :: Picture,
     powerUpSprites :: Sprites
   }
+
+-- * Airplanes
+
+type Enemy = Airplane
+
+data AirPlaneType = Player1 | Player2 | Fighter | Kamikaze | FlyBy deriving (Eq)
+
+data AirplaneGun = AirplaneGun Projectile | None
 
 data Airplane = Airplane
   { airplaneType :: AirPlaneType,
@@ -107,6 +95,14 @@ data Airplane = Airplane
     airplanePowerUps :: [PowerUp]
   }
 
+-- ** Projectiles
+
+data FireRate = Single Time | Burst Time
+
+data ProjectileType = Gun | DoubleGun | Rocket
+
+data Origin = Players | Enemies deriving (Eq)
+
 data Projectile = Projectile
   { projectileType :: ProjectileType,
     projectilePos :: Position,
@@ -118,17 +114,19 @@ data Projectile = Projectile
     projectileSprite :: Picture
   }
 
-type Enemy = Airplane
+-- * Levels
+
+data Level = Level
+  { levelNr :: Int,
+    waves :: [Wave]
+  }
 
 data Wave = Wave
   { enemiesInWave :: [Enemy],
     waveTimer :: Time
   }
 
-data Level = Level
-  { levelNr :: Int,
-    waves :: [Wave]
-  }
+-- * Interface
 
 data Menu
   = Menu
@@ -146,17 +144,28 @@ data Field = Field
     subMenu :: Menu
   }
 
-data GameState = GameState
-  { elapsedTime :: Float,
-    status :: Status,
-    players :: [Airplane],
-    enemies :: [Enemy],
-    levels :: Level,
-    projectiles :: [Projectile],
-    powerUps :: [PowerUp],
-    particleMap :: Map String Particle,
-    particles :: [Particle],
-    pressedKeys :: S.Set Key,
-    menu :: Menu,
-    tmpassetList :: Assets
-  }
+-- * Global Parameters
+
+type Damage = Int
+
+type Position = Point
+
+type Size = Point
+
+type Velocity = Point
+
+instance Num Point where
+  (+) :: Point -> Point -> Point
+  (+) (x1, y1) (x2, y2) = (x1 + x2, y1 + y2)
+  (-) :: Point -> Point -> Point
+  (-) (x1, y1) (x2, y2) = (x1 - x2, y1 - y2)
+  (*) :: Point -> Point -> Point
+  (*) (x1, y1) (x2, y2) = (x1 * x2, y1 * y2)
+  signum :: Point -> Point
+  signum (x, y) = (signum x, signum y)
+  abs :: Point -> Point
+  abs (x, y) = (abs x, abs y)
+  negate :: Point -> Point
+  negate (x, y) = (negate x, negate y)
+  fromInteger :: Integer -> Point
+  fromInteger x = (fromInteger x, fromInteger x)

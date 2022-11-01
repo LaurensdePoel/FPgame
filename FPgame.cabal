@@ -64,7 +64,7 @@ executable FPgame
          Drawable, 
          Collidable, 
          Updateable, 
-         Updates, 
+         Handler, 
          Timeable, 
          Damageable, 
          Config, 

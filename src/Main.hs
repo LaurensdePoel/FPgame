@@ -1,3 +1,4 @@
+-- | This module defines the main
 module Main where
 
 import Assets (getAssets)
@@ -9,6 +10,7 @@ import Init
 import Input
 import View
 
+-- | The entery of Haskell game
 main :: IO ()
 main = do
   assets <- getAssets
