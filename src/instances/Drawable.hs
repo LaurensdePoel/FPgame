@@ -6,6 +6,8 @@ module Drawable where
 import Graphics.Gloss
 import Model
 
+-- TODO Naming refactor
+
 -------------------------------------------------
 -- Drawable class
 -------------------------------------------------
@@ -17,6 +19,10 @@ class Drawable a where
   mapDraw = map draw
 
 -------------------------------------------------
+-- Helper functions
+-------------------------------------------------
+
+-------------------------------------------------
 -- Instances
 -------------------------------------------------
 
@@ -24,7 +30,7 @@ instance Drawable Airplane where
   draw :: Airplane -> Picture
   draw Airplane {airplaneType = _type, airplanePos = pos, airplaneVelocity = (x, y), airplaneSprite = sprite} =
     case _type of
-      Kamikaze -> uncurry translate pos $ rotate (uncurry atan2 (x, y) / pi * 180) sprite
+      Kamikaze -> uncurry translate pos $ rotate (atan2 x y / pi * 180) sprite
       _ -> uncurry translate pos sprite
 
 instance Drawable Projectile where
@@ -33,7 +39,7 @@ instance Drawable Projectile where
 
 instance Drawable PowerUp where
   draw :: PowerUp -> Picture
-  draw pu@PowerUp {powerUpSprites = sprites, powerUpPos = pos} = draw sprites {spritePos = pos}
+  draw PowerUp {powerUpSprites = sprites, powerUpPos = pos} = draw sprites {spritePos = pos}
 
 instance Drawable Particle where
   draw :: Particle -> Picture
@@ -51,7 +57,8 @@ instance Drawable Menu where
   draw Menu {fields = _fields} =
     pictures $
       Scale 1.3 1.3 (draw (head _fields)) : map draw (tail _fields)
-  draw NoMenu = Blank -- tmp
+  draw NoMenu = Blank
+  draw NoMenuButFunction {} = Blank
 
 instance Drawable Field where
   draw :: Field -> Picture

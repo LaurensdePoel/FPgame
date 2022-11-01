@@ -7,8 +7,12 @@ import Config as C
 import Data.Maybe
 import Model
 
+-- TODO Naming refactor
+
 -------------------------------------------------
--- Updateable class
+
+-- * Updateable class
+
 -------------------------------------------------
 
 class Updateable a where
@@ -20,7 +24,9 @@ class Updateable a where
   destroyFromList = mapMaybe destroy
 
 -------------------------------------------------
--- Helper functions
+
+-- * Helper functions
+
 -------------------------------------------------
 
 updatePosition :: Position -> Velocity -> Position
@@ -34,7 +40,9 @@ updateVelocity (x, y) = (update x, update y)
       | otherwise = if z < -0.2 then z + 0.2 else 0.0
 
 -------------------------------------------------
--- Instances
+
+-- * Instances
+
 -------------------------------------------------
 
 instance Updateable Airplane where

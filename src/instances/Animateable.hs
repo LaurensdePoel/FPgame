@@ -3,6 +3,7 @@
 -- | This module defines the Animateable type class
 module Animateable where
 
+import Graphics.Gloss (Picture)
 import Model
 
 ---------------------------------------------------
@@ -11,7 +12,10 @@ import Model
 
 class Animateable a where
   nextSprite :: a -> a
-  updateAnimation :: a -> a
+
+-------------------------------------------------
+-- Helper functions
+-------------------------------------------------
 
 -------------------------------------------------
 -- Instances
@@ -19,13 +23,16 @@ class Animateable a where
 
 instance Animateable Particle where
   nextSprite :: Particle -> Particle
-  nextSprite p@Particle {particleSprites = sprites, particleInterval = interval} = p {particleSprites = tail sprites, particleTimer = interval}
+  nextSprite particle@Particle {particleSprites = _sprites, particleInterval = _interval} =
+    particle {particleSprites = tail _sprites, particleTimer = _interval}
 
 instance Animateable Sprites where
   nextSprite :: Sprites -> Sprites
-  nextSprite sprites@Sprites {spritesState = state} =
-    case state of
-      Idle -> sprites {idleSprites = updateHead $ idleSprites sprites, spritesTimer = spritesInterval sprites}
-      Moving -> sprites {movingSprites = updateHead $ movingSprites sprites, spritesTimer = spritesInterval sprites}
+  nextSprite sprites@Sprites {spritesState = _state, spritesInterval = _interval, movingSprites = _movingSprites, idleSprites = _idleSprites} =
+    case _state of
+      Idle -> sprites {idleSprites = updateHead _idleSprites, spritesTimer = _interval}
+      Moving -> sprites {movingSprites = updateHead _movingSprites, spritesTimer = _interval}
     where
+      updateHead :: [Picture] -> [Picture]
+      updateHead [] = []
       updateHead (x : xs) = xs ++ [x]

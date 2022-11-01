@@ -6,18 +6,17 @@ import Drawable
 import Graphics.Gloss
 import Model
 
+-- | Function 'view' creates a IO picture from the GameState
 view :: GameState -> IO Picture
 view = return . render
 
-viewPure :: GameState -> Picture
-viewPure = undefined
-
+-- | Converts the GameState to a Picture
 render ::
   -- | The game state to render.
   GameState ->
   -- | A picture of this game state.
   Picture
-render gs@Game {status = _status} = case _status of
+render gs@GameState {status = _status} = case _status of
   InMenu -> drawMenu
   InGame -> drawGame
   where
