@@ -44,9 +44,9 @@ instance Updateable Airplane where
     where
       pos@(x, y) = updatePosition p v
 
-      updatedVelocity
-        | t == Player1 || t == Player2 = updateVelocity v
-        | otherwise = v
+      updatedVelocity = updateVelocity v
+      -- \| t == Player1 || t == Player2 = updateVelocity v
+      -- \| otherwise = v
 
       updatedPosition
         | t == Player1 || t == Player2 = (max C.screenMinX (min x C.screenMaxX), max C.screenMinY (min y C.screenMaxY))
