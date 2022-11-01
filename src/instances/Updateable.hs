@@ -7,6 +7,9 @@ import Config as C
 import Data.Maybe
 import Model
 
+
+-- TODO Naming refactor
+
 -------------------------------------------------
 -- Updateable class
 -------------------------------------------------

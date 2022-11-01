@@ -17,7 +17,7 @@ initialState assetlist =
       status = InMenu,
       players = [],
       enemies = [],
-      level = Level 0 [],
+      levels = Level 0 [],
       projectiles = [],
       powerUps = [],
       pressedKeys = S.empty,
@@ -174,7 +174,7 @@ start1player gs@GameState {tmpassetList = _assetList} =
               airplaneSprite = flip fixImageOrigin airplaneSizeVar $ getTexture "ship_0000" _assetList
             }
         ],
-      level = debugInitLevel _assetList,
+      levels = debugInitLevel _assetList,
       powerUps =
         [ PowerUp
             { powerUpPos = (-400, 70),
@@ -255,7 +255,7 @@ start2player gs@GameState {tmpassetList = _assetList} =
         ],
       status = InGame,
       projectiles = [],
-      level = debugInitLevel _assetList,
+      levels = debugInitLevel _assetList,
       enemies =
         [ -- tmp enemy
           Airplane

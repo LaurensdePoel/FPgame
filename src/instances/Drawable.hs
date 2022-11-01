@@ -19,6 +19,10 @@ class Drawable a where
   mapDraw = map draw
 
 -------------------------------------------------
+-- Helper functions
+-------------------------------------------------
+
+-------------------------------------------------
 -- Instances
 -------------------------------------------------
 
@@ -54,6 +58,7 @@ instance Drawable Menu where
     pictures $
       Scale 1.3 1.3 (draw (head _fields)) : map draw (tail _fields)
   draw NoMenu = Blank
+  draw NoMenuButFunction {} = Blank
 
 instance Drawable Field where
   draw :: Field -> Picture

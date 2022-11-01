@@ -19,7 +19,6 @@ data Status = InMenu | InGame deriving (Eq)
 
 type Position = Point
 
--- This is unnecessary
 instance Num Point where
   (+) :: Point -> Point -> Point
   (+) (x1, y1) (x2, y2) = (x1 + x2, y1 + y2)
@@ -152,7 +151,7 @@ data GameState = GameState
     status :: Status,
     players :: [Airplane],
     enemies :: [Enemy],
-    level :: Level,
+    levels :: Level,
     projectiles :: [Projectile],
     powerUps :: [PowerUp],
     particleMap :: Map String Particle,

@@ -3,21 +3,17 @@
 -- | This module defines the Updates of entities in the game
 module Updates where
 
+import Airplane
 import Animateable
 import Assets
-import Behaviour
 import Collidable
-import Config
 import Damageable
 import Data.Maybe
-import qualified Data.Set as S
-import Foreign (toBool)
-import Graphics.Gloss.Interface.IO.Interact
 import Init
 import Input
-import Menu
 import Model
-import Timeable
+import Player
+import Timeable (Timeable (onChange, readyToExecute, updateTime))
 import Updateable
 
 -- ! FILENAME HANDLER !!
@@ -26,7 +22,7 @@ import Updateable
 
 -- Handles levels and waves
 levelHandler :: GameState -> GameState
-levelHandler gs@GameState {level = _level, enemies = _enemies, players = _players}
+levelHandler gs@GameState {levels = _levels, enemies = _enemies, players = _players}
   -- Enter Defeat menu
   | ifAllPlayersDied = gs {status = InMenu, menu = initDefeatMenu, pressedKeys = emptyKeys}
   -- Enter Victory menu
@@ -39,23 +35,23 @@ levelHandler gs@GameState {level = _level, enemies = _enemies, players = _player
     ifCurrentWaveKilled :: Bool
     ifCurrentWaveKilled = null _enemies
     ifAllWavesCleared :: Bool
-    ifAllWavesCleared = null (waves _level)
+    ifAllWavesCleared = null (waves _levels)
     ifAllPlayersDied :: Bool
     ifAllPlayersDied = null _players
     ifWaveTimerExpired :: Bool
-    ifWaveTimerExpired = readyToExecute _level
+    ifWaveTimerExpired = readyToExecute _levels
 
 -- Handles all timers of entities
 timeHandler :: GameState -> GameState
-timeHandler gs@GameState {players = _players, enemies = _enemies, level = _level, projectiles = _projectiles, powerUps = _powerUps, particles = _particles} =
-  gs {players = updatedPlayers, enemies = updatedEnemies, level = updatedLevel, projectiles = updatedProjectiles, powerUps = updatedPowerUps, particles = updatedParticles}
+timeHandler gs@GameState {players = _players, enemies = _enemies, levels = _levels, projectiles = _projectiles, powerUps = _powerUps, particles = _particles} =
+  gs {players = updatedPlayers, enemies = updatedEnemies, levels = updatedLevel, projectiles = updatedProjectiles, powerUps = updatedPowerUps, particles = updatedParticles}
   where
     updatedPlayers = map (\player -> updateTime player {airplanePowerUps = map updateTime (airplanePowerUps player)}) _players
     updatedEnemies = map updateTime _enemies
     updatedProjectiles = _projectiles ++ concatMap shoot (filter readyToExecute (updatedPlayers ++ updatedEnemies))
     updatedPowerUps = map updateTime _powerUps
     updatedParticles = map (onChange nextSprite) _particles
-    updatedLevel = updateTime _level
+    updatedLevel = updateTime _levels
 
 -- Handles all movement of entities
 movementHandler :: GameState -> GameState
@@ -73,7 +69,7 @@ particleHandler gs@GameState {particles = _particles, particleMap = _particleMap
     newParticles = mapMaybe (\airplane -> if isNothing $ destroy airplane then let newParticle = getParticle "explosion2" _particleMap in Just newParticle {particlePosition = centerPosition (airplanePos airplane) (airplaneSize airplane)} else Nothing) (players gs ++ enemies gs)
     newParticles2 = mapMaybe (\projectile -> if isNothing $ destroy projectile then let newParticle = getParticle "explosion" _particleMap in Just newParticle {particlePosition = centerPosition (projectilePos projectile) (projectileSize projectile)} else Nothing) $ projectiles gs
     centerPosition :: Position -> Size -> Position
-    centerPosition (x, y)  (xx, yy) = (x + (xx * 0.5), y - (yy * 0.5))
+    centerPosition (x, y) (xx, yy) = (x + (xx * 0.5), y - (yy * 0.5))
 
 -- Handles collision (events on collision) between all entities which are collidable
 collisionHandler :: GameState -> GameState
@@ -123,103 +119,17 @@ garbageCollector gs@GameState {players = _players, enemies = _enemies, projectil
 
 -- ! Airplane.hs
 
-updatePlayerVelocity :: S.Set Key -> Airplane -> Airplane
-updatePlayerVelocity activeKeys airplane =
-  foldr f e activeKeys
-  where
-    f = addVelocityBasedOnKey
-    e = airplane
-
--- If key affects velocity of the player update the current velocity
-addVelocityBasedOnKey :: Key -> Airplane -> Airplane
-addVelocityBasedOnKey key airplane@Airplane {airplaneType = planeType, airplaneMaxVelocity = (minVel, maxVel)} =
-  case planeType of
-    Player1
-      | key == Char 'w' -> airplane {airplaneVelocity = add (0, velocityStep)}
-      | key == Char 'a' -> airplane {airplaneVelocity = add (- velocityStep, 0)}
-      | key == Char 's' -> airplane {airplaneVelocity = add (0, - velocityStep)}
-      | key == Char 'd' -> airplane {airplaneVelocity = add (velocityStep, -0)}
-      | otherwise -> airplane
-    Player2
-      | key == SpecialKey KeyUp -> airplane {airplaneVelocity = add (0, velocityStep)}
-      | key == SpecialKey KeyLeft -> airplane {airplaneVelocity = add (- velocityStep, 0)}
-      | key == SpecialKey KeyDown -> airplane {airplaneVelocity = add (0, - velocityStep)}
-      | key == SpecialKey KeyRight -> airplane {airplaneVelocity = add (velocityStep, -0)}
-      | otherwise -> airplane
-    _ -> airplane
-  where
-    add :: Velocity -> Velocity
-    add vel = checkMinMax (airplaneVelocity airplane + vel)
-    checkMinMax :: Velocity -> Velocity
-    checkMinMax orignalVel@(vX, vY)
-      | vX < minVel = (minVel, vY)
-      | vY < minVel = (vX, minVel)
-      | vX > maxVel = (maxVel, vY)
-      | vY > maxVel = (vX, maxVel)
-      | otherwise = orignalVel
-    -- TODO move values below to special HS file those values are base parameters
-    velocityStep = 0.6
-
-shoot :: Airplane -> [Projectile]
-shoot Airplane {airplanePos = (x, y), fireRate = r, airplaneGun = (AirplaneGun projectile)} = case r of
-  Single _ -> [projectile {projectilePos = (x + gunOffset, y - gunOffset)}]
-  Burst _ -> [projectile {projectilePos = (x - px - 5 + gunOffset, y - gunOffset)}, projectile {projectilePos = (x + gunOffset, y - gunOffset)}, projectile {projectilePos = (x - px - px - 10 + gunOffset, y - gunOffset)}] -- TODO: update: - or + is actually depended on if its a player or enemy
-    where
-       (px, _) = projectileSize projectile
-
--- Applies or removes powerUp effect from the airplane
--- TODO REFACTOR NAMES
-powerUpEffect :: Bool -> Airplane -> PowerUp -> Airplane
-powerUpEffect
-  applyEffect
-  player@Airplane {fireRate = fireRate', airplaneHealth = health, airplanePowerUps = pus}
-  pu@PowerUp {powerUpType = puType} =
-    case puType of
-      PowerPack x -> case fireRate' of
-        Single x' -> player {fireRate = Single $ updateBuffer x' x, airplanePowerUps = _pus}
-        Burst x' -> player {fireRate = Burst $ updateBuffer x' x, airplanePowerUps = _pus}
-      HealthPack x -> player {airplaneHealth = health + x}
-    where
-      _pus = pu {powerUpState = PickedUp} : pus
-      updateBuffer :: Time -> Float -> Time
-      updateBuffer value multiplier
-        | applyEffect = value * multiplier
-        | otherwise = value * (1 / multiplier)
-
 -- ! Level.hs
 nextWave :: GameState -> GameState
-nextWave gs@GameState {level = _level, enemies = _enemies}
+nextWave gs@GameState {levels = _levels, enemies = _enemies}
   | ifAllWavesCleared = gs -- do nothing if all waves are cleared --TODO better if we can disable timer
-  | otherwise = gs {enemies = _enemies ++ spawnNextWave, level = _level {waves = removeWaveAfterSpawn}}
+  | otherwise = gs {enemies = _enemies ++ spawnNextWave, levels = _levels {waves = removeWaveAfterSpawn}}
   where
     ifAllWavesCleared :: Bool
-    ifAllWavesCleared = null (waves _level)
+    ifAllWavesCleared = null (waves _levels)
 
     spawnNextWave :: [Enemy]
-    spawnNextWave = enemiesInWave $ head (waves _level)
+    spawnNextWave = enemiesInWave $ head (waves _levels)
 
     removeWaveAfterSpawn :: [Wave]
-    removeWaveAfterSpawn = tail $ waves _level
-
--- !  Controller
-updateGameState :: GameState -> GameState
-updateGameState = debugButtons . checkPause . levelHandler . garbageCollector . particleHandler . collisionHandler . timeHandler . movementHandler . enemyBehaviourHandler -- . destroyObjects . updateParticles . updateAirplanes . updateProjectiles . updatePowerUps
-
-checkPause :: GameState -> GameState
-checkPause gs@GameState {pressedKeys = _pressedKeys} = singleKeyPress (SpecialKey KeyEsc) gs pauseMenu
-
-debugButtons :: GameState -> GameState
-debugButtons = debugSpawnButton . debugKillEnemyButton
-  where
-    debugSpawnButton :: GameState -> GameState
-    debugSpawnButton gs@GameState {pressedKeys = _pressedKeys} = singleKeyPress (Char 't') gs nextWave
-
-    debugKillEnemyButton :: GameState -> GameState
-    debugKillEnemyButton gs@GameState {pressedKeys = _pressedKeys} = singleKeyPress (Char 'k') gs killTopEnemy
-      where
-        killTopEnemy gs@GameState {enemies = _enemies}
-          | null _enemies = gs
-          | otherwise = gs {enemies = tail _enemies}
-
-updateMenu :: GameState -> GameState
-updateMenu = checkMenuInput
+    removeWaveAfterSpawn = tail $ waves _levels

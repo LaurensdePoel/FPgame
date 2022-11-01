@@ -1,4 +1,4 @@
-module Behaviour where
+module Enemy where
 
 import Model
 
@@ -11,6 +11,7 @@ isDestinationReached :: Airplane -> Bool
 isDestinationReached Airplane {airplanePos = currentPosition, airplaneDestinationPos = destination} = abs (destination - currentPosition) < (0.2, 0.2)
 
 closestPlayer :: Airplane -> [Airplane] -> Position
+closestPlayer Airplane {airplanePos = currentPos} [] = currentPos
 closestPlayer Airplane {airplanePos = currentPos} (p : ps) = foldr (\Airplane {airplanePos = _p} r -> if isCloser _p r then _p else r) (airplanePos p) ps
   where
     isCloser :: Position -> Position -> Bool

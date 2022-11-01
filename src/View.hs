@@ -9,10 +9,6 @@ import Model
 view :: GameState -> IO Picture
 view = return . render
 
--- TODO WHAT IS THIS?????
-viewPure :: GameState -> Picture
-viewPure = undefined
-
 render ::
   -- | The game state to render.
   GameState ->

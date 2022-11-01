@@ -3,8 +3,8 @@
 -- | This module defines the Animateable type class
 module Animateable where
 
-import Model
 import Graphics.Gloss (Picture)
+import Model
 
 ---------------------------------------------------
 -- Animateable class
@@ -14,12 +14,16 @@ class Animateable a where
   nextSprite :: a -> a
 
 -------------------------------------------------
+-- Helper functions
+-------------------------------------------------
+
+-------------------------------------------------
 -- Instances
 -------------------------------------------------
 
 instance Animateable Particle where
   nextSprite :: Particle -> Particle
-  nextSprite particle@Particle {particleSprites = _sprites, particleInterval = _interval} = 
+  nextSprite particle@Particle {particleSprites = _sprites, particleInterval = _interval} =
     particle {particleSprites = tail _sprites, particleTimer = _interval}
 
 instance Animateable Sprites where
