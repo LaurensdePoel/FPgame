@@ -181,7 +181,7 @@ initialState assetlist =
                   particleSize = Size (0, 0),
                   particleInterval = 8,
                   particleTimer = 8,
-                  particleSprites = [getTexture "explosionPart1" assetlist, getTexture "explosionPart2" assetlist, getTexture "explosionPart3" assetlist, getTexture "explosionPart4" assetlist, getTexture "explosionPart5" assetlist]
+                  particleSprites = [getTexture "tile_0004" assetlist, getTexture "tile_0005" assetlist, getTexture "tile_0006" assetlist, getTexture "tile_0007" assetlist, getTexture "tile_0008" assetlist]
                 }
             ),
             ( "explosion2",
@@ -190,7 +190,7 @@ initialState assetlist =
                   particleSize = Size (0, 0),
                   particleInterval = 8,
                   particleTimer = 8,
-                  particleSprites = [getTexture "explosion2Part1" assetlist, getTexture "explosion2Part2" assetlist, getTexture "explosion2Part3" assetlist, getTexture "explosion2Part4" assetlist, getTexture "explosion2Part5" assetlist]
+                  particleSprites = [Scale 2.0 2.0 $ getTexture "tile_0004" assetlist, Scale 2.0 2.0 $ getTexture "tile_0005" assetlist, Scale 2.0 2.0 $ getTexture "tile_0006" assetlist, Scale 2.0 2.0 $ getTexture "tile_0007" assetlist, Scale 2.0 2.0 $ getTexture "tile_0008" assetlist]
                 }
             ),
             ( "5SecondTimer",
@@ -349,7 +349,7 @@ start1player gs@Game {tmpassetList = _assetList} =
               timeLastShot = 0.0,
               airplanePowerUps = [],
               airplaneGun = None,
-              airplaneSprite = flip fixImageOrigin airplaneSizeVar $ getTexture "player1" _assetList
+              airplaneSprite = flip fixImageOrigin airplaneSizeVar $ getTexture "ship_0000" _assetList
             }
         ],
       level = debugInitLevel _assetList,
