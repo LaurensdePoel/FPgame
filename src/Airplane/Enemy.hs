@@ -31,7 +31,7 @@ enemyBehaviourHandler gs@GameState {players = _players, enemies = _enemies} = gs
         | isDestinationReached updatedAirplane -> updatedAirplane {airplaneDestinationPos = (300, 300)} -- should be randomly generated
         | otherwise -> updatedAirplane
       Kamikaze -> updatedAirplane {airplaneDestinationPos = closestPlayer updatedAirplane _players} -- should be center player pos
-      _ -> enemy
+      _ -> enemy {airplaneVelocity = (minVel,0)} 
       where
         updatedAirplane = enemy {airplaneVelocity = updatedVelocity (airplaneVelocity enemy) (airplanePos enemy) (airplaneDestinationPos enemy)}
 

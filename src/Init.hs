@@ -171,7 +171,32 @@ start1player gs@GameState {tmpassetList = _assetList} =
               timeLastShot = 0.0,
               airplanePowerUps = [],
               airplaneGun = None,
-              airplaneSprite = flip fixImageOrigin airplaneSizeVar $ getTexture "ship_0000" _assetList
+              airplaneSprite = flip fixImageOrigin airplaneSizeVar $ getTexture "kamikaze" _assetList
+            },
+            Airplane
+            { airplaneType = FlyBy,
+              airplanePos = (600, -180),
+              airplaneDestinationPos = (0, 0),
+              airplaneSize = airplaneSizeVar,
+              airplaneVelocity = (-2, 0),
+              airplaneMaxVelocity = (-2, 2),
+              airplaneHealth = 100,
+              fireRate = Burst 40.0,
+              timeLastShot = 40.0,
+              airplanePowerUps = [],
+              airplaneGun =
+                AirplaneGun
+                  Projectile
+                    { projectileType = Gun,
+                      projectilePos = (0, 0),
+                      projectileSize = projectileSizeVar,
+                      projectileVelocity = (-10, 0),
+                      projectileHealth = 1,
+                      projectileDamage = 10,
+                      projectileOrigin = Enemies,
+                      projectileSprite = flip fixImageOrigin projectileSizeVar $ rotate (-90) $ getTexture "bullet" _assetList
+                    },
+              airplaneSprite = flip fixImageOrigin airplaneSizeVar $ rotate (-90) $ getTexture "flyby" _assetList
             }
         ],
       levels = debugInitLevel _assetList,
@@ -305,7 +330,7 @@ createBasicEnemy enemytype position assetList =
       airplaneGun =
         AirplaneGun
           Projectile
-            { projectileType = Gun,
+            { projectileType = DoubleGun,
               projectilePos = (0, 0),
               projectileSize = projectileSizeVar,
               projectileVelocity = (-10, 0),
@@ -314,5 +339,5 @@ createBasicEnemy enemytype position assetList =
               projectileOrigin = Enemies,
               projectileSprite = flip fixImageOrigin projectileSizeVar $ rotate (-90) $ getTexture "double-bullet" assetList
             },
-      airplaneSprite = flip fixImageOrigin airplaneSizeVar $ rotate (-90) $ getTexture "ship_0000" assetList
+      airplaneSprite = flip fixImageOrigin airplaneSizeVar $ rotate (-90) $ getTexture "fighter" assetList
     }
