@@ -3,6 +3,7 @@
 -- | This module defines the drawable type class
 module Drawable where
 
+import Config
 import Graphics.Gloss
 import Model
 
@@ -22,7 +23,11 @@ class Drawable a where
 
 instance Drawable Airplane where
   draw :: Airplane -> Picture
-  draw Airplane {airplanePos = pos, airplaneSprite = sprite} = uncurry translate pos sprite
+  draw Airplane {airplaneType = _type, airplanePos = pos@(x, y), airplaneVelocity = (xx, yy), airplaneSprite = sprite} =
+    -- uncurry translate pos sprite
+    case _type of
+      Kamikaze -> uncurry translate pos $ rotate (uncurry atan2 (xx, yy) / pi * 180) sprite
+      _ -> uncurry translate pos sprite
 
 instance Drawable Projectile where
   draw :: Projectile -> Picture

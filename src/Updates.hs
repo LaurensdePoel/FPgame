@@ -2,6 +2,7 @@
 module Updates where
 
 import Animateable
+import Behaviour
 import Collidable
 import Config
 import Damageable
@@ -24,7 +25,7 @@ updatePlayerVelocity activeKeys airplane =
 
 -- If key affects velocity of the player update the current velocity
 addVelocityBasedOnKey :: Key -> Airplane -> Airplane
-addVelocityBasedOnKey key airplane@Airplane {airplaneType = planeType} =
+addVelocityBasedOnKey key airplane@Airplane {airplaneType = planeType, airplaneMaxVelocity = (minVel, maxVel)} =
   case planeType of
     Player1
       | key == Char 'w' -> airplane {airplaneVelocity = add (0, velocityStep)}
@@ -50,12 +51,10 @@ addVelocityBasedOnKey key airplane@Airplane {airplaneType = planeType} =
       | vY > maxVel = (vX, maxVel)
       | otherwise = orignalVel
     -- TODO move values below to special HS file those values are base parameters
-    minVel = -12.0
-    maxVel = 12.0
     velocityStep = 0.6
 
 shoot :: Airplane -> [Projectile]
-shoot Airplane {airplanePos = (x, y), fireRate = r, airplaneProjectile = projectile} = case r of
+shoot Airplane {airplanePos = (x, y), fireRate = r, airplaneGun = (AirplaneGun projectile)} = case r of
   Single _ -> [projectile {projectilePos = (x + gunOffset, y - gunOffset)}]
   Burst _ -> [projectile {projectilePos = (x - px - 5 + gunOffset, y - gunOffset)}, projectile {projectilePos = (x + gunOffset, y - gunOffset)}, projectile {projectilePos = (x - px - px - 10 + gunOffset, y - gunOffset)}] -- TODO: update: - or + is actually depended on if its a player or enemy
     where
@@ -142,7 +141,7 @@ checkPause gs@Game {pressedKeys = _pressedKeys} = singleKeyPress (SpecialKey Key
 --     newParticles3 = mapMaybe (\projectile -> if 0 >= projectileHealth projectile then let newParticle = getParticle "explosion" _particleMap in Just newParticle {particlePosition = projectilePos projectile} else Nothing) projectiles
 
 updateGameState :: GameState -> GameState
-updateGameState = checkPause . garbageCollector . particleHandler . collisionHandler . timeHandler . movementHandler -- . destroyObjects . updateParticles . updateAirplanes . updateProjectiles . updatePowerUps
+updateGameState = checkPause . garbageCollector . particleHandler . collisionHandler . timeHandler . movementHandler . enemyBehaviourHandler -- . destroyObjects . updateParticles . updateAirplanes . updateProjectiles . updatePowerUps
 
 -- pauseMenu :: GameState -> GameState
 -- pauseMenu gs@Game {status = _status} = gs {status = toggleStatus}
