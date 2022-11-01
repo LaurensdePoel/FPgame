@@ -1,15 +1,19 @@
 module Assets where
 
 import Control.Monad
-import Data.Map (Map, fromList)
-import Graphics.Gloss (Picture, loadBMP)
+import Data.Map as Dict
+import Data.Maybe
+import Graphics.Gloss
+import Model
 import System.Directory
 import System.FilePath
 
+-- TODO Naming refactor
+-- TODO values in Config.hs
+-- TODO REORDER
+
 assetsPath :: FilePath
 assetsPath = "assets/"
-
-type Assets = (Map String Picture)
 
 getAssets :: IO Assets
 getAssets = do
@@ -28,7 +32,7 @@ getAssets = do
 combinePath :: [FilePath] -> [[FilePath]] -> [[FilePath]]
 combinePath [] _ = []
 combinePath _ [] = []
-combinePath (x : xs) (y : ys) = map (x ++) y : combinePath xs ys
+combinePath (x : xs) (y : ys) = Prelude.map (x ++) y : combinePath xs ys
 
 getDirectories :: FilePath -> IO [FilePath]
 getDirectories filePath = do
@@ -42,3 +46,16 @@ loadAssets filePath = do
   where
     -- only leave filename -> assets/projectiles/bullet.bmp = bullet
     getFileName = takeWhile ('.' /=) $ takeFileName filePath
+
+-- TODO enemySpriteRotation playerSpriteRotation
+getTexture :: String -> Assets -> Picture
+getTexture s m = case Dict.lookup s m of
+  Nothing -> rotate (-90) $ Scale 0.25 0.25 (color red $ Text s)
+  Just x -> x
+
+-- TODO MARK FIX THIS
+getParticle :: String -> Map String Particle -> Particle
+getParticle key _map = fromMaybe Particle {particlePosition = (0, 0), particleSize = (10, 10), particleInterval = 60, particleTimer = 60, particleSprites = [Scale 0.25 0.25 (color red $ Text "error")]} (Dict.lookup key _map)
+
+fixImageOrigin :: Picture -> Size -> Picture
+fixImageOrigin pic (x, y) = translate (x * 0.5) (y * (-0.5)) pic

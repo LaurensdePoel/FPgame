@@ -4,9 +4,13 @@ import qualified Data.Set as S
 import Graphics.Gloss.Interface.IO.Interact
 import Model
 
+-- TODO Naming refactor
+-- TODO values in Config.hs
+-- TODO REORDER
+
 -- Toggles the status in the GameState.
 pauseMenu :: GameState -> GameState
-pauseMenu gs@Game {status = _status} = gs {status = toggleStatus}
+pauseMenu gs@GameState {status = _status} = gs {status = toggleStatus}
   where
     toggleStatus :: Status
     toggleStatus = case _status of
@@ -15,7 +19,7 @@ pauseMenu gs@Game {status = _status} = gs {status = toggleStatus}
 
 -- When status is InMenu check if one the keys is pressed and handles the given function and removes key from pressed keys to prevent recalls
 checkMenuInput :: GameState -> GameState
-checkMenuInput gs@Game {pressedKeys = _pressedKeys, menu = _menu}
+checkMenuInput gs@GameState {pressedKeys = _pressedKeys, menu = _menu}
   | pressed (Char 'w') = moveMenu fieldUp gs {pressedKeys = S.delete (Char 'w') _pressedKeys}
   | pressed (SpecialKey KeyUp) = moveMenu fieldUp gs {pressedKeys = S.delete (SpecialKey KeyUp) _pressedKeys}
   | pressed (Char 's') = moveMenu fieldDown gs {pressedKeys = S.delete (Char 's') _pressedKeys}
@@ -37,7 +41,7 @@ checkMenuInput gs@Game {pressedKeys = _pressedKeys, menu = _menu}
 -- ([Field] -> [Field]) argument is a function that alters the order of the Field in the list.
 -- The order of the fields determense which currend field is selected.
 moveMenu :: ([Field] -> [Field]) -> GameState -> GameState
-moveMenu fieldFunc gs@Game {menu = _menu, pressedKeys = _pressedKeys} =
+moveMenu fieldFunc gs@GameState {menu = _menu, pressedKeys = _pressedKeys} =
   gs {menu = let fieldState = menu gs in fieldState {fields = fieldFunc (fields fieldState)}}
 
 -- Select field above current one or loop around
@@ -52,7 +56,7 @@ fieldDown (x : xs) = xs ++ [x]
 
 -- Load the child menu as current menu if there isn't a child menu do nothing and return current menu
 nextMenu :: GameState -> GameState
-nextMenu gs@Game {menu = _menu} = newMenu (subMenu $ head (fields _menu))
+nextMenu gs@GameState {menu = _menu} = newMenu (subMenu $ head (fields _menu))
   where
     newMenu _newMenu = case _newMenu of
       Menu {} -> gs {menu = _newMenu}
@@ -61,7 +65,7 @@ nextMenu gs@Game {menu = _menu} = newMenu (subMenu $ head (fields _menu))
 
 -- Load the parent menu as current menu if there isn't a parent menu do nothing and return current menu
 previousMenu :: GameState -> GameState
-previousMenu gs@Game {menu = _menu} = gs {menu = check (returnMenu _menu)}
+previousMenu gs@GameState {menu = _menu} = gs {menu = check (returnMenu _menu)}
   where
     check newMenu = case newMenu of
       Menu {} -> newMenu

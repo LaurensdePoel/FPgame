@@ -2,6 +2,11 @@ module Behaviour where
 
 import Model
 
+-- TODO Enemy.hs
+-- TODO Naming refactor
+-- TODO in folder Airplane
+-- TODO values in Config.hs
+
 isDestinationReached :: Airplane -> Bool
 isDestinationReached Airplane {airplanePos = currentPosition, airplaneDestinationPos = destination} = abs (destination - currentPosition) < (0.2, 0.2)
 
@@ -15,14 +20,14 @@ closestPlayer Airplane {airplanePos = currentPos} (p : ps) = foldr (\Airplane {a
     distance (x, y) = sqrt (((x - fst currentPos) ** 2) + ((y - snd currentPos) ** 2))
 
 enemyBehaviourHandler :: GameState -> GameState
-enemyBehaviourHandler gs@Game {players = _players, enemies = _enemies} = gs {enemies = updatedEnemies}
+enemyBehaviourHandler gs@GameState {players = _players, enemies = _enemies} = gs {enemies = updatedEnemies}
   where
     updatedEnemies = map updateBehaviour _enemies
     updateBehaviour enemy = case airplaneType enemy of
       Fighter
         | isDestinationReached updatedAirplane -> updatedAirplane {airplaneDestinationPos = (300, 300)} -- should be randomly generated
         | otherwise -> updatedAirplane
-      Kamikaze -> updatedAirplane {airplaneDestinationPos = closestPlayer updatedAirplane _players}
+      Kamikaze -> updatedAirplane {airplaneDestinationPos = closestPlayer updatedAirplane _players} -- should be center player pos
       _ -> enemy
       where
         updatedAirplane = enemy {airplaneVelocity = updatedVelocity (airplaneVelocity enemy) (airplanePos enemy) (airplaneDestinationPos enemy)}
@@ -33,8 +38,8 @@ enemyBehaviourHandler gs@Game {players = _players, enemies = _enemies} = gs {ene
         direction :: Float -> Float -> Float
         direction pos des = case signum (des - pos) of
           (-1) -> (-0.25)
-          0 -> 0.0
-          1 -> (0.25)
+          1 -> 0.25
+          _ -> 0.0
 
         maxMin :: Float -> Float -> Float -> Float
         maxMin minValue maxValue value = max minValue (min maxValue value)

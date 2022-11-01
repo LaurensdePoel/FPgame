@@ -9,6 +9,7 @@ import Model
 view :: GameState -> IO Picture
 view = return . render
 
+-- TODO WHAT IS THIS?????
 viewPure :: GameState -> Picture
 viewPure = undefined
 
@@ -17,7 +18,7 @@ render ::
   GameState ->
   -- | A picture of this game state.
   Picture
-render gs@Game {status = _status} = case _status of
+render gs@GameState {status = _status} = case _status of
   InMenu -> drawMenu
   InGame -> drawGame
   where

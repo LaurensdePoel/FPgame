@@ -5,9 +5,12 @@ module Controller where
 import Model
 import Updates
 
+-- TODO Naming refactor
+-- TODO values in Config.hs
+
 -- | Handle one iteration of the game
 step :: Float -> GameState -> IO GameState
-step seconds gs@Game {status = status', elapsedTime = elapsedTime'}
+step seconds gs@GameState {status = status', elapsedTime = elapsedTime'}
   | status' == InMenu = return $ updateMenu gs
   | status' == InGame = return $ updateGameState $ gs {elapsedTime = updateTime}
   | otherwise = return gs
