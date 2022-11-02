@@ -1,5 +1,6 @@
 module Menu where
 
+import Config as C
 import qualified Data.Set as S
 import Graphics.Gloss.Interface.IO.Interact
 import Model
@@ -68,3 +69,18 @@ checkMenuInput gs@GameState {pressedKeys = _pressedKeys}
   where
     pressed :: Key -> Bool
     pressed key = S.member key _pressedKeys
+
+-- | Generates a list of fields
+generateMenuFields :: [(String, Menu)] -> [Field]
+generateMenuFields = foldl createField []
+  where
+    createField :: [Field] -> (String, Menu) -> [Field]
+    createField rest (text', subMenu') = rest ++ [Field {fieldName = text', fieldPosition = (xOffset, yOffset), subMenu = subMenu'}]
+      where
+        xOffset, yOffset :: Float
+        xOffset = (-0.5) * fromIntegral (length text') -- not working properly
+        yOffset = C.menuTextStartHeight + C.menuTextOffset + menuTextOffset * fromIntegral (length rest)
+
+-- | Creates a menu
+createMenu :: String -> Menu -> [(String, Menu)] -> Menu
+createMenu title prevMenu menuFields = Menu {header = title, fields = generateMenuFields menuFields, returnMenu = prevMenu}
