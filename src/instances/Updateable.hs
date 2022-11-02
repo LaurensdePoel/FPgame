@@ -7,100 +7,108 @@ import Config as C
 import Data.Maybe
 import Model
 
--- TODO Naming refactor
-
 -------------------------------------------------
-
 -- * Updateable class
-
 -------------------------------------------------
 
 class Updateable a where
+  -- | Updates the position of the Updateable
   move :: a -> a
 
+  -- | Only returns the Updateable if the destroy condition aren't met
   destroy :: a -> Maybe a
 
+  -- | Returns a list of Updateables where the conditions of destruction aren't met
   destroyFromList :: [a] -> [a]
   destroyFromList = mapMaybe destroy
 
 -------------------------------------------------
-
 -- * Helper functions
-
 -------------------------------------------------
 
+-- | Updates position based on the velocity
 updatePosition :: Position -> Velocity -> Position
-updatePosition (pX, pY) (vX, vY) = (pX + vX, pY + vY)
+updatePosition (posX, posY) (velocityX, velocityY) = (posX + velocityX, posY + velocityY)
 
+-- | Updates the velocity
 updateVelocity :: Velocity -> Velocity
-updateVelocity (x, y) = (update x, update y)
+updateVelocity (x, y) = (updateDirection x, updateDirection y)
   where
-    update z
-      | signum z == 1 = if z > 0.2 then z - 0.2 else 0.0
-      | otherwise = if z < -0.2 then z + 0.2 else 0.0
+    updateDirection :: Float -> Float
+    updateDirection value -- TODO: can this be written cleaner?
+      | signum value == 1 = if value > C.velocityReduction then value - C.velocityReduction else 0.0
+      | otherwise = if value < velocityReduction then value + velocityReduction else 0.0
 
 -------------------------------------------------
-
 -- * Instances
-
 -------------------------------------------------
 
 instance Updateable Airplane where
   move :: Airplane -> Airplane
-  -- move airplane@Airplane {airplanePos = p, airplaneVelocity = v} = airplane {airplanePos = updatePosition p v}
-  move airplane@Airplane {airplanePos = p, airplaneVelocity = v, airplaneType = t, airplaneHealth = h} = airplane {airplanePos = updatedPosition, airplaneVelocity = updatedVelocity, airplaneHealth = updatedHealth}
+  -- | Updates the position of the airplane
+  move airplane@Airplane {airplanePos = _pos, airplaneVelocity = _velocity, airplaneType = _type, airplaneHealth = _health} = 
+    airplane {airplanePos = updatedPosition, airplaneVelocity = updatedVelocity, airplaneHealth = updatedHealth}
     where
-      pos@(x, y) = updatePosition p v
+      pos :: Position
+      pos@(x, y) = updatePosition _pos _velocity
 
-      updatedVelocity = updateVelocity v
-      -- \| t == Player1 || t == Player2 = updateVelocity v
-      -- \| otherwise = v
+      updatedVelocity :: Velocity
+      updatedVelocity = updateVelocity _velocity
 
+      updatedPosition :: Position
       updatedPosition
-        | t == Player1 || t == Player2 = (max C.screenMinX (min x C.screenMaxX), max C.screenMinY (min y C.screenMaxY))
+        | _type == Player1 || _type == Player2 = (max C.screenMinX (min x C.screenMaxX), max C.screenMinY (min y C.screenMaxY)) -- TODO: Use minmax function (where can we place such general functions?)
         | otherwise = pos
 
+      updatedHealth :: Int
       updatedHealth
-        | t == Player1 || t == Player2 = h
-        | otherwise = if x < C.screenMinX then 0 else h
+        | _type == Player1 || _type == Player2 = _health
+        | otherwise = if x < C.screenMinX then 0 else _health
 
+  -- | Only returns the airplane if the health is not zero 
   destroy :: Airplane -> Maybe Airplane
-  destroy airplane@Airplane {airplaneHealth = h}
-    | h <= 0 = Nothing
+  destroy airplane@Airplane {airplaneHealth = health}
+    | health <= 0 = Nothing
     | otherwise = Just airplane
 
 instance Updateable Projectile where
+  -- | Updates the position of the projectile
   move :: Projectile -> Projectile
-  move projectile@Projectile {projectilePos = p, projectileVelocity = v, projectileHealth = h} = projectile {projectilePos = updatedPos, projectileHealth = updatedHealth}
+  move projectile@Projectile {projectilePos = _pos, projectileVelocity = _velocity, projectileHealth = _health} = 
+    projectile {projectilePos = updatedPos, projectileHealth = updatedHealth}
     where
-      updatedPos@(x, y) = updatePosition p v
+      updatedPos@(x, y) = updatePosition _pos _velocity
       updatedHealth
         | x < C.screenMinX || x > C.screenMaxX || y < C.screenMinY || y > C.screenMaxY = 0
-        | otherwise = h
+        | otherwise = _health
 
+  -- | Only returns the projectile if the health is not zero 
   destroy :: Projectile -> Maybe Projectile
-  destroy projectile@Projectile {projectileHealth = h}
-    | h <= 0 = Nothing
+  destroy projectile@Projectile {projectileHealth = _health}
+    | _health <= 0 = Nothing
     | otherwise = Just projectile
 
 instance Updateable PowerUp where
+  -- | Updates the position of the powerUp (A powerUp is stationary in the current version)
   move :: PowerUp -> PowerUp
-  move powerUp = powerUp -- A powerUp is stationary in the current version
+  move powerUp = powerUp
 
+  -- | Only returns the powerUp if the timer is not zero 
   destroy :: PowerUp -> Maybe PowerUp
-  destroy pu@PowerUp {powerUpState = state, timeUntilDespawn = despawnTime, powerUpDuration = duration} = case state of
+  destroy powerUp@PowerUp {powerUpState = _state, timeUntilDespawn = _despawnTime, powerUpDuration = _duration} = case _state of
     PickedUp
-      | duration <= 0 -> Nothing
-      | otherwise -> Just pu
+      | _duration <= 0 -> Nothing
+      | otherwise -> Just powerUp
     WorldSpace
-      | despawnTime <= 0 -> Nothing
-      | otherwise -> Just pu
+      | _despawnTime <= 0 -> Nothing
+      | otherwise -> Just powerUp
 
 instance Updateable Particle where
+  -- | Updates the position of the particle (A particle is stationary in the current version)
   move :: Particle -> Particle
-  move particle = particle -- A Particle is stationary in the current version
+  move particle = particle
 
   destroy :: Particle -> Maybe Particle
-  destroy p@Particle {particleSprites = sprites}
-    | null sprites = Nothing
-    | otherwise = Just p
+  destroy particle@Particle {particleSprites = _sprites}
+    | null _sprites = Nothing
+    | otherwise = Just particle

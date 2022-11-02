@@ -9,15 +9,15 @@ module Collidable where
 import Graphics.Gloss
 import Model
 
--- TODO Naming refactor
-
 -------------------------------------------------
--- Collidable class
+-- * Collidable class
 -------------------------------------------------
 
 class Collidable a b where
+  -- | Checks collision between two Collidables
   collides :: a -> b -> Bool
 
+  -- | Update Collidables with the given function, when they collide
   applyOnCollisions :: Collidable a b => (a -> b -> (a, b)) -> [a] -> [b] -> ([a], [b])
   applyOnCollisions _ [] bs = ([], bs)
   applyOnCollisions _ as [] = (as, [])
@@ -33,56 +33,64 @@ class Collidable a b where
           (_a2, _bs2) = applyOnCollision f2 a2 bs2
 
 -------------------------------------------------
--- Helper functions
+-- * Helper functions
 -------------------------------------------------
 
+-- | Checks if two rectangles collide
 checkCollision :: (Point, Point) -> (Point, Point) -> Bool
--- TODO (a1X, a1Y) (a2X, a2Y) b1 b2
-checkCollision (r1p1, r1p2) (r2p1, r2p2) = fst r1p1 < fst r2p2 && fst r1p2 > fst r2p1 && snd r1p1 > snd r2p2 && snd r1p2 < snd r2p1
+checkCollision ((a1X,a1Y), (a2X,a2Y)) ((b1X,b1Y), (b2X,b2Y)) = a1X < b2X && a2X > b1X && a1Y > b2Y && a2Y < b1Y
 
+-- | Converts a position and size to a rectangle
 toHitBox :: Position -> Size -> (Point, Point)
--- TODO bigger name for s & p
-toHitBox posistion@(posX, posY) (sizeX, sizeY) = (posistion, (posX + sizeX, posY - sizeY))
+toHitBox position@(posX, posY) (sizeX, sizeY) = (position, (posX + sizeX, posY - sizeY))
 
 -------------------------------------------------
--- Instances
+-- * Instances
 -------------------------------------------------
 
 instance Collidable Airplane Airplane where
+  -- | Checks collision between two airplanes
   collides :: Airplane -> Airplane -> Bool
   collides
-    Airplane {airplaneType = type1, airplanePos = pos1, airplaneSize = size1}
-    Airplane {airplaneType = type2, airplanePos = pos2, airplaneSize = size2}
-      | type1 == Player1 && type2 == Player2 = False
-      | type1 == Player2 && type2 == Player1 = False
-      | type1 == Player1 || type1 == Player2 = checkCollision (toHitBox pos1 size1) (toHitBox pos2 size2)
+    Airplane {airplaneType = _type1, airplanePos = _pos1, airplaneSize = _size1}
+    Airplane {airplaneType = _type2, airplanePos = _pos2, airplaneSize = _size2}
+      | _type1 == Player1 && _type2 == Player2 = False
+      | _type1 == Player2 && _type2 == Player1 = False
+      | _type1 == Player1 || _type1 == Player2 = toHitBox _pos1 _size1 `checkCollision` toHitBox _pos2 _size2
       | otherwise = False
 
 instance Collidable Projectile Airplane where
+  -- | Checks collision between a projectile and airplane
   collides :: Projectile -> Airplane -> Bool
   collides
-    Projectile {projectileOrigin = origin, projectilePos = _projectilePos, projectileSize = _projectileSize}
+    Projectile {projectileOrigin = _origin, projectilePos = _projectilePos, projectileSize = _projectileSize}
     Airplane {airplaneType = _type, airplanePos = _airplanePos, airplaneSize = _airplaneSize}
-      | origin == Players && (_type == Player1 || _type == Player2) = False
-      | origin == Enemies && _type /= Player1 && _type /= Player2 = False
-      | otherwise = checkCollision (toHitBox _projectilePos _projectileSize) (toHitBox _airplanePos _airplaneSize)
+      | _origin == Players && (_type == Player1 || _type == Player2) = False
+      | _origin == Enemies && _type /= Player1 && _type /= Player2 = False
+      | otherwise = toHitBox _projectilePos _projectileSize `checkCollision` toHitBox _airplanePos _airplaneSize
+      
+instance Collidable Airplane Projectile where
+  -- | Checks collision between an airplane and projectile
+  collides :: Airplane -> Projectile -> Bool
+  collides = flip collides 
 
--- TODO refactor bottom two
 instance Collidable Projectile Projectile where
+  -- | Checks collision between two projectiles
   collides :: Projectile -> Projectile -> Bool
   collides
-    Projectile {projectileOrigin = o1, projectilePos = pos1, projectileSize = size1}
-    Projectile {projectileOrigin = o2, projectilePos = pos2, projectileSize = size2}
-      | o1 /= o2 = checkCollision (toHitBox pos1 size1) (toHitBox pos2 size2)
+    Projectile {projectileOrigin = _origin1, projectilePos = _pos1, projectileSize = _size1}
+    Projectile {projectileOrigin = _origin2, projectilePos = _pos2, projectileSize = _size2}
+      | _origin1 /= _origin2 = toHitBox _pos1 _size1 `checkCollision` toHitBox _pos2 _size2
       | otherwise = False
 
 instance Collidable Airplane PowerUp where
+  -- | Checks collision between an airplane and powerUp
   collides :: Airplane -> PowerUp -> Bool
   collides
-    Airplane {airplaneType = apType, airplanePos = apPosition, airplaneSize = apSize}
-    PowerUp {powerUpState = puState, powerUpPos = puPosition, powerUpSize = puSize} =
-      case puState of
+    Airplane {airplaneType = _airplaneType, airplanePos = _airplanePos, airplaneSize = airplaneSize}
+    PowerUp {powerUpState = _powerUpState, powerUpPos = _powerUpPos, powerUpSize = _powerUpSize} =
+      case _powerUpState of
         PickedUp -> False
         WorldSpace
-          | apType == Player1 || apType == Player2 -> checkCollision (toHitBox apPosition apSize) (toHitBox puPosition puSize)
+          | _airplaneType == Player1 || _airplaneType == Player2 -> toHitBox _airplanePos airplaneSize `checkCollision` toHitBox _powerUpPos _powerUpSize
           | otherwise -> False

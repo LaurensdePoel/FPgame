@@ -14,7 +14,7 @@ import Input
 import Level
 import Model
 import Player
-import Timeable (Timeable (onChange, readyToExecute, updateTime))
+import Timeable (Timeable (applyOnExecute, readyToExecute, updateTime))
 import Updateable
 
 -- TODO Naming refactor
@@ -50,7 +50,7 @@ timeHandler gs@GameState {players = _players, enemies = _enemies, levels = _leve
     updatedEnemies = map updateTime _enemies
     updatedProjectiles = _projectiles ++ concatMap shoot (filter readyToExecute (updatedPlayers ++ updatedEnemies))
     updatedPowerUps = map updateTime _powerUps
-    updatedParticles = map (onChange nextSprite) _particles
+    updatedParticles = map (applyOnExecute nextSprite) _particles
     updatedLevel = updateTime _levels
 
 -- | Handles all movement of entities
@@ -81,13 +81,13 @@ collisionHandler gs@GameState {players = _players, enemies = _enemies, projectil
     (players', enemies') = applyOnCollisions applyDamage3 _players _enemies
 
     applyDamage3 :: Airplane -> Airplane -> (Airplane, Airplane)
-    applyDamage3 player enemy = (damage (airplaneHealth player) player, damage (airplaneHealth enemy) enemy)
+    applyDamage3 player enemy = (takeDamage (airplaneHealth player) player, takeDamage (airplaneHealth enemy) enemy)
 
     -- Handle collision between projectiles
     (updatedProjectiles, _) = applyOnCollisions applyDamage _projectiles _projectiles
 
     applyDamage :: Projectile -> Projectile -> (Projectile, Projectile)
-    applyDamage a b = (damage (projectileDamage b) a, damage (projectileDamage a) b)
+    applyDamage a b = (takeDamage (projectileDamage b) a, takeDamage (projectileDamage a) b)
 
     -- Handle collision between projectiles and enemies
     (updatedProjectiles2, updatedEnemies) = applyOnCollisions applyDamage2 updatedProjectiles enemies'
@@ -96,7 +96,7 @@ collisionHandler gs@GameState {players = _players, enemies = _enemies, projectil
     (updatedProjectiles3, players'') = applyOnCollisions applyDamage2 updatedProjectiles2 players'
 
     applyDamage2 :: Projectile -> Airplane -> (Projectile, Airplane)
-    applyDamage2 a b = (damage (projectileHealth a) a, damage (projectileDamage a) b)
+    applyDamage2 a b = (takeDamage (projectileHealth a) a, takeDamage (projectileDamage a) b)
 
     -- Handle collision between players and powerUps
     (updatedPlayers, updatedPowerUps) = applyOnCollisions pickUp players'' _powerUps
