@@ -36,7 +36,7 @@ updateVelocity (x, y) = (updateDirection x, updateDirection y)
   where
     updateDirection :: Float -> Float
     updateDirection value -- TODO: can this be written cleaner?
-      | signum value == 1 = if value > velocityReduction then value - velocityReduction else 0.0
+      | signum value == 1 = if value > C.velocityReduction then value - C.velocityReduction else 0.0
       | otherwise = if value < velocityReduction then value + velocityReduction else 0.0
 
 -------------------------------------------------
