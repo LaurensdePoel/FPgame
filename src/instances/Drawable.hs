@@ -48,7 +48,7 @@ instance Drawable Particle where
 instance Drawable Sprites where
   -- | Converts the first sprite of sprites into a picture
   draw :: Sprites -> Picture
-  draw sprites@Sprites {spritesState = _state, spritePos = _position, idleSprites = _idleSprites, movingSprites = _movingSprites} =
+  draw Sprites {spritesState = _state, spritePos = _position, idleSprites = _idleSprites, movingSprites = _movingSprites} =
     case _state of
       Idle -> uncurry translate _position (head $ _idleSprites)
       Moving -> uncurry translate _position (head $ _movingSprites)
