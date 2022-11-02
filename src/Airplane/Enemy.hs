@@ -20,7 +20,7 @@ closestPlayer Airplane {airplanePos = _currentPos}
 
     -- | Returns the position of hte closest airplane
     updateClosestPlayer :: Airplane -> Position -> Position
-    updateClosestPlayer Airplane {airplanePos = _Pos, airplaneSize = _Size} rest =
+    updateClosestPlayer Airplane {airplanePos = _pos, airplaneSize = _size} rest =
       case isCloser position rest of
         True -> position
         False -> rest
