@@ -32,6 +32,14 @@ screenMaxY = fromIntegral screenHeight * 0.5
 screenMinY :: Float
 screenMinY = fromIntegral screenHeight * (-0.5)
 
+-- * Menu
+
+menuTextOffset :: Float
+menuTextOffset = -200
+
+menuTextStartHeight :: Float
+menuTextStartHeight = 200
+
 -- * Sprite sizes and offsets
 
 projectileSizeXY, airplaneSizeXY, gunOffset :: Float
@@ -55,7 +63,8 @@ velocityStep = 0.6
 behaviourVelocitySteps :: Float
 behaviourVelocitySteps = 0.25
 
--- * Multipliers 
+-- * Multipliers
+
 velocityReduction :: Float
 velocityReduction = 0.2
 

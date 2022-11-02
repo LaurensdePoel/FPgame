@@ -5,6 +5,7 @@ import Config
 import Data.Map as Dict
 import qualified Data.Set as S
 import Graphics.Gloss
+import Menu
 import Model
 
 debugInitLevel :: Assets -> Level
@@ -56,71 +57,13 @@ initialState assetlist =
       tmpassetList = assetlist
     }
 
-initMenu :: Menu
-initMenu =
-  Menu
-    { fields = [playField, creditsField, exitField],
-      returnMenu = NoMenu
-    }
-  where
-    playField, creditsField, exitField :: Field
-    playField = Field {fieldName = "Play", fieldPosition = (0, 200), subMenu = initPlayMenu}
-
-    creditsField = Field {fieldName = "Credits", fieldPosition = (0, 0), subMenu = NoMenu}
-
-    exitField = Field {fieldName = "Exit", fieldPosition = (0, -200), subMenu = NoMenu}
-
-initPlayMenu :: Menu
-initPlayMenu =
-  Menu
-    { fields = [onePlayer, twoPlayer],
-      returnMenu = initMenu
-    }
-  where
-    onePlayer, twoPlayer :: Field
-    onePlayer = Field {fieldName = "1 Player", fieldPosition = (0, 200), subMenu = NoMenuButFunction start1player}
-
-    twoPlayer = Field {fieldName = "2 Player", fieldPosition = (0, 0), subMenu = NoMenuButFunction start2player}
-
-initPauseMenu :: Menu
-initPauseMenu =
-  Menu
-    { fields = [resume, quit],
-      returnMenu = NoMenu
-    }
-  where
-    resume, quit :: Field
-    resume = Field {fieldName = "Resume", fieldPosition = (0, 200), subMenu = NoMenuButFunction resumeGame}
-
-    quit = Field {fieldName = "Quit", fieldPosition = (0, 0), subMenu = initMenu}
-
-initVictoryMenu :: Menu
-initVictoryMenu =
-  Menu
-    { fields = [nextLevel, selectLevel, mainMenu],
-      returnMenu = NoMenu
-    }
-  where
-    nextLevel, selectLevel, mainMenu :: Field
-    nextLevel = Field {fieldName = "Next Level", fieldPosition = (0, 200), subMenu = NoMenuButFunction start1player}
-
-    selectLevel = Field {fieldName = "Select Level", fieldPosition = (0, 0), subMenu = initPlayMenu}
-
-    mainMenu = Field {fieldName = "Main Menu", fieldPosition = (0, -200), subMenu = initMenu}
-
-initDefeatMenu :: Menu
-initDefeatMenu =
-  Menu
-    { fields = [retryLevel, selectLevel, mainMenu],
-      returnMenu = NoMenu
-    }
-  where
-    retryLevel, selectLevel, mainMenu :: Field
-    retryLevel = Field {fieldName = "Retry Level", fieldPosition = (0, 200), subMenu = NoMenuButFunction start1player}
-
-    selectLevel = Field {fieldName = "Select Level", fieldPosition = (0, 0), subMenu = initPlayMenu}
-
-    mainMenu = Field {fieldName = "Main Menu", fieldPosition = (0, -200), subMenu = initMenu}
+-- | Create menu's
+initMenu, initPlayMenu, initPauseMenu, initVictoryMenu, initDefeatMenu :: Menu
+initMenu = createMenu "Shoot'em Up" NoMenu [("Play", initPlayMenu), ("Controls", NoMenu), ("Credits", NoMenu), ("Exit", NoMenu)]
+initPlayMenu = createMenu "Choose players" initMenu [("1 Player", NoMenuButFunction start1player), ("2 Player", NoMenuButFunction start2player)]
+initPauseMenu = createMenu "Paused" NoMenu [("Resume", NoMenuButFunction resumeGame), ("Return to menu", initMenu)]
+initVictoryMenu = createMenu "Level Completed" NoMenu [("Next Level", NoMenuButFunction start1player), ("Select Level", initPlayMenu), ("Return to Menu", initMenu)] -- TODO: NoMenuButFunction start1player is incorrect
+initDefeatMenu = createMenu "Game Over" NoMenu [("Retry Level", NoMenuButFunction start1player), ("Select Level", initPlayMenu), ("Return to Menu", initMenu)] -- TODO: NoMenuButFunction start1player is incorrect
 
 resumeGame :: GameState -> GameState
 resumeGame gs = gs {status = InGame}
@@ -173,7 +116,7 @@ start1player gs@GameState {tmpassetList = _assetList} =
               airplaneGun = None,
               airplaneSprite = flip fixImageOrigin airplaneSizeVar $ getTexture "kamikaze" _assetList
             },
-            Airplane
+          Airplane
             { airplaneType = FlyBy,
               airplanePos = (600, -180),
               airplaneDestinationPos = (0, 0),
