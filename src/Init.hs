@@ -249,7 +249,7 @@ start2player gs@GameState {tmpassetList = _assetList} =
                       projectileOrigin = Enemies,
                       projectileSprite = flip fixImageOrigin projectileSizeVar $ rotate (-90) $ getTexture "double-bullet" _assetList
                     },
-              airplaneSprite = flip fixImageOrigin airplaneSizeVar $ rotate (-90) $ getTexture "ship_0000" _assetList
+              airplaneSprite = flip fixImageOrigin airplaneSizeVar $ rotate (-90) $ getTexture "fighter" _assetList
             }
         ],
       powerUps = [],
