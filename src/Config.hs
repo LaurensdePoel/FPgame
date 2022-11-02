@@ -10,15 +10,15 @@ fps :: Int
 fps = 60
 
 offset :: Int
-offset = 100
+offset = 0
 
 -- ** Screen size
 
 screenWidth :: Int
-screenWidth = 1124
+screenWidth = 1024
 
 screenHeight :: Int
-screenHeight = 868
+screenHeight = 768
 
 screenMaxX :: Float
 screenMaxX = fromIntegral screenWidth * 0.5
@@ -60,7 +60,13 @@ velocityStep = 0.6
 
 -- ** Enemey base values
 
+behaviourVelocitySteps :: Float
+behaviourVelocitySteps = 0.25
+
 -- * Multipliers
 
 velocityReduction :: Float
 velocityReduction = 0.2
+
+destinationErrorMargin :: (Float,Float)
+destinationErrorMargin = (0.2,0.2)
