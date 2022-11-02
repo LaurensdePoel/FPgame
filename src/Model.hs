@@ -130,7 +130,7 @@ data Wave = Wave
 
 data Menu
   = Menu
-      { -- header :: Picture,
+      { header :: String,
         fields :: [Field],
         -- menuBackground :: Picture,
         returnMenu :: Menu
