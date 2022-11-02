@@ -87,7 +87,8 @@ executable FPgame
                         random,
                         containers,
                         directory,
-                        filepath
+                        filepath,
+                        aeson
 
     -- Directories containing source files.
     hs-source-dirs:   src, src/instances, src/interface, src/Airplane
