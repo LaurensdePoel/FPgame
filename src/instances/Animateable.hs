@@ -19,8 +19,8 @@ class Animateable a where
 -------------------------------------------------
 
 instance Animateable Particle where
-  nextSprite :: Particle -> Particle
   -- | Removes the current sprite
+  nextSprite :: Particle -> Particle
   nextSprite particle@Particle {particleSprites = _sprites, particleInterval = _interval} =
     particle {particleSprites = tail _sprites, particleTimer = _interval}
 

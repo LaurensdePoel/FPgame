@@ -10,6 +10,7 @@ import Model
 -- * Timeable class
 -------------------------------------------------
 
+-- | This type class handles all time related actions
 class Timeable a where
   -- | Updates the timer of a Timeable
   updateTime :: a -> a

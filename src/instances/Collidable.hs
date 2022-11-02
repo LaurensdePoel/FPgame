@@ -1,6 +1,7 @@
 {-# LANGUAGE InstanceSigs #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
+
 {-# HLINT ignore "[Replace {rtype = Expr, pos = SrcSpan {startLine = 25, startCol = 9, endLine = 27, endCol = 36}, subts = [("a",SrcSpan {startLine = 25, startCol = 14, endLine = 25, endCol = 30}),("f",SrcSpan {startLine = 27, startCol = 20, endLine = 27, endCol = 36}),("t",SrcSpan {startLine = 26, startCol = 19, endLine = 26, endCol = 86})], orig = "if a then (t) else f"}]" #-}
 
 -- | This module defines the Collidable type class
@@ -10,7 +11,9 @@ import Graphics.Gloss
 import Model
 
 -------------------------------------------------
+
 -- * Collidable class
+
 -------------------------------------------------
 
 class Collidable a b where
@@ -33,23 +36,27 @@ class Collidable a b where
           (_a2, _bs2) = applyOnCollision f2 a2 bs2
 
 -------------------------------------------------
+
 -- * Helper functions
+
 -------------------------------------------------
 
 -- | Checks if two rectangles collide
 checkCollision :: (Point, Point) -> (Point, Point) -> Bool
-checkCollision ((a1X,a1Y), (a2X,a2Y)) ((b1X,b1Y), (b2X,b2Y)) = a1X < b2X && a2X > b1X && a1Y > b2Y && a2Y < b1Y
+checkCollision ((a1X, a1Y), (a2X, a2Y)) ((b1X, b1Y), (b2X, b2Y)) = a1X < b2X && a2X > b1X && a1Y > b2Y && a2Y < b1Y
 
 -- | Converts a position and size to a rectangle
 toHitBox :: Position -> Size -> (Point, Point)
 toHitBox position@(posX, posY) (sizeX, sizeY) = (position, (posX + sizeX, posY - sizeY))
 
 -------------------------------------------------
+
 -- * Instances
+
 -------------------------------------------------
 
 instance Collidable Airplane Airplane where
-  -- | Checks collision between two airplanes
+  -- \| Checks collision between two airplanes
   collides :: Airplane -> Airplane -> Bool
   collides
     Airplane {airplaneType = _type1, airplanePos = _pos1, airplaneSize = _size1}
@@ -60,7 +67,7 @@ instance Collidable Airplane Airplane where
       | otherwise = False
 
 instance Collidable Projectile Airplane where
-  -- | Checks collision between a projectile and airplane
+  -- \| Checks collision between a projectile and airplane
   collides :: Projectile -> Airplane -> Bool
   collides
     Projectile {projectileOrigin = _origin, projectilePos = _projectilePos, projectileSize = _projectileSize}
@@ -68,14 +75,14 @@ instance Collidable Projectile Airplane where
       | _origin == Players && (_type == Player1 || _type == Player2) = False
       | _origin == Enemies && _type /= Player1 && _type /= Player2 = False
       | otherwise = toHitBox _projectilePos _projectileSize `checkCollision` toHitBox _airplanePos _airplaneSize
-      
+
 instance Collidable Airplane Projectile where
-  -- | Checks collision between an airplane and projectile
+  -- \| Checks collision between an airplane and projectile
   collides :: Airplane -> Projectile -> Bool
-  collides = flip collides 
+  collides = flip collides
 
 instance Collidable Projectile Projectile where
-  -- | Checks collision between two projectiles
+  -- \| Checks collision between two projectiles
   collides :: Projectile -> Projectile -> Bool
   collides
     Projectile {projectileOrigin = _origin1, projectilePos = _pos1, projectileSize = _size1}
@@ -84,13 +91,13 @@ instance Collidable Projectile Projectile where
       | otherwise = False
 
 instance Collidable Airplane PowerUp where
-  -- | Checks collision between an airplane and powerUp
+  -- \| Checks collision between an airplane and powerUp
   collides :: Airplane -> PowerUp -> Bool
   collides
-    Airplane {airplaneType = _airplaneType, airplanePos = _airplanePos, airplaneSize = airplaneSize}
+    Airplane {airplaneType = _airplaneType, airplanePos = _airplanePos, airplaneSize = _airplaneSize}
     PowerUp {powerUpState = _powerUpState, powerUpPos = _powerUpPos, powerUpSize = _powerUpSize} =
       case _powerUpState of
         PickedUp -> False
         WorldSpace
-          | _airplaneType == Player1 || _airplaneType == Player2 -> toHitBox _airplanePos airplaneSize `checkCollision` toHitBox _powerUpPos _powerUpSize
+          | _airplaneType == Player1 || _airplaneType == Player2 -> toHitBox _airplanePos _airplaneSize `checkCollision` toHitBox _powerUpPos _powerUpSize
           | otherwise -> False
