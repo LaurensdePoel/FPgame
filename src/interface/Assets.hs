@@ -1,6 +1,7 @@
 module Assets where
 
 import Control.Monad
+import qualified Data.ByteString as B
 import Data.Char (toLower)
 import Data.Map as Dict
 import Data.Maybe

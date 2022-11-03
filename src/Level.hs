@@ -5,7 +5,7 @@
 
 module Level where
 
-import Assets (fixImageOrigin, getTexture)
+import Assets (combinePath, fixImageOrigin, getTexture)
 import qualified Config as C
 import Control.Applicative
 import Control.Monad
@@ -15,6 +15,7 @@ import qualified Data.ByteString.Lazy as B
 import GHC.Generics
 import Graphics.Gloss.Interface.IO.Animate (Picture (Pictures), rotate)
 import Model
+import System.Directory
 
 -- | The function 'nextwave' sets the nextwave as currentwave. If there are no more waves this functions does nothing.
 nextWave :: GameState -> GameState
@@ -33,16 +34,24 @@ nextWave gs@GameState {currentLevel = _currentLevel, enemies = _enemies}
 
 -- jsonFile :: FilePath
 -- jsonFile = "level.json"
+levelsPath :: FilePath
+levelsPath = "levels/"
 
 getJSON :: FilePath -> IO B.ByteString
 getJSON = B.readFile
 
 loadLevel :: FilePath -> IO LevelJSON
 loadLevel filePath = do
-  d <- (eitherDecode <$> getJSON filePath) :: IO (Either String LevelJSON)
+  d <- (eitherDecode <$> getJSON (levelsPath ++ filePath)) :: IO (Either String LevelJSON)
   case d of
     Left err -> error err
     Right levelJSON -> do return levelJSON
+
+-- getLevels :: IO [Level]
+getLevelsInJSON :: IO [LevelJSON]
+getLevelsInJSON = do
+  levelFileNames <- listDirectory levelsPath
+  mapM loadLevel levelFileNames
 
 myLevel :: LevelJSON
 myLevel = LevelJSON 1 [WaveJSON [AirplaneJSON Fighter (300, -300), AirplaneJSON Fighter (300, 300)] 50, WaveJSON [AirplaneJSON Kamikaze (300, -300), AirplaneJSON Kamikaze (300, 300)] 50]

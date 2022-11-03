@@ -20,15 +20,15 @@ main = do
   -- loadLevel "level.json"
   -- writeJSONLevelToJson "level.json"
   -- print plane
-  jsonLevel <- loadLevel "level.json"
+  jsonLevel <- getLevelsInJSON
   assets <- getAssets
-  let level = levelConverter jsonLevel assets
+  let levels = Prelude.map (`levelConverter` assets) jsonLevel
   let
   playIO
     (InWindow "Nice Window" (screenWidth, screenHeight) (offset, offset))
     black
     fps
-    (initialState assets [level])
+    (initialState assets levels)
     view
     input
     step
