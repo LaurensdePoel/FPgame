@@ -75,7 +75,9 @@ executable FPgame
          Init,
          Player,
          Airplane,
-         Enemy
+         Enemy,
+         Level,
+         Random
          
 
     -- LANGUAGE extensions used by modules in this package.

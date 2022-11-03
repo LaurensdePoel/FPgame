@@ -40,7 +40,7 @@ enemyBehaviourHandler gs@GameState {players = _players, enemies = _enemies} = gs
     updateBehaviour :: Airplane -> Airplane
     updateBehaviour enemy@Airplane {airplaneType = _type, airplaneMaxVelocity = _maxVelocity} = case _type of
       Fighter
-        | isDestinationReached updatedAirplane -> updatedAirplane {airplaneDestinationPos = (300, 300)} -- should be randomly generated
+        | isDestinationReached updatedAirplane -> updatedAirplane {airplaneDestinationPos = (300,300)} -- should be randomly generated
         | otherwise -> updatedAirplane
       Kamikaze -> updatedAirplane {airplaneDestinationPos = closestPlayer updatedAirplane _players}
       _ -> enemy {airplaneVelocity = (minVelocity, 0)}

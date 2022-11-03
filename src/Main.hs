@@ -9,6 +9,7 @@ import Graphics.Gloss.Interface.IO.Game
 import Init
 import Input
 import View
+import System.Random
 
 -- | The entery of Haskell game
 main :: IO ()

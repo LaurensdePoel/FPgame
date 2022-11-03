@@ -39,9 +39,11 @@ updateVelocity :: Velocity -> Velocity
 updateVelocity (x, y) = (updateDirection x, updateDirection y)
   where
     updateDirection :: Float -> Float
-    updateDirection value -- TODO: can this be written cleaner?
-      | signum value == 1 = if value > C.velocityReduction then value - C.velocityReduction else 0.0
-      | otherwise = if value < -C.velocityReduction then value + C.velocityReduction else 0.0
+    updateDirection value
+      | isMovingDirectionPositive = max 0.0 (value - C.velocityReduction)
+      | otherwise = min 0.0 (value + C.velocityReduction)
+      where
+        isMovingDirectionPositive = signum value == 1
 
 -------------------------------------------------
 
@@ -73,8 +75,8 @@ instance Updateable Airplane where
 
   -- \| Only returns the airplane if the health is not zero
   destroy :: Airplane -> Maybe Airplane
-  destroy airplane@Airplane {airplaneHealth = health}
-    | health <= 0 = Nothing
+  destroy airplane@Airplane {airplaneHealth = _health}
+    | _health <= 0 = Nothing
     | otherwise = Just airplane
 
 instance Updateable Projectile where
@@ -85,7 +87,7 @@ instance Updateable Projectile where
     where
       updatedPos@(x, y) = updatePosition _pos _velocity
       updatedHealth
-        | x < C.screenMinX || x > C.screenMaxX || y < C.screenMinY || y > C.screenMaxY = 0
+        | x < C.screenMinX || x > C.screenMaxX || y < C.screenMinY || y > C.screenMaxY = 0 -- TODO minmax?
         | otherwise = _health
 
   -- \| Only returns the projectile if the health is not zero

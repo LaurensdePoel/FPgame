@@ -29,4 +29,4 @@ instance Damageable Airplane where
 instance Damageable Projectile where
   -- \| Apply damage to the projectile
   takeDamage :: Int -> Projectile -> Projectile
-  takeDamage damage projectile@Projectile {projectileHealth = _health} = projectile {projectileHealth = max 0 (_health - damage)}
+  takeDamage damage projectile@Projectile {projectileHealth = _health} = projectile {projectileHealth = max 0 (_health - damage)} -- TODO if projectile type apply multiplier

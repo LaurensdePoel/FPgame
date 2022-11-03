@@ -40,7 +40,7 @@ loadAssets filePath = do
 combinePath :: [FilePath] -> [[FilePath]] -> [[FilePath]]
 combinePath [] _ = []
 combinePath _ [] = []
-combinePath (x : xs) (y : ys) = Prelude.map (x ++) y : combinePath xs ys
+combinePath (x : xs) (y : ys) = Prelude.map (x ++) y : combinePath xs ys -- TODO use higher order functions
 
 getDirectories :: FilePath -> IO [FilePath]
 getDirectories filePath = do
@@ -50,7 +50,7 @@ getDirectories filePath = do
 -- TODO enemySpriteRotation playerSpriteRotation
 getTexture :: String -> Assets -> Picture
 getTexture spriteName assetList = case Dict.lookup spriteName assetList of
-  Nothing -> rotate (-90) $ Scale 0.25 0.25 (color red $ Text spriteName)
+  Nothing -> rotate (-90) $ Scale 0.25 0.25 (color red $ Text spriteName) -- TODO player and enemy sprite rotation in config and scale
   Just x -> x
 
 -- TODO MARK FIX THIS

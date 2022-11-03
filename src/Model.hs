@@ -99,7 +99,7 @@ data Airplane = Airplane
 
 data FireRate = Single Time | Burst Time
 
-data ProjectileType = Gun | DoubleGun | Rocket
+data ProjectileType = Gun | DoubleGun
 
 data Origin = Players | Enemies deriving (Eq)
 
