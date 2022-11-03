@@ -58,26 +58,31 @@ executable FPgame
     main-is:          Main.hs
 
     -- Modules included in this executable, other than Main.
-    other-modules:    Controller,
-         Model, 
-         View, 
-         Drawable, 
-         Collidable, 
-         Updateable, 
-         Handler, 
-         Timeable, 
-         Damageable, 
-         Config, 
-         Input, 
-         Animateable, 
-         Menu, 
-         Assets, 
-         Init,
-         Player,
-         Airplane,
-         Enemy,
-         Level,
-         Random
+    other-modules:    
+        -- airplane
+        Airplane,
+        Enemy,
+        Player,
+        -- instances
+        Animateable, 
+        Collidable, 
+        Damageable, 
+        Drawable, 
+        Timeable, 
+        Updateable, 
+        -- interface
+        Assets, 
+        Input, 
+        Menu, 
+        -- src
+        Config, 
+        Controller,
+        Handler, 
+        Init,
+        Level,
+        Model, 
+        View 
+         
          
 
     -- LANGUAGE extensions used by modules in this package.
@@ -89,7 +94,9 @@ executable FPgame
                         random,
                         containers,
                         directory,
-                        filepath
+                        filepath,
+                        aeson,
+                        bytestring
 
     -- Directories containing source files.
     hs-source-dirs:   src, src/instances, src/interface, src/Airplane
