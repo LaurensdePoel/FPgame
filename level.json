@@ -5,14 +5,14 @@
             "resEnemiesInWave": [
                 {
                     "resAirplanePos": [
-                        300,
+                        0,
                         -300
                     ],
                     "resAirplaneType": "Fighter"
                 },
                 {
                     "resAirplanePos": [
-                        300,
+                        0,
                         300
                     ],
                     "resAirplaneType": "Fighter"
@@ -24,14 +24,14 @@
             "resEnemiesInWave": [
                 {
                     "resAirplanePos": [
-                        300,
+                        0,
                         -300
                     ],
                     "resAirplaneType": "Kamikaze"
                 },
                 {
                     "resAirplanePos": [
-                        300,
+                        0,
                         300
                     ],
                     "resAirplaneType": "Kamikaze"

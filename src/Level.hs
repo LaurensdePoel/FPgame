@@ -35,10 +35,6 @@ getJSON = B.readFile jsonFile
 myLevel :: ResLevel
 myLevel = ResLevel 1 [ResWave [ResAirplane Fighter (300, -300), ResAirplane Fighter (300, 300)] 50, ResWave [ResAirplane Kamikaze (300, -300), ResAirplane Kamikaze (300, 300)] 50]
 
-tesLeveltmp :: ResLeveltmp
-tesLeveltmp {resLevelNr = 1, 
-resWaves = [ResWave {resEnemiesInWave = [ResAirplane {resAirplaneType = Fighter, resAirplanePos = (300.0,-300.0)},ResAirplane {resAirplaneType = Fighter, resAirplanePos = (300.0,300.0)}], resWaveTimer = 50.0},ResWave {resEnemiesInWave = [ResAirplane {resAirplaneType = Kamikaze, resAirplanePos = (300.0,-300.0)},ResAirplane {resAirplaneType = Kamikaze, resAirplanePos = (300.0,300.0)}], resWaveTimer = 50.0}]}
-
 data Foo = Foo
   { field1 :: Int,
     field2 :: String
