@@ -9,15 +9,21 @@ import Level
 import Menu
 import Model
 
+step :: Float -> GameState -> IO GameState
+step seconds gs@GameState {status = _status} = do
+  --newLevel <- undefined
+  -- return $ stepPure seconds gs {levels = newLevel}
+  return $ stepPure seconds gs
+
 -- | Handle one iteration of the game
 --
 -- if status = InMenu -> updateMenu
 -- if status = InGame -> updateGameState
-step :: Float -> GameState -> IO GameState
-step seconds gs@GameState {status = _status}
-  | _status == InMenu = return $ updateMenu gs
-  | _status == InGame = return $ updateGameState $ gs {elapsedTime = updateTime}
-  | otherwise = return gs
+stepPure :: Float -> GameState -> GameState
+stepPure seconds gs@GameState {status = _status}
+  | _status == InMenu = updateMenu gs
+  | _status == InGame = updateGameState $ gs {elapsedTime = updateTime}
+  | otherwise = gs
   where
     updateTime :: Time
     updateTime = elapsedTime gs + seconds

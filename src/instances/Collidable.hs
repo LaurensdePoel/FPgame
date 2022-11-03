@@ -87,10 +87,10 @@ instance Collidable Airplane PowerUp where
   -- | Checks collision between an airplane and powerUp
   collides :: Airplane -> PowerUp -> Bool
   collides
-    Airplane {airplaneType = _airplaneType, airplanePos = _airplanePos, airplaneSize = airplaneSize}
+    Airplane {airplaneType = _airplaneType, airplanePos = _airplanePos, airplaneSize = _airplaneSize}
     PowerUp {powerUpState = _powerUpState, powerUpPos = _powerUpPos, powerUpSize = _powerUpSize} =
       case _powerUpState of
         PickedUp -> False
         WorldSpace
-          | _airplaneType == Player1 || _airplaneType == Player2 -> toHitBox _airplanePos airplaneSize `checkCollision` toHitBox _powerUpPos _powerUpSize
+          | _airplaneType == Player1 || _airplaneType == Player2 -> toHitBox _airplanePos _airplaneSize `checkCollision` toHitBox _powerUpPos _powerUpSize
           | otherwise -> False

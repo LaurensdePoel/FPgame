@@ -1,3 +1,5 @@
+{-# LANGUAGE DeriveAnyClass #-}
+{-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE InstanceSigs #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
@@ -7,9 +9,12 @@
 --   which represent the state of the game
 module Model where
 
-import Data.Map as Map
+import Data.Aeson (FromJSON)
+import Data.Aeson.Types (ToJSON)
+import Data.Map as Map (Map)
 import qualified Data.Set as S
-import Graphics.Gloss
+import GHC.Generics (Generic)
+import Graphics.Gloss (Picture, Point)
 import Graphics.Gloss.Interface.IO.Interact (Key)
 
 -- * GameState
@@ -76,7 +81,7 @@ data PowerUp = PowerUp
 
 type Enemy = Airplane
 
-data AirPlaneType = Player1 | Player2 | Fighter | Kamikaze | FlyBy deriving (Eq)
+data AirPlaneType = Player1 | Player2 | Fighter | Kamikaze | FlyBy deriving (Eq, Show, Generic, ToJSON, FromJSON)
 
 data AirplaneGun = AirplaneGun Projectile | None
 
