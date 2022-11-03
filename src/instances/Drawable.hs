@@ -55,8 +55,8 @@ instance Drawable Sprites where
   draw :: Sprites -> Picture
   draw Sprites {spritesState = _state, spritePos = _position, idleSprites = _idleSprites, movingSprites = _movingSprites} =
     case _state of
-      Idle -> uncurry translate _position (head $ _idleSprites)
-      Moving -> uncurry translate _position (head $ _movingSprites)
+      Idle -> uncurry translate _position (head _idleSprites)
+      Moving -> uncurry translate _position (head _movingSprites)
 
 instance Drawable Menu where
   -- \| Converts a menu into a picture
@@ -65,7 +65,7 @@ instance Drawable Menu where
     pictures $ headerPicture : currentSelected : map draw (tail _fields)
     where
       headerPicture = Scale 0.5 0.5 $ translate 0 (C.menuTextStartHeight - C.menuTextOffset) $ color white (Text _header)
-      currentSelected = Scale 0.28 0.28 $ translate `uncurry` fieldPosition (head _fields) $ color yellow (Text (fieldName $ head _fields))
+      currentSelected = Scale 0.25 0.25 $ translate `uncurry` fieldPosition (head _fields) $ color yellow (Text (fieldName $ head _fields))
   draw NoMenu = Blank
   draw NoMenuButFunction {} = Blank
 

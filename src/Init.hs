@@ -1,10 +1,10 @@
 module Init where
 
-import Assets
-import Config
-import Data.Map as Dict
+import Assets (fixImageOrigin, getTexture)
+import Config (airplaneSizeVar, projectileSizeVar)
+import Data.Map as Dict (fromList)
 import qualified Data.Set as S
-import Graphics.Gloss
+import Graphics.Gloss (Picture (Scale), rotate)
 import Menu
 import Model
 
