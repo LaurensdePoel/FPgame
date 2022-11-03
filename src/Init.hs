@@ -8,17 +8,18 @@ import Graphics.Gloss (Picture (Scale), rotate)
 import Menu
 import Model
 
-debugInitLevel :: Assets -> Level
-debugInitLevel assetlist = Level {levelNr = 1, waves = [Wave [createBasicEnemy Fighter (500, -350) assetlist, createBasicEnemy Fighter (300, -200) assetlist] 200, Wave [createBasicEnemy Fighter (500, 350) assetlist] 200, Wave [createBasicEnemy Fighter (300, 100) assetlist] 200]}
+initEmptyLevel :: Level
+initEmptyLevel = Level 0 []
 
-initialState :: Assets -> GameState
-initialState assetlist =
+initialState :: Assets -> [Level] -> GameState
+initialState assetlist levels =
   GameState
     { elapsedTime = 0,
       status = InMenu,
       players = [],
       enemies = [],
-      levels = Level 0 [],
+      levels = levels,
+      currentLevel = initEmptyLevel,
       projectiles = [],
       powerUps = [],
       pressedKeys = S.empty,
@@ -70,7 +71,7 @@ resumeGame gs = gs {status = InGame}
 
 -- Toggles the status in the GameState.
 start1player :: GameState -> GameState
-start1player gs@GameState {tmpassetList = _assetList} =
+start1player gs@GameState {tmpassetList = _assetList, levels = _levels} =
   gs
     { players =
         [ Airplane
@@ -101,6 +102,7 @@ start1player gs@GameState {tmpassetList = _assetList} =
         ],
       status = InGame,
       projectiles = [],
+      currentLevel = head _levels,
       enemies =
         [ Airplane
             { airplaneType = Kamikaze,
@@ -142,7 +144,7 @@ start1player gs@GameState {tmpassetList = _assetList} =
               airplaneSprite = flip fixImageOrigin airplaneSizeVar $ rotate (-90) $ getTexture "flyby" _assetList
             }
         ],
-      levels = debugInitLevel _assetList,
+      -- levels = debugInitLevel _assetList,
       powerUps =
         [ PowerUp
             { powerUpPos = (-400, 70),
@@ -167,7 +169,7 @@ start1player gs@GameState {tmpassetList = _assetList} =
     }
 
 start2player :: GameState -> GameState
-start2player gs@GameState {tmpassetList = _assetList} =
+start2player gs@GameState {tmpassetList = _assetList, levels = _levels} =
   gs
     { players =
         [ Airplane
@@ -223,7 +225,7 @@ start2player gs@GameState {tmpassetList = _assetList} =
         ],
       status = InGame,
       projectiles = [],
-      levels = debugInitLevel _assetList,
+      currentLevel = head _levels,
       enemies =
         [ -- tmp enemy
           Airplane
@@ -255,32 +257,4 @@ start2player gs@GameState {tmpassetList = _assetList} =
       powerUps = [],
       particles = [],
       menu = initPauseMenu
-    }
-
-createBasicEnemy :: AirPlaneType -> Position -> Assets -> Enemy
-createBasicEnemy enemytype position assetList =
-  Airplane
-    { airplaneType = enemytype,
-      airplanePos = position,
-      airplaneDestinationPos = (0, 0),
-      airplaneSize = airplaneSizeVar,
-      airplaneVelocity = (0, 0),
-      airplaneMaxVelocity = (-12, 12),
-      airplaneHealth = 100,
-      fireRate = Burst 120.0,
-      timeLastShot = 0.0,
-      airplanePowerUps = [],
-      airplaneGun =
-        AirplaneGun
-          Projectile
-            { projectileType = DoubleGun,
-              projectilePos = (0, 0),
-              projectileSize = projectileSizeVar,
-              projectileVelocity = (-10, 0),
-              projectileHealth = 1,
-              projectileDamage = 10,
-              projectileOrigin = Enemies,
-              projectileSprite = flip fixImageOrigin projectileSizeVar $ rotate (-90) $ getTexture "double-bullet" assetList
-            },
-      airplaneSprite = flip fixImageOrigin airplaneSizeVar $ rotate (-90) $ getTexture "fighter" assetList
     }

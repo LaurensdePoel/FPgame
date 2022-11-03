@@ -10,7 +10,7 @@
 module Model where
 
 import Data.Aeson (FromJSON)
-import Data.Aeson.Types (ToJSON)
+import Data.Aeson.Types (ToJSON (toJSON))
 import Data.Map as Map (Map)
 import qualified Data.Set as S
 import GHC.Generics (Generic)
@@ -28,12 +28,13 @@ data GameState = GameState
     status :: Status,
     players :: [Airplane],
     enemies :: [Enemy],
-    levels :: Level,
+    levels :: [Level],
+    currentLevel :: Level,
     projectiles :: [Projectile],
     powerUps :: [PowerUp],
     particleMap :: Map String Particle,
     particles :: [Particle],
-    pressedKeys :: S.Set Key,
+    pressedKeys :: S.Set Graphics.Gloss.Interface.IO.Interact.Key,
     menu :: Menu,
     tmpassetList :: Assets
   }
@@ -99,6 +100,7 @@ data Airplane = Airplane
     airplaneSprite :: Picture,
     airplanePowerUps :: [PowerUp]
   }
+  deriving (Generic)
 
 -- ** Projectiles
 
