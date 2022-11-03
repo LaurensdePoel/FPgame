@@ -14,4 +14,5 @@ shoot Airplane {airplanePos = (x, y), fireRate = r, airplaneGun = (AirplaneGun p
     where
       (px, _) = projectileSize projectile
 
--- TODO add minmax function and apply in other files
+minMax :: (Float, Float) -> Float -> Float
+minMax (minValue, maxValue) value = min maxValue (max minValue value)

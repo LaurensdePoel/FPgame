@@ -12,8 +12,8 @@ import Graphics.Gloss.Interface.IO.Game
 import Init
 import Input
 import Level
-import View
 import System.Random
+import View
 
 -- | The entery of Haskell game
 main :: IO ()

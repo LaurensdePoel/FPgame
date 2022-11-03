@@ -3,6 +3,7 @@
 -- | This module defines the Damageable type class
 module Damageable where
 
+import Config as C
 import Model
 
 -------------------------------------------------
@@ -29,4 +30,8 @@ instance Damageable Airplane where
 instance Damageable Projectile where
   -- \| Apply damage to the projectile
   takeDamage :: Int -> Projectile -> Projectile
-  takeDamage damage projectile@Projectile {projectileHealth = _health} = projectile {projectileHealth = max 0 (_health - damage)} -- TODO if projectile type apply multiplier
+  takeDamage damage projectile@Projectile {projectileHealth = _health, projectileType = _type} = projectile {projectileHealth = max 0 (_health - updatedDamage)}
+    where
+      updatedDamage
+        | _type == DoubleGun = damage * C.damageMultiplier
+        | otherwise = damage

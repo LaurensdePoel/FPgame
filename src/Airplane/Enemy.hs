@@ -1,5 +1,6 @@
 module Enemy where
 
+import Airplane
 import Config as C
 import Model
 
@@ -31,8 +32,8 @@ closestPlayer
           position = centerPosition _pos _size
 
 -- | Handles the behaviour of different enemies
-enemyBehaviourHandler :: GameState -> GameState
-enemyBehaviourHandler gs@GameState {players = _players, enemies = _enemies} = gs {enemies = updatedEnemies}
+enemyBehaviourHandler :: Position -> GameState -> GameState
+enemyBehaviourHandler randomPoint gs@GameState {players = _players, enemies = _enemies} = gs {enemies = updatedEnemies}
   where
     updatedEnemies :: [Airplane]
     updatedEnemies = map updateBehaviour _enemies
@@ -40,7 +41,7 @@ enemyBehaviourHandler gs@GameState {players = _players, enemies = _enemies} = gs
     updateBehaviour :: Airplane -> Airplane
     updateBehaviour enemy@Airplane {airplaneType = _type, airplaneMaxVelocity = _maxVelocity} = case _type of
       Fighter
-        | isDestinationReached updatedAirplane -> updatedAirplane {airplaneDestinationPos = (300,300)} -- should be randomly generated
+        | isDestinationReached updatedAirplane -> updatedAirplane {airplaneDestinationPos = randomPoint}
         | otherwise -> updatedAirplane
       Kamikaze -> updatedAirplane {airplaneDestinationPos = closestPlayer updatedAirplane _players}
       _ -> enemy {airplaneVelocity = (minVelocity, 0)}
@@ -50,15 +51,13 @@ enemyBehaviourHandler gs@GameState {players = _players, enemies = _enemies} = gs
 
         updatedVelocity :: Velocity -> Position -> Position -> Velocity
         updatedVelocity (velocityX, velocityY) (currentPosX, currentPosY) (destinationX, destinationY) =
-          (maxMin minVelocity maxVelocity (velocityX + direction currentPosX destinationX), maxMin minVelocity maxVelocity (velocityY + direction currentPosY destinationY)) -- TODO: can this be written cleaner
+          (minMax _maxVelocity (velocityX + direction currentPosX destinationX), minMax _maxVelocity (velocityY + direction currentPosY destinationY)) -- TODO: can this be written cleaner
         direction :: Float -> Float -> Float
         direction position destination = case signum (destination - position) of
-          (-1) -> (- C.behaviourVelocitySteps)
+          (-1) -> (-C.behaviourVelocitySteps)
           1 -> C.behaviourVelocitySteps
           _ -> 0.0
 
-        maxMin :: Float -> Float -> Float -> Float
-        maxMin minValue maxValue value = max minValue (min maxValue value) -- TODO: move maxMin to generic file as it is used in multiple files
         minVelocity, maxVelocity :: Float
         minVelocity = fst _maxVelocity
         maxVelocity = snd _maxVelocity

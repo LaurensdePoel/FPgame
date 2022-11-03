@@ -87,7 +87,7 @@ instance Updateable Projectile where
     where
       updatedPos@(x, y) = updatePosition _pos _velocity
       updatedHealth
-        | x < C.screenMinX || x > C.screenMaxX || y < C.screenMinY || y > C.screenMaxY = 0 -- TODO minmax?
+        | x < C.screenMinX || x > C.screenMaxX || y < C.screenMinY || y > C.screenMaxY = 0
         | otherwise = _health
 
   -- \| Only returns the projectile if the health is not zero

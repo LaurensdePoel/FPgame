@@ -1,5 +1,6 @@
 module Player where
 
+import Airplane
 import Config as C
 import qualified Data.Set as S
 import Graphics.Gloss.Interface.IO.Interact
@@ -37,7 +38,7 @@ updatePlayerVelocity activeKeys airplane =
 
 -- | If key affects current airplane change velocity
 addVelocityBasedOnKey :: Key -> Airplane -> Airplane
-addVelocityBasedOnKey key airplane@Airplane {airplaneType = _planeType, airplaneMaxVelocity = (minVel, maxVel)} =
+addVelocityBasedOnKey key airplane@Airplane {airplaneType = _planeType, airplaneMaxVelocity = _maxVelocity} =
   case _planeType of
     Player1
       | key == Char 'w' -> airplane {airplaneVelocity = add (0, C.velocityStep)}
@@ -54,11 +55,7 @@ addVelocityBasedOnKey key airplane@Airplane {airplaneType = _planeType, airplane
     _ -> airplane
   where
     add :: Velocity -> Velocity
-    add vel = checkMinMax (airplaneVelocity airplane + vel) -- TODO Use maxMin function
+    add vel = checkMinMax (airplaneVelocity airplane + vel)
+
     checkMinMax :: Velocity -> Velocity
-    checkMinMax orignalVel@(vX, vY)
-      | vX < minVel = (minVel, vY)
-      | vY < minVel = (vX, minVel)
-      | vX > maxVel = (maxVel, vY)
-      | vY > maxVel = (vX, maxVel)
-      | otherwise = orignalVel
+    checkMinMax (vX, vY) = (minMax _maxVelocity vX, minMax _maxVelocity vY)
