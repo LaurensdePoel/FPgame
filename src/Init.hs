@@ -66,6 +66,9 @@ initPauseMenu = createMenu "Paused" NoMenu [("Resume", NoMenuButFunction resumeG
 initVictoryMenu = createMenu "Level Completed" NoMenu [("Next Level", NoMenuButFunction start1player), ("Select Level", initPlayMenu), ("Return to Menu", initMenu)] -- TODO: NoMenuButFunction start1player is incorrect
 initDefeatMenu = createMenu "Game Over" NoMenu [("Retry Level", NoMenuButFunction start1player), ("Select Level", initPlayMenu), ("Return to Menu", initMenu)] -- TODO: NoMenuButFunction start1player is incorrect
 
+initLevelMenu :: GameState -> Menu
+initLevelMenu GameState {levels = _levels} = createMenu "Level Select" initPlayMenu [("level 1", NoMenu), ("level 2", NoMenu)]
+
 resumeGame :: GameState -> GameState
 resumeGame gs = gs {status = InGame}
 
