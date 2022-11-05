@@ -81,7 +81,8 @@ executable FPgame
         Init,
         Level,
         Model, 
-        View 
+        View,
+        Random 
          
          
 

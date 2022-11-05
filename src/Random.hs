@@ -73,9 +73,8 @@ getRandomPowerUp gen assetList =
 
 spawnPowerUp :: RandomGen a => a -> Assets -> Maybe PowerUp -- TODO: this function could be cleaner with monad or something
 spawnPowerUp gen assets
-  | probability < odds = Just $ getRandomPowerUp gen'' assets
+  | probability < 1 = Just $ getRandomPowerUp gen' assets
   | otherwise = Nothing
   where
     -- \| Probability to spawn a power up
-    (odds, gen') = randomR (0.0 :: Float, 0.001 :: Float) gen -- TODO: not working properly to many spawn
-    (probability, gen'') = randomR (0.0 :: Float, 1.0 :: Float) gen'
+    (probability, gen') = randomR (0 :: Int, 1000 :: Int) gen
