@@ -28,12 +28,15 @@ step seconds gs@GameState {status = _status} = do
 stepPure :: Float -> StdGen -> GameState -> GameState
 stepPure seconds gen gs@GameState {status = _status}
   | _status == InMenu = updateMenu gs
-  | _status == InGame = updateGameState randomPoint $ gs {elapsedTime = updateTime}
+  | _status == InGame = updateGameState randomPoint $ gs {elapsedTime = updateTime, powerUps = updatedPowerUpList}
   | otherwise = gs
   where
     updateTime :: Time
     updateTime = elapsedTime gs + seconds
     randomPoint = getRandomPoint C.enemyXBounds C.enemyYBounds gen -- mkStdGen $ round updateTime
+    updatedPowerUpList = case spawnPowerUp gen (tmpassetList gs) of
+      Just x -> x : powerUps gs
+      Nothing -> powerUps gs
 
 -- | GameLoop while game is in state InMenu
 updateMenu :: GameState -> GameState

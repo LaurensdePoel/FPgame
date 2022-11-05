@@ -41,6 +41,9 @@ levelHandler gs@GameState {levels = _levels, enemies = _enemies, players = _play
     ifWaveTimerExpired :: Bool
     ifWaveTimerExpired = readyToExecute _levels
 
+-- powerUpHandler :: Position -> Int -> GameState -> GameState
+-- powerUpHandler spawnPos =
+
 -- | Handles all timers of entities
 timeHandler :: GameState -> GameState
 timeHandler gs@GameState {players = _players, enemies = _enemies, levels = _levels, projectiles = _projectiles, powerUps = _powerUps, particles = _particles} =

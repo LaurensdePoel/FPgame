@@ -85,6 +85,10 @@ data AirPlaneType = Player1 | Player2 | Fighter | Kamikaze | FlyBy deriving (Eq,
 
 data AirplaneGun = AirplaneGun Projectile | None
 
+instance Eq AirplaneGun where
+  None == None = True
+  _ == _ = False
+
 data Airplane = Airplane
   { airplaneType :: AirPlaneType,
     airplanePos :: Position,
