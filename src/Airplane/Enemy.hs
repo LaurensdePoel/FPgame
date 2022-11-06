@@ -38,12 +38,13 @@ enemyBehaviourHandler randomPoint gs@GameState {players = _players, enemies = _e
     updatedEnemies = map updateBehaviour _enemies
 
     updateBehaviour :: Airplane -> Airplane
-    updateBehaviour enemy@Airplane {airplaneType = _type, airplaneMaxVelocity = _maxVelocity} = case _type of
-      Fighter
-        | isDestinationReached updatedAirplane -> updatedAirplane {airplaneDestinationPos = randomPoint}
-        | otherwise -> updatedAirplane
-      Kamikaze -> updatedAirplane {airplaneDestinationPos = closestPlayer updatedAirplane _players}
-      _ -> enemy {airplaneVelocity = (minVelocity, 0)}
+    updateBehaviour enemy@Airplane {airplaneType = _type, airplaneMaxVelocity = _maxVelocity} =
+      case _type of
+        Fighter
+          | isDestinationReached updatedAirplane -> updatedAirplane {airplaneDestinationPos = randomPoint}
+          | otherwise -> updatedAirplane
+        Kamikaze -> updatedAirplane {airplaneDestinationPos = closestPlayer updatedAirplane _players}
+        _ -> enemy {airplaneVelocity = (fst _maxVelocity, 0)}
       where
         updatedAirplane :: Airplane
         updatedAirplane = enemy {airplaneVelocity = updatedVelocity (airplaneVelocity enemy) (airplanePos enemy) (airplaneDestinationPos enemy)}
@@ -56,7 +57,3 @@ enemyBehaviourHandler randomPoint gs@GameState {players = _players, enemies = _e
           (-1) -> (-C.behaviourVelocitySteps)
           1 -> C.behaviourVelocitySteps
           _ -> 0.0
-
-        minVelocity, maxVelocity :: Float
-        minVelocity = fst _maxVelocity
-        maxVelocity = snd _maxVelocity

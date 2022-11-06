@@ -54,7 +54,7 @@ getTexture spriteName assetList = case Dict.lookup spriteName assetList of
   Just x -> x
 
 -- TODO MARK FIX THIS
-getParticle :: String -> Map String Particle -> Particle
+getParticle :: String -> Particles -> Particle
 getParticle key _map = fromMaybe Particle {particlePosition = (0, 0), particleSize = (10, 10), particleInterval = 60, particleTimer = 60, particleSprites = [Scale 0.25 0.25 (color red $ Text "error")]} (Dict.lookup key _map)
 
 fixImageOrigin :: Picture -> Size -> Picture

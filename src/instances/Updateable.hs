@@ -27,10 +27,6 @@ class Updateable a where
   -- | Returns the center position of an Updateable
   getCenterPosition :: a -> Position
 
--- -- | Updates a list of Updateables, where the update is defined in the given function
--- fMapUpdate :: (GameState -> a -> a) -> GameState -> [a] -> [a]
--- fMapUpdate f gs = map (f gs)
-
 -------------------------------------------------
 
 -- * Helper functions
