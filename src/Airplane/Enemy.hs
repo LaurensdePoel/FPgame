@@ -3,6 +3,7 @@ module Enemy where
 import Airplane
 import Config as C
 import Model
+import Updateable
 
 -- | Check if the Airplane has reached its destination
 isDestinationReached :: Airplane -> Bool
@@ -14,12 +15,10 @@ closestPlayer :: Airplane -> [Airplane] -> Position
 closestPlayer Airplane {airplanePos = _currentPos} [] = _currentPos
 closestPlayer
   Airplane {airplanePos = _currentPos}
-  (Airplane {airplanePos = _playerPos, airplaneSize = _playerSize} : players') = foldr updateClosestPlayer (centerPosition _playerPos _playerSize) players'
+  (player : players') = foldr updateClosestPlayer (getCenterPosition player) players'
     where
-      centerPosition :: Position -> Size -> Position
-      centerPosition (posX, posY) (sizeX, sizeY) = (posX + (sizeX * 0.5), posY - (sizeY * 0.5))
       updateClosestPlayer :: Airplane -> Position -> Position
-      updateClosestPlayer Airplane {airplanePos = _pos, airplaneSize = _size} rest =
+      updateClosestPlayer airplane@Airplane {airplanePos = _pos, airplaneSize = _size} rest =
         case isCloser position rest of
           True -> position
           False -> rest
@@ -29,7 +28,7 @@ closestPlayer
           distance :: Position -> Float
           distance (x, y) = sqrt (((x - fst _currentPos) ** 2) + ((y - snd _currentPos) ** 2))
           position :: Position
-          position = centerPosition _pos _size
+          position = getCenterPosition airplane
 
 -- | Handles the behaviour of different enemies
 enemyBehaviourHandler :: Position -> GameState -> GameState

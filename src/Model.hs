@@ -31,7 +31,7 @@ data GameState = GameState
     levels :: Level,
     projectiles :: [Projectile],
     powerUps :: [PowerUp],
-    particleMap :: Map String Particle,
+    particleMap :: Particles,
     particles :: [Particle],
     pressedKeys :: S.Set Key,
     menu :: Menu,
@@ -41,6 +41,8 @@ data GameState = GameState
 -- * Assets and Sprites
 
 type Assets = (Map String Picture)
+
+type Particles = (Map String Particle)
 
 data AnimationState = Idle | Moving
 
