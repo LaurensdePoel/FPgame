@@ -53,6 +53,10 @@ airplaneSizeVar = (airplaneSizeXY, airplaneSizeXY)
 
 -- * Airplane base values
 
+enemyXBounds, enemyYBounds :: (Float, Float)
+enemyXBounds = (0.0, screenMaxX)
+enemyYBounds = (screenMaxY, screenMinY)
+
 -- ** Player base values
 
 velocityStep :: Float
@@ -68,5 +72,10 @@ behaviourVelocitySteps = 0.25
 velocityReduction :: Float
 velocityReduction = 0.2
 
-destinationErrorMargin :: (Float,Float)
-destinationErrorMargin = (0.2,0.2)
+destinationErrorMargin :: (Float, Float)
+destinationErrorMargin = (0.2, 0.2)
+
+-- * Projectile values
+
+damageMultiplier :: Int
+damageMultiplier = 2

@@ -58,6 +58,7 @@ instance Drawable Sprites where
       Idle -> uncurry translate _position (head _idleSprites)
       Moving -> uncurry translate _position (head _movingSprites)
 
+-- TODO clean up menu drawable
 instance Drawable Menu where
   -- \| Converts a menu into a picture
   draw :: Menu -> Picture

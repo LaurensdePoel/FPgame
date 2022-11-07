@@ -82,7 +82,8 @@ executable FPgame
         Level,
         LoadLevels,
         Model, 
-        View 
+        View,
+        Random 
          
          
 
