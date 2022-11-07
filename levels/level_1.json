@@ -1,0 +1,17 @@
+{
+    "resLevelNr": 1,
+    "resWaves": [
+        {
+            "resEnemiesInWave": [
+                {
+                    "resAirplanePos": [
+                        0,
+                        -300
+                    ],
+                    "resAirplaneType": "Fighter"
+                }
+            ],
+            "resWaveTimer": 50
+        }
+    ]
+}

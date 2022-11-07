@@ -28,13 +28,16 @@ data GameState = GameState
     status :: Status,
     players :: [Airplane],
     enemies :: [Enemy],
-    levels :: Level,
+    levels :: [Level],
+    currentLevel :: Level,
+    currentLevelNr :: Int, -- TODO make max level
     projectiles :: [Projectile],
     powerUps :: [PowerUp],
     particleMap :: Particles,
     particles :: [Particle],
-    pressedKeys :: S.Set Key,
+    pressedKeys :: S.Set Graphics.Gloss.Interface.IO.Interact.Key,
     menu :: Menu,
+    levelSelectMenu :: Menu,
     tmpassetList :: Assets
   }
 
@@ -105,6 +108,7 @@ data Airplane = Airplane
     airplaneSprite :: Picture,
     airplanePowerUps :: [PowerUp]
   }
+  deriving (Generic)
 
 -- ** Projectiles
 
@@ -148,6 +152,8 @@ data Menu
       }
   | NoMenu
   | NoMenuButFunction (GameState -> GameState)
+
+--  NoMenuButFunctionWithInt (GameState -> Int -> GameState)
 
 data Field = Field
   { fieldName :: String,

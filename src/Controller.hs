@@ -14,11 +14,7 @@ import System.Random
 
 step :: Float -> GameState -> IO GameState
 step seconds gs@GameState {status = _status} = do
-  -- newLevel <- undefined
-  -- return $ stepPure seconds gs {levels = newLevel}
   gen <- newStdGen -- getStdGen
-  -- randomPoint <-
-  -- print randomPoint
   return $ stepPure seconds gen gs
 
 -- | Handle one iteration of the game

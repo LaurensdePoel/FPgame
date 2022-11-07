@@ -1,6 +1,7 @@
 module Assets where
 
 import Control.Monad
+import Data.Char (toLower)
 import Data.Map as Dict
 import Data.Maybe
 import Graphics.Gloss
@@ -49,7 +50,7 @@ getDirectories filePath = do
 
 -- TODO enemySpriteRotation playerSpriteRotation
 getTexture :: String -> Assets -> Picture
-getTexture spriteName assetList = case Dict.lookup spriteName assetList of
+getTexture spriteName assetList = case Dict.lookup (Prelude.map toLower spriteName) assetList of
   Nothing -> rotate (-90) $ Scale 0.25 0.25 (color red $ Text spriteName) -- TODO player and enemy sprite rotation in config and scale
   Just x -> x
 
