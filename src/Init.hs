@@ -28,7 +28,7 @@ initialState assetlist =
         Dict.fromList
           [ ( "explosion",
               Particle
-                { particlePosition = (0, 0),
+                { particlePos = (0, 0),
                   particleSize = (0, 0),
                   particleInterval = 8,
                   particleTimer = 8,
@@ -37,7 +37,7 @@ initialState assetlist =
             ),
             ( "explosion2",
               Particle
-                { particlePosition = (0, 0),
+                { particlePos = (0, 0),
                   particleSize = (0, 0),
                   particleInterval = 8,
                   particleTimer = 8,
@@ -46,7 +46,7 @@ initialState assetlist =
             ),
             ( "5SecondTimer",
               Particle
-                { particlePosition = (-400, 80),
+                { particlePos = (-400, 80),
                   particleSize = (10, 10),
                   particleInterval = 60,
                   particleTimer = 60,

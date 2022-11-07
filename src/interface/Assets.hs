@@ -50,12 +50,15 @@ getDirectories filePath = do
 -- TODO enemySpriteRotation playerSpriteRotation
 getTexture :: String -> Assets -> Picture
 getTexture spriteName assetList = case Dict.lookup spriteName assetList of
-  Nothing -> rotate (-90) $ Scale 0.25 0.25 (color red $ Text spriteName) -- TODO player and enemy sprite rotation in config and scale
+  Nothing -> errorSprite spriteName -- TODO player and enemy sprite rotation in config and scale
   Just x -> x
 
 -- TODO MARK FIX THIS
 getParticle :: String -> Particles -> Particle
-getParticle key _map = fromMaybe Particle {particlePosition = (0, 0), particleSize = (10, 10), particleInterval = 60, particleTimer = 60, particleSprites = [Scale 0.25 0.25 (color red $ Text "error")]} (Dict.lookup key _map)
+getParticle key _map = fromMaybe Particle {particlePos = (0, 0), particleSize = (10, 10), particleInterval = 60, particleTimer = 60, particleSprites = [errorSprite key]} (Dict.lookup key _map)
 
 fixImageOrigin :: Picture -> Size -> Picture
 fixImageOrigin pic (width, height) = translate (width * 0.5) (height * (-0.5)) pic
+
+errorSprite :: String -> Picture
+errorSprite name = Scale 0.25 0.25 (color red $ Text name)

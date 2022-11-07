@@ -2,6 +2,7 @@
 --   the game state into a picture
 module View where
 
+import Config as C
 import Drawable
 import Graphics.Gloss
 import Model
@@ -24,4 +25,4 @@ render gs@GameState {status = _status} = case _status of
     drawMenu = draw (menu gs)
 
     drawGame :: Picture
-    drawGame = pictures $ mapDraw (projectiles gs) ++ mapDraw (players gs) ++ mapDraw (enemies gs) ++ mapDraw (powerUps gs) ++ mapDraw (particles gs)
+    drawGame = pictures $ mapDraw (projectiles gs) ++ mapDraw (players gs) ++ mapDraw (enemies gs) ++ mapDraw (powerUps gs) ++ mapDraw (particles gs) ++ [color white $ rectangleWire (fromIntegral C.screenWidth) (fromIntegral C.screenHeight)]

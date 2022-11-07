@@ -49,6 +49,7 @@ instance Timeable Airplane where
   readyToExecute Airplane {timeLastShot = _time, airplaneGun = _gunType}
     | _time == 0.0 && _gunType /= None = True
     | otherwise = False
+
 instance Timeable PowerUp where
   -- \| Updates the timer of a powerUp
   updateTime :: PowerUp -> PowerUp

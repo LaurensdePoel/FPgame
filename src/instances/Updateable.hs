@@ -61,7 +61,7 @@ centerPosition (posX, posY) (sizeX, sizeY) = (posX + (sizeX * 0.5), posY - (size
 instance Updateable Airplane where
   move :: Airplane -> Airplane
   -- \| Updates the position of the airplane
-  move airplane@Airplane {airplanePos = _pos, airplaneVelocity = _velocity, airplaneType = _type, airplaneHealth = _health} =
+  move airplane@Airplane {airplanePos = _pos, airplaneSize = (_sizeX, _sizeY), airplaneVelocity = _velocity, airplaneType = _type, airplaneHealth = _health} =
     airplane {airplanePos = updatedPosition, airplaneVelocity = updatedVelocity, airplaneHealth = updatedHealth}
     where
       pos :: Position
@@ -72,7 +72,7 @@ instance Updateable Airplane where
 
       updatedPosition :: Position
       updatedPosition
-        | _type == Player1 || _type == Player2 = (max C.screenMinX (min x C.screenMaxX), max C.screenMinY (min y C.screenMaxY)) -- TODO: Use minmax function (where can we place such general functions?)
+        | _type == Player1 || _type == Player2 = (max C.screenMinX (min x (C.screenMaxX - _sizeX)), max (C.screenMinY + _sizeY) (min y C.screenMaxY)) -- TODO: Use minmax function (where can we place such general functions?)
         | otherwise = pos
 
       updatedHealth :: Int
@@ -93,12 +93,12 @@ instance Updateable Airplane where
 instance Updateable Projectile where
   -- \| Updates the position of the projectile
   move :: Projectile -> Projectile
-  move projectile@Projectile {projectilePos = _pos, projectileVelocity = _velocity, projectileHealth = _health} =
+  move projectile@Projectile {projectilePos = _pos, projectileSize = (_sizeX, _), projectileVelocity = _velocity, projectileHealth = _health} =
     projectile {projectilePos = updatedPos, projectileHealth = updatedHealth}
     where
       updatedPos@(x, y) = updatePosition _pos _velocity
       updatedHealth
-        | x < C.screenMinX || x > C.screenMaxX || y < C.screenMinY || y > C.screenMaxY = 0
+        | x < C.screenMinX - _sizeX || x > C.screenMaxX + _sizeX || y < C.screenMinY || y > C.screenMaxY = 0
         | otherwise = _health
 
   -- \| Only returns the projectile if the health is not zero
@@ -142,4 +142,4 @@ instance Updateable Particle where
 
   -- \| Get the center position of a particle
   getCenterPosition :: Particle -> Position
-  getCenterPosition Particle {particlePosition = _pos, particleSize = _size} = centerPosition _pos _size
+  getCenterPosition Particle {particlePos = _pos, particleSize = _size} = centerPosition _pos _size

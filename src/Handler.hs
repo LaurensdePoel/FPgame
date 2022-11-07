@@ -75,7 +75,7 @@ particleHandler gs@GameState {players = _players, enemies = _enemies, projectile
       where
         newParticle = getParticle key particleMap'
         createParticle :: Updateable a => a -> Particle
-        createParticle a' = newParticle {particlePosition = getCenterPosition a'}
+        createParticle a' = newParticle {particlePos = getCenterPosition a'}
 
 -- | Handles collision (events on collision) between all entities which are collidable
 collisionHandler :: GameState -> GameState

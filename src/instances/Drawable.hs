@@ -48,7 +48,7 @@ instance Drawable PowerUp where
 instance Drawable Particle where
   -- \| Converts a particle into a picture
   draw :: Particle -> Picture
-  draw Particle {particlePosition = _position, particleSprites = _sprites} = translate `uncurry` _position $ head _sprites
+  draw Particle {particlePos = _position, particleSprites = _sprites} = translate `uncurry` _position $ head _sprites
 
 instance Drawable Sprites where
   -- \| Converts the first sprite of sprites into a picture
