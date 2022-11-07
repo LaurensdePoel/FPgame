@@ -105,6 +105,9 @@ createLevelSelectmenu levelList = createMenu "Level Select" initPlayMenu $ creat
 resumeGame :: GameState -> GameState
 resumeGame gs = gs {status = InGame}
 
+retryLevel :: GameState -> GameState -- TODO refactor so game level can startup again with healed players.
+retryLevel gs@GameState {levels = _levels, currentLevel = _level} = startLevel $ loadLevel gs
+
 loadLevelSelectMenu :: GameState -> GameState
 loadLevelSelectMenu gs@GameState {levelSelectMenu = _levelSelectMenu} = gs {menu = _levelSelectMenu}
 
