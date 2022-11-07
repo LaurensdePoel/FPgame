@@ -10,12 +10,12 @@
 module Model where
 
 import Data.Aeson (FromJSON)
+import Data.Aeson.Types (ToJSON)
 import Data.Map as Map (Map)
 import qualified Data.Set as S
 import GHC.Generics (Generic)
 import Graphics.Gloss (Picture, Point)
 import Graphics.Gloss.Interface.IO.Interact (Key)
-import Data.Aeson.Types (ToJSON)
 
 -- * GameState
 
@@ -152,7 +152,8 @@ data Menu
       }
   | NoMenu
   | NoMenuButFunction (GameState -> GameState)
-  -- | NoMenuButFunctionWithInt (GameState -> Int -> GameState)
+
+--  NoMenuButFunctionWithInt (GameState -> Int -> GameState)
 
 data Field = Field
   { fieldName :: String,
