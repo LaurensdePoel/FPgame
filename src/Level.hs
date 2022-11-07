@@ -36,19 +36,17 @@ getLevelIndex menu' = read (fieldName $ head $ fields menu') - 1
 
 levelConverter :: LevelJSON -> Assets -> Level
 levelConverter LevelJSON {resLevelNr = _resLevelNr, resWaves = _resWaves} assetList =
-  Level {levelNr = _resLevelNr, waves = getWaves _resWaves}
+  Level {levelNr = _resLevelNr, waves = convertWaves _resWaves}
   where
-    getWaves :: [WaveJSON] -> [Wave]
-    getWaves [] = []
-    getWaves (x : xs) = waveConverter x assetList : getWaves xs
+    convertWaves :: [WaveJSON] -> [Wave]
+    convertWaves = map (`waveConverter` assetList)
 
 waveConverter :: WaveJSON -> Assets -> Wave
 waveConverter WaveJSON {resEnemiesInWave = _resEnemiesInWave, resWaveTimer = _resWaveTimer} assetList =
-  Wave {enemiesInWave = getEnemies _resEnemiesInWave, waveTimer = _resWaveTimer}
+  Wave {enemiesInWave = convertEnemies _resEnemiesInWave, waveTimer = _resWaveTimer}
   where
-    getEnemies :: [AirplaneJSON] -> [Airplane]
-    getEnemies [] = []
-    getEnemies (x : xs) = airplaneConverter x assetList : getEnemies xs
+    convertEnemies :: [AirplaneJSON] -> [Airplane]
+    convertEnemies = map (`airplaneConverter` assetList)
 
 -- | creates a enemy airplane based on the Type and set the spawning location. The spawning position is determend by the (absolute x position + screenWidth) and the (y position in the JSON file)
 airplaneConverter :: AirplaneJSON -> Assets -> Airplane

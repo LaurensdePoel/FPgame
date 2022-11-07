@@ -4,9 +4,6 @@ module Main where
 import Assets (getAssets)
 import Config
 import Controller
-import Data.Aeson
-import Data.ByteString.Char8
-import qualified Data.ByteString.Lazy as B
 import Graphics.Gloss
 import Graphics.Gloss.Interface.IO.Game
 import Init

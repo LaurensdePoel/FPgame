@@ -3,7 +3,6 @@ module Init where
 import Assets (fixImageOrigin, getTexture)
 import Config (airplaneSizeVar, projectileSizeVar)
 import Data.Map as Dict (fromList)
-import qualified Data.Set as S
 import Graphics.Gloss (Picture (Scale), rotate)
 import Input
 import Level
@@ -14,7 +13,7 @@ initEmptyLevel :: Level
 initEmptyLevel = Level 0 []
 
 initialState :: Assets -> [Level] -> Menu -> GameState
-initialState assetlist levelList levelSelectMenu =
+initialState assetlist levelList levelSelectMenu' =
   GameState
     { elapsedTime = 0,
       status = InMenu,
@@ -22,12 +21,12 @@ initialState assetlist levelList levelSelectMenu =
       enemies = [],
       levels = levelList,
       currentLevel = initEmptyLevel,
-      selectedLevelNr = 0,
+      currentLevelNr = 0,
       projectiles = [],
       powerUps = [],
       pressedKeys = emptyKeys,
       menu = initMenu,
-      levelSelectMenu = levelSelectMenu,
+      levelSelectMenu = levelSelectMenu',
       particles = [],
       particleMap =
         Dict.fromList
@@ -71,7 +70,7 @@ resetGameState gs =
       enemies = [],
       -- levels = _levels,
       currentLevel = initEmptyLevel,
-      selectedLevelNr = 0,
+      currentLevelNr = 0,
       projectiles = [],
       powerUps = [],
       -- particleMap = _particleMap,
@@ -90,7 +89,7 @@ initPlayMenu = createMenu "Choose players" initMenu [("1 Player", NoMenuButFunct
 initPauseMenu = createMenu "Paused" NoMenu [("Resume", NoMenuButFunction resumeGame), ("Return to menu", initMenu)]
 
 initVictoryMenu :: Menu
-initVictoryMenu = createMenu "Level Completed" NoMenu [("Next Level", NoMenuButFunction loadLevelSelectMenu), ("Select Level", NoMenuButFunction loadLevelSelectMenu), ("Return to Menu", initMenu)] -- TODO: NoMenuButFunction start1player is incorrect
+initVictoryMenu = createMenu "Level Completed" NoMenu [("Next Level", NoMenuButFunction nextLevel), ("Select Level", NoMenuButFunction loadLevelSelectMenu), ("Return to Menu", initMenu)] -- TODO: NoMenuButFunction start1player is incorrect
 
 initDefeatMenu :: Menu
 initDefeatMenu = createMenu "Game Over" NoMenu [("Retry Level", NoMenuButFunction loadLevelSelectMenu), ("Select Level", NoMenuButFunction loadLevelSelectMenu), ("Return to Menu", initMenu)] -- TODO: NoMenuButFunction start1player is incorrect
@@ -109,13 +108,31 @@ resumeGame gs = gs {status = InGame}
 loadLevelSelectMenu :: GameState -> GameState
 loadLevelSelectMenu gs@GameState {levelSelectMenu = _levelSelectMenu} = gs {menu = _levelSelectMenu}
 
+nextLevel :: GameState -> GameState
+nextLevel gs@GameState {levels = _levels, currentLevel = _level}
+  | levelNr _level == length _levels = loadLevelSelectMenu gs
+  | otherwise = startLevel $ loadLevel gs {currentLevelNr = levelNr _level + 1}
+
+loadLevel :: GameState -> GameState
+loadLevel gs@GameState {levels = _levels, currentLevelNr = _currentLevelNr, menu = _menu} =
+  gs
+    { currentLevel = _levels !! (_currentLevelNr -1)
+    }
+
+startLevel :: GameState -> GameState
+startLevel gs@GameState {tmpassetList = _assetList, menu = _menu} =
+  gs
+    { status = InGame,
+      menu = initPauseMenu
+    }
+
 -- Toggles the status in the GameState.
 start1player :: GameState -> GameState -- TODO make start function and load1Player or load2Player
 start1player gs =
   startAndLoad1Player $ resetGameState gs
   where
     startAndLoad1Player :: GameState -> GameState
-    startAndLoad1Player gss@GameState {tmpassetList = _assetList, menu = _menu, levels = _levels, selectedLevelNr = _selectedLevelNr} =
+    startAndLoad1Player gss@GameState {tmpassetList = _assetList, menu = _menu, levels = _levels} =
       gss
         { players =
             [ Airplane

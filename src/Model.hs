@@ -10,12 +10,12 @@
 module Model where
 
 import Data.Aeson (FromJSON)
-import Data.Aeson.Types (ToJSON (toJSON))
 import Data.Map as Map (Map)
 import qualified Data.Set as S
 import GHC.Generics (Generic)
 import Graphics.Gloss (Picture, Point)
 import Graphics.Gloss.Interface.IO.Interact (Key)
+import Data.Aeson.Types (ToJSON)
 
 -- * GameState
 
@@ -30,7 +30,7 @@ data GameState = GameState
     enemies :: [Enemy],
     levels :: [Level],
     currentLevel :: Level,
-    selectedLevelNr :: Int,
+    currentLevelNr :: Int, -- TODO make max level
     projectiles :: [Projectile],
     powerUps :: [PowerUp],
     particleMap :: Map String Particle,
