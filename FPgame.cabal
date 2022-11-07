@@ -82,7 +82,8 @@ executable FPgame
         Level,
         Model, 
         View,
-        Random 
+        Random,
+        Item
          
          
 

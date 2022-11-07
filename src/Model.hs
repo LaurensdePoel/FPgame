@@ -67,23 +67,6 @@ data Particle = Particle
 
 data PowerUpTypes = HealthPack Int | PowerPack Float
 
--- | PowerUpTypes instance of enum -- TODO should be fun if the powerUp values where random, not sure if this could be handled here
-instance Enum PowerUpTypes where
-  toEnum :: Int -> PowerUpTypes
-  toEnum 0 = HealthPack 100 -- C.healthPackValue
-  toEnum _ = PowerPack 0.5 -- C.powerPackValue
-
-  fromEnum :: PowerUpTypes -> Int
-  fromEnum (HealthPack _) = 0
-  fromEnum (PowerPack _) = 1
-
--- | PowerUpTypes instance of bound
-instance Bounded PowerUpTypes where
-  minBound :: PowerUpTypes
-  minBound = HealthPack 0 -- C.healthPackValue
-  maxBound :: PowerUpTypes
-  maxBound = PowerPack 0 -- C.powerPackValue
-
 data PowerUpState = WorldSpace | PickedUp
 
 data PowerUp = PowerUp

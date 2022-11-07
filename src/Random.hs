@@ -6,6 +6,7 @@ module Random where
 import Assets
 import Config as C
 import Graphics.Gloss (Picture)
+import Item
 import Model
 import System.Random
 
