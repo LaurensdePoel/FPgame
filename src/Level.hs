@@ -1,22 +1,19 @@
-{-# LANGUAGE DeriveAnyClass #-}
-{-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# OPTIONS_GHC -Wno-missing-fields #-}
 
 module Level where
 
-import Assets (combinePath, fixImageOrigin, getTexture)
+import Assets (fixImageOrigin, getTexture)
 import qualified Config as C
-import Control.Applicative
-import Control.Monad
-import Data.Aeson
-import Data.Aeson.Types (parseMaybe)
-import qualified Data.ByteString.Lazy as B
-import Data.List
-import GHC.Generics
-import Graphics.Gloss.Interface.IO.Animate (Picture (Pictures), rotate)
+import Control.Applicative ()
+import Control.Monad ()
+import Data.Aeson ()
+import Data.List ()
+import GHC.Generics ()
+import Graphics.Gloss.Data.Picture (Picture, rotate)
+import LoadLevels (AirplaneJSON (..), LevelJSON (..), WaveJSON (..))
 import Model
-import System.Directory
+import System.Directory ()
 
 -- | The function 'nextwave' sets the nextwave as currentwave. If there are no more waves this functions does nothing.
 nextWave :: GameState -> GameState
@@ -33,39 +30,9 @@ nextWave gs@GameState {currentLevel = _currentLevel, enemies = _enemies}
     removeWaveAfterSpawn :: [Wave]
     removeWaveAfterSpawn = tail $ waves _currentLevel
 
--- jsonFile :: FilePath
--- jsonFile = "level.json"
-levelsPath :: FilePath
-levelsPath = "levels/"
-
-getJSON :: FilePath -> IO B.ByteString
-getJSON = B.readFile
-
-loadLevel :: FilePath -> IO LevelJSON
-loadLevel filePath = do
-  d <- (eitherDecode <$> getJSON (levelsPath ++ filePath)) :: IO (Either String LevelJSON)
-  case d of
-    Left err -> error err
-    Right levelJSON -> do return levelJSON
-
--- getLevels :: IO [Level]
-getLevelsInJSON :: IO [LevelJSON]
-getLevelsInJSON = do
-  levelFileNames <- listDirectory levelsPath
-  mapM loadLevel $ sort levelFileNames
-
-myLevel :: LevelJSON
-myLevel = LevelJSON 1 [WaveJSON [AirplaneJSON Fighter (300, -300), AirplaneJSON Fighter (300, 300)] 50, WaveJSON [AirplaneJSON Kamikaze (300, -300), AirplaneJSON Kamikaze (300, 300)] 50]
-
-myAirplaneJSON :: AirplaneJSON
-myAirplaneJSON = AirplaneJSON Fighter (0, 0)
-
-writeJSONLevelToJson :: FilePath -> IO ()
-writeJSONLevelToJson filePath = do
-  B.writeFile filePath (encode myLevel)
-
-debugInitLevel :: Assets -> Level
-debugInitLevel assetlist = Level {levelNr = 1, waves = [Wave [createEnemy Fighter (500, -350) assetlist, createEnemy Fighter (300, -200) assetlist] 200, Wave [createEnemy Fighter (500, 350) assetlist] 200, Wave [createEnemy Kamikaze (300, 100) assetlist] 200]}
+-- TODO REFACTOR use readMaybe
+getLevelIndex :: Menu -> Int
+getLevelIndex menu' = read (fieldName $ head $ fields menu') - 1
 
 levelConverter :: LevelJSON -> Assets -> Level
 levelConverter LevelJSON {resLevelNr = _resLevelNr, resWaves = _resWaves} assetList =
@@ -145,22 +112,3 @@ createEnemy airplaneType' airplanePosition' assetList = case airplaneType' of
     createAirplaneSprite = case airplaneType' of
       Kamikaze -> flip fixImageOrigin C.airplaneSizeVar $ getTexture (show airplaneType') assetList
       _ -> flip fixImageOrigin C.airplaneSizeVar $ rotate (-90) $ getTexture (show airplaneType') assetList
-
--- ! remove to own file
-data LevelJSON = LevelJSON
-  { resLevelNr :: Int,
-    resWaves :: [WaveJSON]
-  }
-  deriving (Show, Generic, ToJSON, FromJSON)
-
-data WaveJSON = WaveJSON
-  { resEnemiesInWave :: [AirplaneJSON],
-    resWaveTimer :: Time
-  }
-  deriving (Show, Generic, ToJSON, FromJSON)
-
-data AirplaneJSON = AirplaneJSON
-  { resAirplaneType :: AirPlaneType,
-    resAirplanePos :: Position
-  }
-  deriving (Show, Generic, ToJSON, FromJSON)

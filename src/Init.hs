@@ -5,6 +5,8 @@ import Config (airplaneSizeVar, projectileSizeVar)
 import Data.Map as Dict (fromList)
 import qualified Data.Set as S
 import Graphics.Gloss (Picture (Scale), rotate)
+import Input
+import Level
 import Menu
 import Model
 
@@ -23,7 +25,7 @@ initialState assetlist levelList levelSelectMenu =
       selectedLevelNr = 0,
       projectiles = [],
       powerUps = [],
-      pressedKeys = S.empty,
+      pressedKeys = emptyKeys,
       menu = initMenu,
       levelSelectMenu = levelSelectMenu,
       particles = [],
@@ -60,6 +62,26 @@ initialState assetlist levelList levelSelectMenu =
       tmpassetList = assetlist
     }
 
+resetGameState :: GameState -> GameState
+resetGameState gs =
+  gs
+    { elapsedTime = 0,
+      -- status = _status,
+      players = [],
+      enemies = [],
+      -- levels = _levels,
+      currentLevel = initEmptyLevel,
+      selectedLevelNr = 0,
+      projectiles = [],
+      powerUps = [],
+      -- particleMap = _particleMap,
+      particles = [],
+      pressedKeys = emptyKeys -- TODO Check if this isn't done multible times
+      -- menu = _menu,
+      -- levelSelectMenu = _levelSelectMenu,
+      -- tmpassetList = _tmpassetList
+    }
+
 -- | Create menu's
 initMenu, initPlayMenu, initPauseMenu :: Menu
 initMenu = createMenu "Shoot'em Up" NoMenu [("Play", initPlayMenu), ("Controls", NoMenu), ("Credits", NoMenu), ("Exit", NoMenu)]
@@ -81,10 +103,6 @@ createLevelSelectmenu levelList = createMenu "Level Select" initPlayMenu $ creat
     createLevelFields [] = []
     createLevelFields (x : xs) = (show (levelNr x), NoMenuButFunction start1player) : createLevelFields xs
 
--- TODO REFACTOR use readMaybe
-selectHighlightedLevel :: GameState -> GameState
-selectHighlightedLevel gs@GameState {menu = _menu} = gs {selectedLevelNr = read $ fieldName $ head $ fields _menu}
-
 resumeGame :: GameState -> GameState
 resumeGame gs = gs {status = InGame}
 
@@ -92,50 +110,44 @@ loadLevelSelectMenu :: GameState -> GameState
 loadLevelSelectMenu gs@GameState {levelSelectMenu = _levelSelectMenu} = gs {menu = _levelSelectMenu}
 
 -- Toggles the status in the GameState.
-start1player :: GameState -> GameState
+start1player :: GameState -> GameState -- TODO make start function and load1Player or load2Player
 start1player gs =
-  activatePauseMenu $ tmpfixthis $ selectHighlightedLevel gs
+  startAndLoad1Player $ resetGameState gs
   where
-    tmpfixthis :: GameState -> GameState
-    tmpfixthis gss@GameState {tmpassetList = _assetList, levels = _levels, selectedLevelNr = _selectedLevelNr} =
-      selectHighlightedLevel
-        gss
-          { players =
-              [ Airplane
-                  { airplaneType = Player1,
-                    airplanePos = (-400, 0),
-                    airplaneDestinationPos = (0, 0),
-                    airplaneSize = airplaneSizeVar,
-                    airplaneVelocity = (0, 0),
-                    airplaneMaxVelocity = (-12, 12),
-                    airplaneHealth = 100,
-                    fireRate = Single 30.0,
-                    timeLastShot = 0.0,
-                    airplanePowerUps = [],
-                    airplaneGun =
-                      AirplaneGun
-                        Projectile
-                          { projectileType = Gun,
-                            projectilePos = (0, 0),
-                            projectileSize = projectileSizeVar,
-                            projectileVelocity = (10, 0),
-                            projectileHealth = 1,
-                            projectileDamage = 30,
-                            projectileOrigin = Players,
-                            projectileSprite = flip fixImageOrigin projectileSizeVar $ rotate 90 $ getTexture "bullet" _assetList
-                          },
-                    airplaneSprite = flip fixImageOrigin airplaneSizeVar $ rotate 90 $ getTexture "player_1" _assetList
-                  }
-              ],
-            status = InGame,
-            projectiles = [],
-            currentLevel = _levels !! (_selectedLevelNr - 1), -- TODO REfactor
-            levels = _levels,
-            particles = []
-          }
-
-    activatePauseMenu :: GameState -> GameState
-    activatePauseMenu gss = gss {menu = initPauseMenu}
+    startAndLoad1Player :: GameState -> GameState
+    startAndLoad1Player gss@GameState {tmpassetList = _assetList, menu = _menu, levels = _levels, selectedLevelNr = _selectedLevelNr} =
+      gss
+        { players =
+            [ Airplane
+                { airplaneType = Player1,
+                  airplanePos = (-400, 0),
+                  airplaneDestinationPos = (0, 0),
+                  airplaneSize = airplaneSizeVar,
+                  airplaneVelocity = (0, 0),
+                  airplaneMaxVelocity = (-12, 12),
+                  airplaneHealth = 100,
+                  fireRate = Single 30.0,
+                  timeLastShot = 0.0,
+                  airplanePowerUps = [],
+                  airplaneGun =
+                    AirplaneGun
+                      Projectile
+                        { projectileType = Gun,
+                          projectilePos = (0, 0),
+                          projectileSize = projectileSizeVar,
+                          projectileVelocity = (10, 0),
+                          projectileHealth = 1,
+                          projectileDamage = 30,
+                          projectileOrigin = Players,
+                          projectileSprite = flip fixImageOrigin projectileSizeVar $ rotate 90 $ getTexture "bullet" _assetList
+                        },
+                  airplaneSprite = flip fixImageOrigin airplaneSizeVar $ rotate 90 $ getTexture "player_1" _assetList
+                }
+            ],
+          status = InGame,
+          menu = initPauseMenu,
+          currentLevel = _levels !! getLevelIndex _menu
+        }
 
 start2player :: GameState -> GameState
 start2player gs@GameState {tmpassetList = _assetList, levels = _levels} =

@@ -12,14 +12,12 @@ import Graphics.Gloss.Interface.IO.Game
 import Init
 import Input
 import Level
+import LoadLevels (getLevelsInJSON)
 import View
 
 -- | The entery of Haskell game
 main :: IO ()
 main = do
-  -- loadLevel "level.json"
-  -- writeJSONLevelToJson "level.json"
-  -- print plane
   jsonLevel <- getLevelsInJSON
   assets <- getAssets
   let levels = Prelude.map (`levelConverter` assets) jsonLevel
