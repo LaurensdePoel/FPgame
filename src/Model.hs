@@ -31,7 +31,7 @@ data GameState = GameState
     levels :: Level,
     projectiles :: [Projectile],
     powerUps :: [PowerUp],
-    particleMap :: Map String Particle,
+    particleMap :: Particles,
     particles :: [Particle],
     pressedKeys :: S.Set Key,
     menu :: Menu,
@@ -41,6 +41,8 @@ data GameState = GameState
 -- * Assets and Sprites
 
 type Assets = (Map String Picture)
+
+type Particles = (Map String Particle)
 
 data AnimationState = Idle | Moving
 
@@ -85,6 +87,10 @@ data AirPlaneType = Player1 | Player2 | Fighter | Kamikaze | FlyBy deriving (Eq,
 
 data AirplaneGun = AirplaneGun Projectile | None
 
+instance Eq AirplaneGun where
+  None == None = True
+  _ == _ = False
+
 data Airplane = Airplane
   { airplaneType :: AirPlaneType,
     airplanePos :: Position,
@@ -104,7 +110,7 @@ data Airplane = Airplane
 
 data FireRate = Single Time | Burst Time
 
-data ProjectileType = Gun | DoubleGun | Rocket
+data ProjectileType = Gun | DoubleGun deriving (Eq)
 
 data Origin = Players | Enemies deriving (Eq)
 

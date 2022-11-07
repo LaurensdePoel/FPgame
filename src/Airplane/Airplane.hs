@@ -13,3 +13,6 @@ shoot Airplane {airplanePos = (x, y), fireRate = r, airplaneGun = (AirplaneGun p
   Burst _ -> [projectile {projectilePos = (x - px - 5 + gunOffset, y - gunOffset)}, projectile {projectilePos = (x + gunOffset, y - gunOffset)}, projectile {projectilePos = (x - px - px - 10 + gunOffset, y - gunOffset)}] -- TODO: update: - or + is actually depended on if its a player or enemy
     where
       (px, _) = projectileSize projectile
+
+minMax :: (Float, Float) -> Float -> Float
+minMax (minValue, maxValue) value = min maxValue (max minValue value)

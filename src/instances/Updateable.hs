@@ -24,6 +24,9 @@ class Updateable a where
   destroyFromList :: [a] -> [a]
   destroyFromList = mapMaybe destroy
 
+  -- | Returns the center position of an Updateable
+  getCenterPosition :: a -> Position
+
 -------------------------------------------------
 
 -- * Helper functions
@@ -39,9 +42,15 @@ updateVelocity :: Velocity -> Velocity
 updateVelocity (x, y) = (updateDirection x, updateDirection y)
   where
     updateDirection :: Float -> Float
-    updateDirection value -- TODO: can this be written cleaner?
-      | signum value == 1 = if value > C.velocityReduction then value - C.velocityReduction else 0.0
-      | otherwise = if value < -C.velocityReduction then value + C.velocityReduction else 0.0
+    updateDirection value
+      | isMovingDirectionPositive = max 0.0 (value - C.velocityReduction)
+      | otherwise = min 0.0 (value + C.velocityReduction)
+      where
+        isMovingDirectionPositive = signum value == 1
+
+-- | Calculates the center position
+centerPosition :: Position -> Size -> Position
+centerPosition (posX, posY) (sizeX, sizeY) = (posX + (sizeX * 0.5), posY - (sizeY * 0.5))
 
 -------------------------------------------------
 
@@ -73,9 +82,13 @@ instance Updateable Airplane where
 
   -- \| Only returns the airplane if the health is not zero
   destroy :: Airplane -> Maybe Airplane
-  destroy airplane@Airplane {airplaneHealth = health}
-    | health <= 0 = Nothing
+  destroy airplane@Airplane {airplaneHealth = _health}
+    | _health <= 0 = Nothing
     | otherwise = Just airplane
+
+  -- \| Get the center position of an airplane
+  getCenterPosition :: Airplane -> Position
+  getCenterPosition Airplane {airplanePos = _pos, airplaneSize = _size} = centerPosition _pos _size
 
 instance Updateable Projectile where
   -- \| Updates the position of the projectile
@@ -94,6 +107,10 @@ instance Updateable Projectile where
     | _health <= 0 = Nothing
     | otherwise = Just projectile
 
+  -- \| Get the center position of a projectile
+  getCenterPosition :: Projectile -> Position
+  getCenterPosition Projectile {projectilePos = _pos, projectileSize = _size} = centerPosition _pos _size
+
 instance Updateable PowerUp where
   -- \| Updates the position of the powerUp (A powerUp is stationary in the current version)
   move :: PowerUp -> PowerUp
@@ -109,6 +126,10 @@ instance Updateable PowerUp where
       | _despawnTime <= 0 -> Nothing
       | otherwise -> Just powerUp
 
+  -- \| Get the center position of a powerUp
+  getCenterPosition :: PowerUp -> Position
+  getCenterPosition PowerUp {powerUpPos = _pos, powerUpSize = _size} = centerPosition _pos _size
+
 instance Updateable Particle where
   -- \| Updates the position of the particle (A particle is stationary in the current version)
   move :: Particle -> Particle
@@ -118,3 +139,7 @@ instance Updateable Particle where
   destroy particle@Particle {particleSprites = _sprites}
     | null _sprites = Nothing
     | otherwise = Just particle
+
+  -- \| Get the center position of a particle
+  getCenterPosition :: Particle -> Position
+  getCenterPosition Particle {particlePosition = _pos, particleSize = _size} = centerPosition _pos _size

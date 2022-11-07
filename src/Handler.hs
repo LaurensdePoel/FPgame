@@ -64,13 +64,18 @@ movementHandler gs@GameState {players = _players, enemies = _enemies, projectile
 
 -- | Handles all particles (creating new particles on certain events)
 particleHandler :: GameState -> GameState
-particleHandler gs@GameState {particles = _particles, particleMap = _particleMap} =
-  gs {particles = _particles ++ newParticles ++ newParticles2}
+particleHandler gs@GameState {players = _players, enemies = _enemies, projectiles = _projectiles, particles = _particles, particleMap = _particleMap} =
+  gs {particles = _particles ++ newParticles}
   where
-    newParticles = mapMaybe (\airplane -> if isNothing $ destroy airplane then let newParticle = getParticle "explosion2" _particleMap in Just newParticle {particlePosition = centerPosition (airplanePos airplane) (airplaneSize airplane)} else Nothing) (players gs ++ enemies gs)
-    newParticles2 = mapMaybe (\projectile -> if isNothing $ destroy projectile then let newParticle = getParticle "explosion" _particleMap in Just newParticle {particlePosition = centerPosition (projectilePos projectile) (projectileSize projectile)} else Nothing) $ projectiles gs
-    centerPosition :: Position -> Size -> Position
-    centerPosition (x, y) (xx, yy) = (x + (xx * 0.5), y - (yy * 0.5))
+    newParticles = getParticles _particleMap "explosion2" (_players ++ _enemies) ++ getParticles _particleMap "explosion" _projectiles
+
+    -- \| Create all new particles
+    getParticles :: Updateable a => Particles -> String -> [a] -> [Particle]
+    getParticles particleMap' key = mapMaybe (\a -> if isNothing $ destroy a then Just $ createParticle a else Nothing)
+      where
+        newParticle = getParticle key particleMap'
+        createParticle :: Updateable a => a -> Particle
+        createParticle a' = newParticle {particlePosition = getCenterPosition a'}
 
 -- | Handles collision (events on collision) between all entities which are collidable
 collisionHandler :: GameState -> GameState

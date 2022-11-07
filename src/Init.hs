@@ -110,7 +110,7 @@ start1player gs@GameState {tmpassetList = _assetList} =
               airplaneVelocity = (-4, 0),
               airplaneMaxVelocity = (-5, 5),
               airplaneHealth = 100,
-              fireRate = Burst 1200000.0,
+              fireRate = Burst 12.0,
               timeLastShot = 0.0,
               airplanePowerUps = [],
               airplaneGun = None,

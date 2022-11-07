@@ -7,7 +7,9 @@ import Graphics.Gloss (Picture)
 import Model
 
 ---------------------------------------------------
+
 -- * Animateable class
+
 -------------------------------------------------
 
 class Animateable a where
@@ -15,17 +17,19 @@ class Animateable a where
   nextSprite :: a -> a
 
 -------------------------------------------------
+
 -- * Instances
+
 -------------------------------------------------
 
 instance Animateable Particle where
   nextSprite :: Particle -> Particle
-  -- | Removes the current sprite
+  -- \| Removes the current sprite
   nextSprite particle@Particle {particleSprites = _sprites, particleInterval = _interval} =
     particle {particleSprites = tail _sprites, particleTimer = _interval}
 
 instance Animateable Sprites where
-  -- | Moves the current sprite to the end of the sprite list
+  -- \| Moves the current sprite to the end of the sprite list
   nextSprite :: Sprites -> Sprites
   nextSprite sprites@Sprites {spritesState = _state, spritesInterval = _interval, movingSprites = _movingSprites, idleSprites = _idleSprites} =
     case _state of
