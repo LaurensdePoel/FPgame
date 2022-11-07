@@ -80,6 +80,7 @@ executable FPgame
         Handler, 
         Init,
         Level,
+        LoadLevels,
         Model, 
         View,
         Random,

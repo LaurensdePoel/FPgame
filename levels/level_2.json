@@ -1,21 +1,21 @@
 {
-    "resLevelNr": 1,
+    "resLevelNr": 2,
     "resWaves": [
         {
             "resEnemiesInWave": [
                 {
                     "resAirplanePos": [
-                        0,
-                        -300
+                        -200,
+                        300
                     ],
-                    "resAirplaneType": "Fighter"
+                    "resAirplaneType": "FlyBy"
                 },
                 {
                     "resAirplanePos": [
-                        0,
-                        300
+                        200,
+                        -300
                     ],
-                    "resAirplaneType": "Fighter"
+                    "resAirplaneType": "FlyBy"
                 }
             ],
             "resWaveTimer": 50
@@ -24,17 +24,17 @@
             "resEnemiesInWave": [
                 {
                     "resAirplanePos": [
-                        0,
-                        -300
+                        -200,
+                        300
                     ],
-                    "resAirplaneType": "Kamikaze"
+                    "resAirplaneType": "FlyBy"
                 },
                 {
                     "resAirplanePos": [
-                        0,
-                        300
+                        200,
+                        -300
                     ],
-                    "resAirplaneType": "Kamikaze"
+                    "resAirplaneType": "FlyBy"
                 }
             ],
             "resWaveTimer": 50

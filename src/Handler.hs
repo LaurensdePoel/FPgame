@@ -22,7 +22,7 @@ import Updateable
 
 -- | Handles levels and waves -- TODO Rewrite so more functonality is inside Level.hs
 levelHandler :: GameState -> GameState
-levelHandler gs@GameState {levels = _levels, enemies = _enemies, players = _players}
+levelHandler gs@GameState {currentLevel = _currentLevel, enemies = _enemies, players = _players}
   -- Enter Defeat menu
   | ifAllPlayersDied = gs {status = InMenu, menu = initDefeatMenu, pressedKeys = emptyKeys}
   -- Enter Victory menu
@@ -35,23 +35,23 @@ levelHandler gs@GameState {levels = _levels, enemies = _enemies, players = _play
     ifCurrentWaveKilled :: Bool
     ifCurrentWaveKilled = null _enemies
     ifAllWavesCleared :: Bool
-    ifAllWavesCleared = null (waves _levels)
+    ifAllWavesCleared = null (waves _currentLevel)
     ifAllPlayersDied :: Bool
     ifAllPlayersDied = null _players
     ifWaveTimerExpired :: Bool
-    ifWaveTimerExpired = readyToExecute _levels
+    ifWaveTimerExpired = readyToExecute _currentLevel
 
 -- | Handles all timers of entities
 timeHandler :: GameState -> GameState
-timeHandler gs@GameState {players = _players, enemies = _enemies, levels = _levels, projectiles = _projectiles, powerUps = _powerUps, particles = _particles} =
-  gs {players = updatedPlayers, enemies = updatedEnemies, levels = updatedLevel, projectiles = updatedProjectiles, powerUps = updatedPowerUps, particles = updatedParticles}
+timeHandler gs@GameState {players = _players, enemies = _enemies, currentLevel = _currentLevel, projectiles = _projectiles, powerUps = _powerUps, particles = _particles} =
+  gs {players = updatedPlayers, enemies = updatedEnemies, currentLevel = updatedLevel, projectiles = updatedProjectiles, powerUps = updatedPowerUps, particles = updatedParticles}
   where
     updatedPlayers = map (\player -> updateTime player {airplanePowerUps = map updateTime (airplanePowerUps player)}) _players
     updatedEnemies = map updateTime _enemies
     updatedProjectiles = _projectiles ++ concatMap shoot (filter readyToExecute (updatedPlayers ++ updatedEnemies))
     updatedPowerUps = map updateTime _powerUps
     updatedParticles = map (applyOnExecute nextSprite) _particles
-    updatedLevel = updateTime _levels
+    updatedLevel = updateTime _currentLevel
 
 -- | Handles all movement of entities
 movementHandler :: GameState -> GameState

@@ -1,71 +1,113 @@
-{-# LANGUAGE DeriveAnyClass #-}
-{-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE OverloadedStrings #-}
+{-# OPTIONS_GHC -Wno-missing-fields #-}
 
 module Level where
 
-import Control.Applicative
-import Control.Monad
-import Data.Aeson
-import qualified Data.ByteString.Lazy as B
-import GHC.Generics
+import Assets (fixImageOrigin, getTexture)
+import qualified Config as C
+import Control.Applicative ()
+import Control.Monad ()
+import Data.Aeson ()
+import Data.List ()
+import GHC.Generics ()
+import Graphics.Gloss.Data.Picture (Picture, rotate)
+import LoadLevels (AirplaneJSON (..), LevelJSON (..), WaveJSON (..))
 import Model
+import System.Directory ()
 
 -- | The function 'nextwave' sets the nextwave as currentwave. If there are no more waves this functions does nothing.
 nextWave :: GameState -> GameState
-nextWave gs@GameState {levels = _levels, enemies = _enemies}
+nextWave gs@GameState {currentLevel = _currentLevel, enemies = _enemies}
   | ifAllWavesCleared = gs -- do nothing if all waves are cleared --TODO better if we can disable timer
-  | otherwise = gs {enemies = _enemies ++ spawnNextWave, levels = _levels {waves = removeWaveAfterSpawn}}
+  | otherwise = gs {enemies = _enemies ++ spawnNextWave, currentLevel = _currentLevel {waves = removeWaveAfterSpawn}}
   where
     ifAllWavesCleared :: Bool
-    ifAllWavesCleared = null (waves _levels)
+    ifAllWavesCleared = null (waves _currentLevel)
 
     spawnNextWave :: [Enemy]
-    spawnNextWave = enemiesInWave $ head (waves _levels)
+    spawnNextWave = enemiesInWave $ head (waves _currentLevel)
 
     removeWaveAfterSpawn :: [Wave]
-    removeWaveAfterSpawn = tail $ waves _levels
+    removeWaveAfterSpawn = tail $ waves _currentLevel
 
-jsonFile :: FilePath
-jsonFile = "level.json"
+-- TODO REFACTOR use readMaybe
+getLevelIndex :: Menu -> Int
+getLevelIndex menu' = read (fieldName $ head $ fields menu') - 1
 
-getJSON :: IO B.ByteString
-getJSON = B.readFile jsonFile
+levelConverter :: LevelJSON -> Assets -> Level
+levelConverter LevelJSON {resLevelNr = _resLevelNr, resWaves = _resWaves} assetList =
+  Level {levelNr = _resLevelNr, waves = convertWaves _resWaves}
+  where
+    convertWaves :: [WaveJSON] -> [Wave]
+    convertWaves = map (`waveConverter` assetList)
 
-myLevel :: ResLevel
-myLevel = ResLevel 1 [ResWave [ResAirplane Fighter (300, -300), ResAirplane Fighter (300, 300)] 50, ResWave [ResAirplane Kamikaze (300, -300), ResAirplane Kamikaze (300, 300)] 50]
+waveConverter :: WaveJSON -> Assets -> Wave
+waveConverter WaveJSON {resEnemiesInWave = _resEnemiesInWave, resWaveTimer = _resWaveTimer} assetList =
+  Wave {enemiesInWave = convertEnemies _resEnemiesInWave, waveTimer = _resWaveTimer}
+  where
+    convertEnemies :: [AirplaneJSON] -> [Airplane]
+    convertEnemies = map (`airplaneConverter` assetList)
 
-data Foo = Foo
-  { field1 :: Int,
-    field2 :: String
-  }
-  deriving (Show, Generic, ToJSON, FromJSON)
+-- | creates a enemy airplane based on the Type and set the spawning location. The spawning position is determend by the (absolute x position + screenWidth) and the (y position in the JSON file)
+airplaneConverter :: AirplaneJSON -> Assets -> Airplane
+airplaneConverter AirplaneJSON {resAirplaneType = _resAirplaneType, resAirplanePos = (airplaneX, airplaneY)} = createEnemy _resAirplaneType ((abs airplaneX, airplaneY) + (C.screenMaxX, 0))
 
-myFoo :: Foo
-myFoo =
-  Foo
-    { field1 = 909,
-      field2 = "take your time"
-    }
+createEnemy :: AirPlaneType -> Position -> Assets -> Enemy
+createEnemy airplaneType' airplanePosition' assetList = case airplaneType' of
+  Fighter ->
+    createAirplaneBase
+      { airplaneMaxVelocity = (-12, 12),
+        airplaneHealth = 100,
+        fireRate = Single 120.0,
+        airplaneGun = createSingleGun,
+        airplaneSprite = createAirplaneSprite
+      }
+  Kamikaze ->
+    createAirplaneBase
+      { airplaneMaxVelocity = (-12, 12),
+        airplaneHealth = 100,
+        fireRate = Single 999999.0,
+        airplaneGun = None,
+        airplaneSprite = createAirplaneSprite
+      }
+  FlyBy ->
+    createAirplaneBase
+      { airplaneMaxVelocity = (-12, 12),
+        airplaneHealth = 100,
+        fireRate = Burst 120.0,
+        airplaneGun = createSingleGun,
+        airplaneSprite = createAirplaneSprite
+      }
+  Player1 -> error "Creating a player" -- TODO What do we need to do in this situation?
+  Player2 -> error "Creating a player"
+  where
+    createAirplaneBase :: Airplane
+    createAirplaneBase =
+      Airplane
+        { airplaneType = airplaneType',
+          airplanePos = airplanePosition',
+          airplaneDestinationPos = (C.screenMaxX, snd airplanePosition'),
+          airplaneSize = C.airplaneSizeVar,
+          airplaneVelocity = (0, 0),
+          timeLastShot = 0.0,
+          airplanePowerUps = []
+        }
 
--- ToJSON so that we can encode *to* a JSON string,
--- FromJSON so that we can parse *from* a JSON string
+    createSingleGun :: AirplaneGun
+    createSingleGun =
+      AirplaneGun
+        Projectile
+          { projectileType = Gun,
+            projectilePos = (0, 0),
+            projectileSize = C.projectileSizeVar,
+            projectileVelocity = (-10, 0),
+            projectileHealth = 1,
+            projectileDamage = 10,
+            projectileOrigin = Enemies,
+            projectileSprite = flip fixImageOrigin C.projectileSizeVar $ rotate (-90) $ getTexture "bullet" assetList
+          }
 
--- ! remove to own file
-data ResLevel = ResLevel
-  { resLevelNr :: Int,
-    resWaves :: [ResWave]
-  }
-  deriving (Show, Generic, ToJSON, FromJSON)
-
-data ResWave = ResWave
-  { resEnemiesInWave :: [ResAirplane],
-    resWaveTimer :: Time
-  }
-  deriving (Show, Generic, ToJSON, FromJSON)
-
-data ResAirplane = ResAirplane
-  { resAirplaneType :: AirPlaneType,
-    resAirplanePos :: Position
-  }
-  deriving (Show, Generic, ToJSON, FromJSON)
+    createAirplaneSprite :: Picture
+    createAirplaneSprite = case airplaneType' of
+      Kamikaze -> flip fixImageOrigin C.airplaneSizeVar $ getTexture (show airplaneType') assetList
+      _ -> flip fixImageOrigin C.airplaneSizeVar $ rotate (-90) $ getTexture (show airplaneType') assetList
