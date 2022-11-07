@@ -12,6 +12,7 @@ import Control.Monad
 import Data.Aeson
 import Data.Aeson.Types (parseMaybe)
 import qualified Data.ByteString.Lazy as B
+import Data.List
 import GHC.Generics
 import Graphics.Gloss.Interface.IO.Animate (Picture (Pictures), rotate)
 import Model
@@ -51,7 +52,7 @@ loadLevel filePath = do
 getLevelsInJSON :: IO [LevelJSON]
 getLevelsInJSON = do
   levelFileNames <- listDirectory levelsPath
-  mapM loadLevel levelFileNames
+  mapM loadLevel $ sort levelFileNames
 
 myLevel :: LevelJSON
 myLevel = LevelJSON 1 [WaveJSON [AirplaneJSON Fighter (300, -300), AirplaneJSON Fighter (300, 300)] 50, WaveJSON [AirplaneJSON Kamikaze (300, -300), AirplaneJSON Kamikaze (300, 300)] 50]

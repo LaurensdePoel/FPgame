@@ -1,5 +1,5 @@
 {
-    "resLevelNr": 2,
+    "resLevelNr": 3,
     "resWaves": [
         {
             "resEnemiesInWave": [
@@ -8,7 +8,7 @@
                         0,
                         100
                     ],
-                    "resAirplaneType": "FlyBy"
+                    "resAirplaneType": "Kamikaze"
                 }
             ],
             "resWaveTimer": 50
@@ -20,7 +20,19 @@
                         -0,
                         -100
                     ],
-                    "resAirplaneType": "FlyBy"
+                    "resAirplaneType": "Kamikaze"
+                }
+            ],
+            "resWaveTimer": 50
+        },
+        {
+            "resEnemiesInWave": [
+                {
+                    "resAirplanePos": [
+                        -0,
+                        -100
+                    ],
+                    "resAirplaneType": "Kamikaze"
                 }
             ],
             "resWaveTimer": 50

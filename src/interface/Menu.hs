@@ -23,6 +23,8 @@ nextMenu gs@GameState {menu = _menu} = newMenu (subMenu $ head (fields _menu))
       NoMenu -> gs
       NoMenuButFunction f -> f gs
 
+-- NoMenuButFunctionWithInt f -> f  -- TODO use selected level
+
 -- | Load the parent menu as current menu if there isn't a parent menu do nothing and return current menu
 previousMenu :: GameState -> GameState
 previousMenu gs@GameState {menu = _menu} = gs {menu = check (returnMenu _menu)}
@@ -31,6 +33,8 @@ previousMenu gs@GameState {menu = _menu} = gs {menu = check (returnMenu _menu)}
       Menu {} -> newMenu
       NoMenu -> _menu
       NoMenuButFunction _ -> _menu
+
+-- NoMenuButFunctionWithInt _ -> _menu
 
 -- | This function changes the selected field in the current menu.
 -- (['Field'] -> ['Field']) argument is a function that alters the order of the 'Field' in the list.

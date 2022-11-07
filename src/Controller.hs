@@ -10,9 +10,8 @@ import Menu
 import Model
 
 step :: Float -> GameState -> IO GameState
-step seconds gs@GameState {status = _status} = do
-  --newLevel <- undefined
-  -- return $ stepPure seconds gs {levels = newLevel}
+step seconds gs@GameState {status = _status, menu = _menu} = do
+  -- print $ levelNr $ currentLevel gs
   return $ stepPure seconds gs
 
 -- | Handle one iteration of the game

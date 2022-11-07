@@ -30,12 +30,14 @@ data GameState = GameState
     enemies :: [Enemy],
     levels :: [Level],
     currentLevel :: Level,
+    selectedLevelNr :: Int,
     projectiles :: [Projectile],
     powerUps :: [PowerUp],
     particleMap :: Map String Particle,
     particles :: [Particle],
     pressedKeys :: S.Set Graphics.Gloss.Interface.IO.Interact.Key,
     menu :: Menu,
+    levelSelectMenu :: Menu,
     tmpassetList :: Assets
   }
 
@@ -144,6 +146,7 @@ data Menu
       }
   | NoMenu
   | NoMenuButFunction (GameState -> GameState)
+  -- | NoMenuButFunctionWithInt (GameState -> Int -> GameState)
 
 data Field = Field
   { fieldName :: String,

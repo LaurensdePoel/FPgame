@@ -9,32 +9,6 @@
                         -300
                     ],
                     "resAirplaneType": "Fighter"
-                },
-                {
-                    "resAirplanePos": [
-                        0,
-                        300
-                    ],
-                    "resAirplaneType": "Fighter"
-                }
-            ],
-            "resWaveTimer": 50
-        },
-        {
-            "resEnemiesInWave": [
-                {
-                    "resAirplanePos": [
-                        0,
-                        -300
-                    ],
-                    "resAirplaneType": "Kamikaze"
-                },
-                {
-                    "resAirplanePos": [
-                        0,
-                        300
-                    ],
-                    "resAirplaneType": "Kamikaze"
                 }
             ],
             "resWaveTimer": 50

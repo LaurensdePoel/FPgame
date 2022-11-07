@@ -23,12 +23,13 @@ main = do
   jsonLevel <- getLevelsInJSON
   assets <- getAssets
   let levels = Prelude.map (`levelConverter` assets) jsonLevel
+  let levelSelectMenu = createLevelSelectmenu levels
   let
   playIO
     (InWindow "Nice Window" (screenWidth, screenHeight) (offset, offset))
     black
     fps
-    (initialState assets levels)
+    (initialState assets levels levelSelectMenu)
     view
     input
     step

@@ -61,8 +61,7 @@ instance Drawable Sprites where
 instance Drawable Menu where
   -- \| Converts a menu into a picture
   draw :: Menu -> Picture
-  draw Menu {header = _header, fields = _fields} =
-    pictures $ headerPicture : currentSelected : map draw (tail _fields)
+  draw Menu {header = _header, fields = _fields} = pictures $ headerPicture : currentSelected : map draw (tail _fields)
     where
       headerPicture = Scale 0.5 0.5 $ translate 0 (C.menuTextStartHeight - C.menuTextOffset) $ color white (Text _header)
       currentSelected = Scale 0.25 0.25 $ translate `uncurry` fieldPosition (head _fields) $ color yellow (Text (fieldName $ head _fields))
