@@ -5,8 +5,15 @@
             "resEnemiesInWave": [
                 {
                     "resAirplanePos": [
-                        0,
-                        100
+                        -200,
+                        300
+                    ],
+                    "resAirplaneType": "FlyBy"
+                },
+                {
+                    "resAirplanePos": [
+                        200,
+                        -300
                     ],
                     "resAirplaneType": "FlyBy"
                 }
@@ -17,8 +24,15 @@
             "resEnemiesInWave": [
                 {
                     "resAirplanePos": [
-                        -0,
-                        -100
+                        -200,
+                        300
+                    ],
+                    "resAirplaneType": "FlyBy"
+                },
+                {
+                    "resAirplanePos": [
+                        200,
+                        -300
                     ],
                     "resAirplaneType": "FlyBy"
                 }

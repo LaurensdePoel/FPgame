@@ -90,10 +90,10 @@ initPlayMenu = createMenu "Choose players" initMenu [("1 Player", NoMenuButFunct
 initPauseMenu = createMenu "Paused" NoMenu [("Resume", NoMenuButFunction resumeGame), ("Return to menu", initMenu)]
 
 initVictoryMenu :: Menu
-initVictoryMenu = createMenu "Level Completed" NoMenu [("Next Level", initMenu), ("Select Level", initPlayMenu), ("Return to Menu", initMenu)] -- TODO: NoMenuButFunction start1player is incorrect
+initVictoryMenu = createMenu "Level Completed" NoMenu [("Next Level", NoMenuButFunction loadLevelSelectMenu), ("Select Level", NoMenuButFunction loadLevelSelectMenu), ("Return to Menu", initMenu)] -- TODO: NoMenuButFunction start1player is incorrect
 
 initDefeatMenu :: Menu
-initDefeatMenu = createMenu "Game Over" NoMenu [("Retry Level", initMenu), ("Select Level", initPlayMenu), ("Return to Menu", initMenu)] -- TODO: NoMenuButFunction start1player is incorrect
+initDefeatMenu = createMenu "Game Over" NoMenu [("Retry Level", NoMenuButFunction loadLevelSelectMenu), ("Select Level", NoMenuButFunction loadLevelSelectMenu), ("Return to Menu", initMenu)] -- TODO: NoMenuButFunction start1player is incorrect
 
 -- TODO Make higher order function
 createLevelSelectmenu :: [Level] -> Menu

@@ -50,8 +50,9 @@ waveConverter WaveJSON {resEnemiesInWave = _resEnemiesInWave, resWaveTimer = _re
     getEnemies [] = []
     getEnemies (x : xs) = airplaneConverter x assetList : getEnemies xs
 
+-- | creates a enemy airplane based on the Type and set the spawning location. The spawning position is determend by the (absolute x position + screenWidth) and the (y position in the JSON file)
 airplaneConverter :: AirplaneJSON -> Assets -> Airplane
-airplaneConverter AirplaneJSON {resAirplaneType = _resAirplaneType, resAirplanePos = _resAirplanePos} = createEnemy _resAirplaneType (_resAirplanePos + (C.screenMaxX, 0))
+airplaneConverter AirplaneJSON {resAirplaneType = _resAirplaneType, resAirplanePos = (airplaneX, airplaneY)} = createEnemy _resAirplaneType ((abs airplaneX, airplaneY) + (C.screenMaxX, 0))
 
 createEnemy :: AirPlaneType -> Position -> Assets -> Enemy
 createEnemy airplaneType' airplanePosition' assetList = case airplaneType' of
@@ -87,7 +88,7 @@ createEnemy airplaneType' airplanePosition' assetList = case airplaneType' of
       Airplane
         { airplaneType = airplaneType',
           airplanePos = airplanePosition',
-          airplaneDestinationPos = (0, 0),
+          airplaneDestinationPos = (C.screenMaxX, snd airplanePosition'),
           airplaneSize = C.airplaneSizeVar,
           airplaneVelocity = (0, 0),
           timeLastShot = 0.0,
