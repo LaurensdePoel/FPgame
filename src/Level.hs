@@ -3,14 +3,15 @@
 
 module Level where
 
-import Assets (fixImageOrigin, getTexture)
+import Assets (fixImageOrigin, getBackground, getTexture)
 import qualified Config as C
 import Control.Applicative ()
 import Control.Monad ()
 import Data.Aeson ()
 import Data.List ()
 import GHC.Generics ()
-import Graphics.Gloss.Data.Picture (Picture, rotate)
+import Graphics.Gloss
+import Graphics.Gloss.Data.Picture (Picture, pictures, rotate)
 import LoadLevels (AirplaneJSON (..), LevelJSON (..), WaveJSON (..))
 import Model
 import System.Directory ()
@@ -34,12 +35,16 @@ nextWave gs@GameState {currentLevel = _currentLevel, enemies = _enemies}
 getLevelIndex :: Menu -> Int
 getLevelIndex menu' = read (fieldName $ head $ fields menu') - 1
 
-levelConverter :: LevelJSON -> Assets -> Level
-levelConverter LevelJSON {resLevelNr = _resLevelNr, resWaves = _resWaves} assetList =
-  Level {levelNr = _resLevelNr, waves = convertWaves _resWaves}
+levelConverter :: LevelJSON -> Assets -> Backgrounds -> Level
+levelConverter LevelJSON {resLevelNr = _resLevelNr, resLevelBackgroundName = _backgroundName, resWaves = _resWaves} assetList backgrounds =
+  Level {levelNr = _resLevelNr, levelBackground = background, waves = convertWaves _resWaves}
   where
     convertWaves :: [WaveJSON] -> [Wave]
     convertWaves = map (`waveConverter` assetList)
+
+    background = Background (0, 0) 0.0 0.0 (pictures $ [getTexture "naamloos" assetList, uncurry translate (fromIntegral C.screenWidth, 0) $ getTexture "naamloos" assetList]) -- (pictures $ replicate 2 backgroundSprite')
+    backgroundSprite' :: Picture
+    backgroundSprite' = getBackground _backgroundName backgrounds assetList
 
 waveConverter :: WaveJSON -> Assets -> Wave
 waveConverter WaveJSON {resEnemiesInWave = _resEnemiesInWave, resWaveTimer = _resWaveTimer} assetList =

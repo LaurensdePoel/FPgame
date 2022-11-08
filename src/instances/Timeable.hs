@@ -96,7 +96,7 @@ instance Timeable Sprites where
 instance Timeable Level where
   -- \| Updates the wave timer of a level
   updateTime :: Level -> Level
-  updateTime level@Level {waves = _waves} = level {waves = updateCurrentWave _waves}
+  updateTime level@Level {waves = _waves, levelBackground = _background} = level {waves = updateCurrentWave _waves} -- , levelBackground = applyOnExecute nextSprite _background}
     where
       updateCurrentWave :: [Wave] -> [Wave]
       updateCurrentWave [] = []
@@ -116,4 +116,15 @@ instance Timeable Wave where
   readyToExecute :: Wave -> Bool
   readyToExecute Wave {waveTimer = _waveTimer}
     | _waveTimer <= 0 = True
+    | otherwise = False
+
+instance Timeable Background where
+  -- \| Updates the Background timer
+  updateTime :: Background -> Background
+  updateTime background@Background {backgroundTimer = _backgroundTimer} = background {backgroundTimer = max 0.0 (_backgroundTimer - 1)}
+
+  -- \| Checks if the Background timer is zero
+  readyToExecute :: Background -> Bool
+  readyToExecute Background {backgroundTimer = _backgroundTimer}
+    | _backgroundTimer <= 0 = True
     | otherwise = False

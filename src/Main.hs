@@ -20,7 +20,7 @@ main = do
   assets <- getAssets
   bgJSON <- getBackgroundsInJSON
   let backgrounds = createBackgroundMap bgJSON
-  let levels = Prelude.map (`levelConverter` assets) jsonLevel
+  let levels = Prelude.map (\jsonLevel' -> levelConverter jsonLevel' assets backgrounds) jsonLevel
   let levelSelectMenu = createLevelSelectmenu levels
   let
   playIO

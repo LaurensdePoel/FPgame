@@ -1,6 +1,6 @@
 module Init where
 
-import Assets (fixImageOrigin, getBackground, getTexture)
+import Assets (errorSprite, fixImageOrigin, getBackground, getTexture)
 import Config (airplaneSizeVar, projectileSizeVar)
 import Data.Map as Dict (fromList)
 -- import Graphics.Gloss (Picture (Scale), rotate)
@@ -11,7 +11,7 @@ import Menu
 import Model
 
 initEmptyLevel :: Level
-initEmptyLevel = Level 0 []
+initEmptyLevel = Level 0 (Background (0, 0) 100.0 100.0 (errorSprite "emptyLevel")) []
 
 initialState :: Assets -> Backgrounds -> [Level] -> Menu -> GameState
 initialState assetlist backgrounds levelList levelSelectMenu' =
@@ -85,20 +85,20 @@ resetGameState gs =
 
 -- | Create menu's
 initMenu, initPlayMenu, initPauseMenu :: Backgrounds -> Assets -> Menu
-initMenu backgrounds assets = createMenu "Shoot'em Up" (getBackground "MainMenu" backgrounds assets) NoMenu [("Play", initPlayMenu backgrounds assets), ("Controls", NoMenu), ("Credits", NoMenu), ("Exit", NoMenu)]
+initMenu backgrounds assets = createMenu "Shoot'em Up" (getTexture "fdfdf" assets) NoMenu [("Play", initPlayMenu backgrounds assets), ("Controls", NoMenu), ("Credits", NoMenu), ("Exit", NoMenu)]
 -- initPlayMenu = createMenu "Choose players" initMenu [("1 Player", NoMenuButFunction start1player), ("2 Player", NoMenuButFunction start2player)]
-initPlayMenu backgrounds assets = createMenu "Choose players" (getBackground "main_bg" backgrounds assets) (initMenu backgrounds assets) [("1 Player", NoMenuButFunction loadLevelSelectMenu), ("2 Player", NoMenuButFunction loadLevelSelectMenu)]
-initPauseMenu backgrounds assets = createMenu "Paused" (getBackground "main_bg" backgrounds assets) NoMenu [("Resume", NoMenuButFunction resumeGame), ("Return to menu", initMenu backgrounds assets)]
+initPlayMenu backgrounds assets = createMenu "Choose players" (getTexture "fdfdf" assets) (initMenu backgrounds assets) [("1 Player", NoMenuButFunction loadLevelSelectMenu), ("2 Player", NoMenuButFunction loadLevelSelectMenu)]
+initPauseMenu backgrounds assets = createMenu "Paused" (getTexture "fdfdf" assets) NoMenu [("Resume", NoMenuButFunction resumeGame), ("Return to menu", initMenu backgrounds assets)]
 
 initVictoryMenu :: Backgrounds -> Assets -> Menu
-initVictoryMenu backgrounds assets = createMenu "Level Completed" (getBackground "MainMenu" backgrounds assets) NoMenu [("Next Level", NoMenuButFunction nextLevel), ("Select Level", NoMenuButFunction loadLevelSelectMenu), ("Return to Menu", initMenu backgrounds assets)] -- TODO: NoMenuButFunction start1player is incorrect
+initVictoryMenu backgrounds assets = createMenu "Level Completed" (getTexture "fdfdf" assets) NoMenu [("Next Level", NoMenuButFunction nextLevel), ("Select Level", NoMenuButFunction loadLevelSelectMenu), ("Return to Menu", initMenu backgrounds assets)] -- TODO: NoMenuButFunction start1player is incorrect
 
 initDefeatMenu :: Backgrounds -> Assets -> Menu
-initDefeatMenu backgrounds assets = createMenu "Game Over" (getBackground "MainMenu" backgrounds assets) NoMenu [("Retry Level", NoMenuButFunction loadLevelSelectMenu), ("Select Level", NoMenuButFunction loadLevelSelectMenu), ("Return to Menu", initMenu backgrounds assets)] -- TODO: NoMenuButFunction start1player is incorrect
+initDefeatMenu backgrounds assets = createMenu "Game Over" (getTexture "fdfdf" assets) NoMenu [("Retry Level", NoMenuButFunction loadLevelSelectMenu), ("Select Level", NoMenuButFunction loadLevelSelectMenu), ("Return to Menu", initMenu backgrounds assets)] -- TODO: NoMenuButFunction start1player is incorrect
 
 -- TODO Make higher order function
 createLevelSelectmenu :: [Level] -> Backgrounds -> Assets -> Menu
-createLevelSelectmenu levelList backgrounds assets = createMenu "Level Select" (getBackground "MainMenu" backgrounds assets) (initPlayMenu backgrounds assets) $ createLevelFields levelList
+createLevelSelectmenu levelList backgrounds assets = createMenu "Level Select" (getTexture "fdfdf" assets) (initPlayMenu backgrounds assets) $ createLevelFields levelList
   where
     createLevelFields :: [Level] -> [(String, Menu)]
     createLevelFields [] = []

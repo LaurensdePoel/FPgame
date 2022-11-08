@@ -135,8 +135,16 @@ data Projectile = Projectile
 
 -- * Levels
 
+data Background = Background
+  { backgroundPos :: Position,
+    backgroundInterval :: Time,
+    backgroundTimer :: Time,
+    backgroundSprite :: Picture
+  }
+
 data Level = Level
   { levelNr :: Int,
+    levelBackground :: Background,
     waves :: [Wave]
   }
 

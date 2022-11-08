@@ -16,6 +16,7 @@ import System.Directory
 
 data LevelJSON = LevelJSON
   { resLevelNr :: Int,
+    resLevelBackgroundName :: String,
     resWaves :: [WaveJSON]
   }
   deriving (Show, Generic, ToJSON, FromJSON)

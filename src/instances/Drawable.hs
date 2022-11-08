@@ -73,3 +73,7 @@ instance Drawable Field where
   -- \| Converts a field into a picture
   draw :: Field -> Picture
   draw Field {fieldName = _fieldName, fieldPosition = _fieldPosition} = Scale 0.25 0.25 $ translate `uncurry` _fieldPosition $ color black (Text _fieldName)
+
+instance Drawable Level where
+  draw :: Level -> Picture
+  draw Level {levelBackground = Background {backgroundPos = _pos, backgroundSprite = _sprite}} = uncurry translate _pos _sprite

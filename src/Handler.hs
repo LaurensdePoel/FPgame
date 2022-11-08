@@ -44,7 +44,7 @@ levelHandler gs@GameState {currentLevel = _currentLevel, tmpassetList = assetsLi
 -- | Handles all timers of entities
 timeHandler :: GameState -> GameState
 timeHandler gs@GameState {players = _players, enemies = _enemies, currentLevel = _currentLevel, projectiles = _projectiles, powerUps = _powerUps, particles = _particles} =
-  gs {players = updatedPlayers, enemies = updatedEnemies, currentLevel = updatedLevel, projectiles = updatedProjectiles, powerUps = updatedPowerUps, particles = updatedParticles}
+  gs {players = updatedPlayers, enemies = updatedEnemies, currentLevel = updatedLevel1, projectiles = updatedProjectiles, powerUps = updatedPowerUps, particles = updatedParticles}
   where
     updatedPlayers = map (\player -> updateTime player {airplanePowerUps = map updateTime (airplanePowerUps player)}) _players
     updatedEnemies = map updateTime _enemies
@@ -52,6 +52,7 @@ timeHandler gs@GameState {players = _players, enemies = _enemies, currentLevel =
     updatedPowerUps = map updateTime _powerUps
     updatedParticles = map (applyOnExecute nextSprite) _particles
     updatedLevel = updateTime _currentLevel
+    updatedLevel1 = updatedLevel {levelBackground = nextSprite $ levelBackground updatedLevel}
 
 -- | Handles all movement of entities
 movementHandler :: GameState -> GameState

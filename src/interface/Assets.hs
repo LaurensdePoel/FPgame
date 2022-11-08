@@ -2,6 +2,7 @@ module Assets where
 
 import Control.Monad
 import Data.Char (toLower)
+import Data.List as L
 import Data.Map as Dict
 import Data.Maybe
 import Graphics.Gloss
@@ -78,7 +79,7 @@ getBackground key map' assets
     tileList = Prelude.map (\number -> getTexture (show (number - 1)) assets) backgroundData
 
     bg :: [Picture]
-    bg = snd $ Prelude.foldl (\(pos, tiles) tile -> let tile' = uncurry translate pos tile in (updatePosition pos, tile' : tiles)) ((0, 0), [] :: [Picture]) tileList
+    bg = snd $ L.foldl' (\(pos, tiles) tile -> let tile' = uncurry translate pos tile in (updatePosition pos, tile' : tiles)) ((0, 0), [] :: [Picture]) tileList
 
     updatePosition :: Position -> Position
     updatePosition (x', y')

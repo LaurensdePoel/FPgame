@@ -25,4 +25,6 @@ render gs@GameState {status = _status} = case _status of
     drawMenu = draw (menu gs)
 
     drawGame :: Picture
-    drawGame = pictures $ mapDraw (projectiles gs) ++ mapDraw (players gs) ++ mapDraw (enemies gs) ++ mapDraw (powerUps gs) ++ mapDraw (particles gs) ++ [color white $ rectangleWire (fromIntegral C.screenWidth) (fromIntegral C.screenHeight)]
+    drawGame = pictures $ [draw $! currentLevel gs] ++ mapDraw (projectiles gs) ++ mapDraw (players gs) ++ mapDraw (enemies gs) ++ mapDraw (powerUps gs) ++ mapDraw (particles gs) ++ [color white $ rectangleWire (fromIntegral C.screenWidth) (fromIntegral C.screenHeight)]
+
+-- [draw $ currentLevel gs] ++
