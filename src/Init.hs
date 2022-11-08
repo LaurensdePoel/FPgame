@@ -1,9 +1,8 @@
 module Init where
 
-import Assets (fixImageOrigin, getTexture)
-import Config (airplaneSizeVar, projectileSizeVar)
+import Assets (getTexture)
 import Data.Map as Dict (fromList)
-import Graphics.Gloss (Picture (Scale), rotate)
+import Graphics.Gloss (Picture (Scale))
 import Input
 import Level
 import Menu
@@ -18,6 +17,7 @@ initialState assetlist levelList levelSelectMenu' =
     { elapsedTime = 0,
       status = InMenu,
       players = [],
+      nrOfPlayers = 0,
       enemies = [],
       levels = levelList,
       currentLevel = initEmptyLevel,
@@ -63,14 +63,23 @@ initialState assetlist levelList levelSelectMenu' =
 
 resetGameState :: GameState -> GameState
 resetGameState gs =
+  resetLevel
+    gs
+      { currentLevel = initEmptyLevel,
+        currentLevelNr = 0
+      }
+
+resetLevel :: GameState -> GameState
+resetLevel gs =
   gs
     { elapsedTime = 0,
       -- status = _status,
+      -- nrOfPlayers = 0
       players = [],
       enemies = [],
       -- levels = _levels,
-      currentLevel = initEmptyLevel,
-      currentLevelNr = 0,
+      -- currentLevel = initEmptyLevel,
+      -- currentLevelNr = 0,
       projectiles = [],
       powerUps = [],
       -- particleMap = _particleMap,
@@ -85,14 +94,14 @@ resetGameState gs =
 initMenu, initPlayMenu, initPauseMenu :: Menu
 initMenu = createMenu "Shoot'em Up" NoMenu [("Play", initPlayMenu), ("Controls", NoMenu), ("Credits", NoMenu), ("Exit", NoMenu)]
 -- initPlayMenu = createMenu "Choose players" initMenu [("1 Player", NoMenuButFunction start1player), ("2 Player", NoMenuButFunction start2player)]
-initPlayMenu = createMenu "Choose players" initMenu [("1 Player", NoMenuButFunction loadLevelSelectMenu), ("2 Player", NoMenuButFunction loadLevelSelectMenu)]
+initPlayMenu = createMenu "Choose players" initMenu [("1 Player", NoMenuButFunction loadLevelselectAnd1Player), ("2 Player", NoMenuButFunction loadLevelselectAnd2Player)]
 initPauseMenu = createMenu "Paused" NoMenu [("Resume", NoMenuButFunction resumeGame), ("Return to menu", initMenu)]
 
 initVictoryMenu :: Menu
 initVictoryMenu = createMenu "Level Completed" NoMenu [("Next Level", NoMenuButFunction nextLevel), ("Select Level", NoMenuButFunction loadLevelSelectMenu), ("Return to Menu", initMenu)] -- TODO: NoMenuButFunction start1player is incorrect
 
 initDefeatMenu :: Menu
-initDefeatMenu = createMenu "Game Over" NoMenu [("Retry Level", NoMenuButFunction loadLevelSelectMenu), ("Select Level", NoMenuButFunction loadLevelSelectMenu), ("Return to Menu", initMenu)] -- TODO: NoMenuButFunction start1player is incorrect
+initDefeatMenu = createMenu "Game Over" NoMenu [("Retry Level", NoMenuButFunction retryLevel), ("Select Level", NoMenuButFunction loadLevelSelectMenu), ("Return to Menu", initMenu)] -- TODO: NoMenuButFunction start1player is incorrect
 
 -- TODO Make higher order function
 createLevelSelectmenu :: [Level] -> Menu
@@ -100,27 +109,36 @@ createLevelSelectmenu levelList = createMenu "Level Select" initPlayMenu $ creat
   where
     createLevelFields :: [Level] -> [(String, Menu)]
     createLevelFields [] = []
-    createLevelFields (x : xs) = (show (levelNr x), NoMenuButFunction start1player) : createLevelFields xs
+    createLevelFields (x : xs) = (show (levelNr x), NoMenuButFunction startFromLevelSelect) : createLevelFields xs
 
 resumeGame :: GameState -> GameState
 resumeGame gs = gs {status = InGame}
 
-retryLevel :: GameState -> GameState -- TODO refactor so game level can startup again with healed players.
-retryLevel gs@GameState {levels = _levels, currentLevel = _level} = startLevel $ loadLevel gs
+retryLevel :: GameState -> GameState
+retryLevel gs@GameState {levels = _levels, currentLevel = _level} = startLevel $ loadPlayers $ resetLevel $ loadLevel gs
 
 loadLevelSelectMenu :: GameState -> GameState
 loadLevelSelectMenu gs@GameState {levelSelectMenu = _levelSelectMenu} = gs {menu = _levelSelectMenu}
 
+loadLevelselectAnd1Player :: GameState -> GameState
+loadLevelselectAnd1Player gs@GameState {nrOfPlayers = _nrOfPlayers} = loadLevelSelectMenu gs {nrOfPlayers = 1}
+
+loadLevelselectAnd2Player :: GameState -> GameState
+loadLevelselectAnd2Player gs@GameState {nrOfPlayers = _nrOfPlayers} = loadLevelSelectMenu gs {nrOfPlayers = 2}
+
 nextLevel :: GameState -> GameState
 nextLevel gs@GameState {levels = _levels, currentLevel = _level}
   | levelNr _level == length _levels = loadLevelSelectMenu gs
-  | otherwise = startLevel $ loadLevel gs {currentLevelNr = levelNr _level + 1}
+  | otherwise = startLevel $ loadPlayers $ resetLevel $ loadLevel gs {currentLevelNr = levelNr _level + 1}
 
 loadLevel :: GameState -> GameState
 loadLevel gs@GameState {levels = _levels, currentLevelNr = _currentLevelNr, menu = _menu} =
   gs
     { currentLevel = _levels !! (_currentLevelNr -1)
     }
+
+loadPlayers :: GameState -> GameState
+loadPlayers gs@GameState {tmpassetList = _assets, nrOfPlayers = _nrOfPlayers} = gs {players = addPlayers _assets _nrOfPlayers}
 
 startLevel :: GameState -> GameState
 startLevel gs@GameState {tmpassetList = _assetList, menu = _menu} =
@@ -130,133 +148,12 @@ startLevel gs@GameState {tmpassetList = _assetList, menu = _menu} =
     }
 
 -- Toggles the status in the GameState.
-start1player :: GameState -> GameState -- TODO make start function and load1Player or load2Player
-start1player gs =
-  startAndLoad1Player $ resetGameState gs
+startFromLevelSelect :: GameState -> GameState
+startFromLevelSelect gs =
+  startLevel $ loadPlayers $ getLevelFromMenu $ resetGameState gs
   where
-    startAndLoad1Player :: GameState -> GameState
-    startAndLoad1Player gss@GameState {tmpassetList = _assetList, menu = _menu, levels = _levels} =
+    getLevelFromMenu :: GameState -> GameState
+    getLevelFromMenu gss@GameState {tmpassetList = _assets, menu = _menu, levels = _levels, players = _players, nrOfPlayers = _nrOfPlayers} =
       gss
-        { players =
-            [ Airplane
-                { airplaneType = Player1,
-                  airplanePos = (-400, 0),
-                  airplaneDestinationPos = (0, 0),
-                  airplaneSize = airplaneSizeVar,
-                  airplaneVelocity = (0, 0),
-                  airplaneMaxVelocity = (-12, 12),
-                  airplaneHealth = 100,
-                  fireRate = Single 30.0,
-                  timeLastShot = 0.0,
-                  airplanePowerUps = [],
-                  airplaneGun =
-                    AirplaneGun
-                      Projectile
-                        { projectileType = Gun,
-                          projectilePos = (0, 0),
-                          projectileSize = projectileSizeVar,
-                          projectileVelocity = (10, 0),
-                          projectileHealth = 1,
-                          projectileDamage = 30,
-                          projectileOrigin = Players,
-                          projectileSprite = flip fixImageOrigin projectileSizeVar $ rotate 90 $ getTexture "bullet" _assetList
-                        },
-                  airplaneSprite = flip fixImageOrigin airplaneSizeVar $ rotate 90 $ getTexture "player_1" _assetList
-                }
-            ],
-          status = InGame,
-          menu = initPauseMenu,
-          currentLevel = _levels !! getLevelIndex _menu
+        { currentLevel = _levels !! getLevelIndex _menu
         }
-
-start2player :: GameState -> GameState
-start2player gs@GameState {tmpassetList = _assetList, levels = _levels} =
-  gs
-
--- { players =
---     [ Airplane
---         { airplaneType = Player1,
---           airplanePos = (-400, 0),
---           airplaneDestinationPos = (0, 0),
---           airplaneSize = airplaneSizeVar,
---           airplaneVelocity = (0, 0),
---           airplaneMaxVelocity = (-12, 12),
---           airplaneHealth = 100,
---           fireRate = Single 30.0,
---           timeLastShot = 0.0,
---           airplanePowerUps = [],
---           airplaneGun =
---             AirplaneGun
---               Projectile
---                 { projectileType = Gun,
---                   projectilePos = (0, 0),
---                   projectileSize = projectileSizeVar,
---                   projectileVelocity = (10, 0),
---                   projectileHealth = 1,
---                   projectileDamage = 30,
---                   projectileOrigin = Players,
---                   projectileSprite = flip fixImageOrigin projectileSizeVar $ rotate 90 $ getTexture "bullet" _assetList
---                 },
---           airplaneSprite = flip fixImageOrigin airplaneSizeVar $ rotate 90 $ getTexture "player_1" _assetList
---         },
---       Airplane
---         { airplaneType = Player2,
---           airplanePos = (-200, 0),
---           airplaneDestinationPos = (0, 0),
---           airplaneSize = airplaneSizeVar,
---           airplaneVelocity = (0, 0),
---           airplaneMaxVelocity = (-12, 12),
---           airplaneHealth = 100,
---           fireRate = Single 30.0,
---           timeLastShot = 0.0,
---           airplanePowerUps = [],
---           airplaneGun =
---             AirplaneGun
---               Projectile
---                 { projectileType = Gun,
---                   projectilePos = (0, 0),
---                   projectileSize = projectileSizeVar,
---                   projectileVelocity = (10, 0),
---                   projectileHealth = 1,
---                   projectileDamage = 30,
---                   projectileOrigin = Players,
---                   projectileSprite = flip fixImageOrigin projectileSizeVar $ rotate 90 $ getTexture "bullet" _assetList
---                 },
---           airplaneSprite = flip fixImageOrigin airplaneSizeVar $ rotate 90 $ getTexture "player_2" _assetList
---         }
---     ],
---   status = InGame,
---   projectiles = [],
---   currentLevel = head _levels,
---   enemies =
---     [ -- tmp enemy
---       Airplane
---         { airplaneType = Fighter,
---           airplanePos = (-10, -180),
---           airplaneDestinationPos = (0, 0),
---           airplaneSize = airplaneSizeVar,
---           airplaneVelocity = (0, 0),
---           airplaneMaxVelocity = (-12, 12),
---           airplaneHealth = 100,
---           fireRate = Burst 120.0,
---           timeLastShot = 0.0,
---           airplanePowerUps = [],
---           airplaneGun =
---             AirplaneGun
---               Projectile
---                 { projectileType = Gun,
---                   projectilePos = (0, 0),
---                   projectileSize = projectileSizeVar,
---                   projectileVelocity = (-10, 0),
---                   projectileHealth = 1,
---                   projectileDamage = 10,
---                   projectileOrigin = Enemies,
---                   projectileSprite = flip fixImageOrigin projectileSizeVar $ rotate (-90) $ getTexture "double-bullet" _assetList
---                 },
---           airplaneSprite = flip fixImageOrigin airplaneSizeVar $ rotate (-90) $ getTexture "fighter" _assetList
---         }
---     ],
---   powerUps = [],
---   particles = [],
---   menu = initPauseMenu
--- }

@@ -26,6 +26,7 @@ type Time = Float
 data GameState = GameState
   { elapsedTime :: Float,
     status :: Status,
+    nrOfPlayers :: Int,
     players :: [Airplane],
     enemies :: [Enemy],
     levels :: [Level],
