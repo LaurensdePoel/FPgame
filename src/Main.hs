@@ -9,7 +9,7 @@ import Graphics.Gloss.Interface.IO.Game
 import Init
 import Input
 import Level
-import LoadLevels (getLevelsInJSON)
+import LoadLevels (createBackgroundMap, getBackgroundsInJSON, getLevelsInJSON)
 import System.Random
 import View
 
@@ -18,6 +18,8 @@ main :: IO ()
 main = do
   jsonLevel <- getLevelsInJSON
   assets <- getAssets
+  bgJSON <- getBackgroundsInJSON
+  let backgrounds = createBackgroundMap bgJSON
   let levels = Prelude.map (`levelConverter` assets) jsonLevel
   let levelSelectMenu = createLevelSelectmenu levels
   let
@@ -25,7 +27,7 @@ main = do
     (InWindow "Nice Window" (screenWidth, screenHeight) (offset, offset))
     black
     fps
-    (initialState assets levels levelSelectMenu)
+    (initialState assets backgrounds levels (levelSelectMenu backgrounds assets))
     view
     input
     step

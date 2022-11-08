@@ -62,14 +62,14 @@ instance Drawable Sprites where
 instance Drawable Menu where
   -- \| Converts a menu into a picture
   draw :: Menu -> Picture
-  draw Menu {header = _header, fields = _fields} = pictures $ headerPicture : currentSelected : map draw (tail _fields)
+  draw Menu {header = _header, menuBackground = _background, fields = _fields} = pictures $ _background : headerPicture : currentSelected : map draw (tail _fields)
     where
-      headerPicture = Scale 0.5 0.5 $ translate 0 (C.menuTextStartHeight - C.menuTextOffset) $ color white (Text _header)
-      currentSelected = Scale 0.25 0.25 $ translate `uncurry` fieldPosition (head _fields) $ color yellow (Text (fieldName $ head _fields))
+      headerPicture = Scale 0.5 0.5 $ translate 0 (C.menuTextStartHeight - C.menuTextOffset) $ color black (Text _header)
+      currentSelected = Scale 0.25 0.25 $ translate `uncurry` fieldPosition (head _fields) $ color red (Text (fieldName $ head _fields))
   draw NoMenu = Blank
   draw NoMenuButFunction {} = Blank
 
 instance Drawable Field where
   -- \| Converts a field into a picture
   draw :: Field -> Picture
-  draw Field {fieldName = _fieldName, fieldPosition = _fieldPosition} = Scale 0.25 0.25 $ translate `uncurry` _fieldPosition $ color white (Text _fieldName)
+  draw Field {fieldName = _fieldName, fieldPosition = _fieldPosition} = Scale 0.25 0.25 $ translate `uncurry` _fieldPosition $ color black (Text _fieldName)

@@ -51,8 +51,8 @@ getDirectories filePath = do
 -- TODO enemySpriteRotation playerSpriteRotation
 getTexture :: String -> Assets -> Picture
 getTexture spriteName assetList = case Dict.lookup (Prelude.map toLower spriteName) assetList of
-  Nothing -> rotate (-90) $ Scale 0.25 0.25 (color red $ Text spriteName) -- TODO player and enemy sprite rotation in config and scale
-  Just x -> x
+  Nothing -> errorSprite spriteName
+  Just x -> x -- TODO player and enemy sprite rotation in config and scale
 
 -- TODO MARK FIX THIS
 getParticle :: String -> Particles -> Particle
@@ -63,3 +63,27 @@ fixImageOrigin pic (width, height) = translate (width * 0.5) (height * (-0.5)) p
 
 errorSprite :: String -> Picture
 errorSprite name = Scale 0.25 0.25 (color red $ Text name)
+
+getBackgroundData :: String -> Backgrounds -> [Int]
+getBackgroundData key map' = fromMaybe [] (Dict.lookup key map')
+
+getBackground :: String -> Backgrounds -> Assets -> Picture
+getBackground key map' assets
+  | Prelude.null backgroundData = errorSprite "Background not found!"
+  | otherwise = uncurry translate (1024 * (-0.5) + 8, 768 * 0.5 - 8) (pictures bg)
+  where
+    backgroundData = getBackgroundData key map'
+
+    tileList :: [Picture]
+    tileList = Prelude.map (\number -> getTexture (show (number - 1)) assets) backgroundData
+
+    bg :: [Picture]
+    bg = snd $ Prelude.foldl (\(pos, tiles) tile -> let tile' = uncurry translate pos tile in (updatePosition pos, tile' : tiles)) ((0, 0), [] :: [Picture]) tileList
+
+    updatePosition :: Position -> Position
+    updatePosition (x', y')
+      | x' >= 1024 - 16 = (0, y' - tileSize)
+      | otherwise = (x' + tileSize, y')
+
+    tileSize :: Float
+    tileSize = 16
