@@ -15,9 +15,6 @@ initEmptyLevel = Level 0 (Background (0, 0) (errorSprite "emptyLevel")) []
 emptyIOActions :: IOActions
 emptyIOActions = IOActions False False
 
-emptyIOActions :: IOActions
-emptyIOActions = IOActions False False
-
 initialState :: Assets -> [Level] -> Menu -> GameState
 initialState assetlist levelList levelSelectMenu' =
   GameState
