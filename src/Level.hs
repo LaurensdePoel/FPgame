@@ -15,11 +15,12 @@ import Graphics.Gloss.Data.Picture (Picture, pictures, rotate)
 import LoadLevels (AirplaneJSON (..), LevelJSON (..), WaveJSON (..))
 import Model
 import System.Directory ()
+import Text.Read (readMaybe)
 
 -- | The function 'nextwave' sets the nextwave as currentwave. If there are no more waves this functions does nothing.
 nextWave :: GameState -> GameState
 nextWave gs@GameState {currentLevel = _currentLevel, enemies = _enemies}
-  | ifAllWavesCleared = gs -- do nothing if all waves are cleared --TODO better if we can disable timer
+  | ifAllWavesCleared = gs
   | otherwise = gs {enemies = _enemies ++ spawnNextWave, currentLevel = _currentLevel {waves = removeWaveAfterSpawn}}
   where
     ifAllWavesCleared :: Bool
@@ -31,9 +32,10 @@ nextWave gs@GameState {currentLevel = _currentLevel, enemies = _enemies}
     removeWaveAfterSpawn :: [Wave]
     removeWaveAfterSpawn = tail $ waves _currentLevel
 
--- TODO REFACTOR use readMaybe
 getLevelIndex :: Menu -> Int
-getLevelIndex menu' = read (fieldName $ head $ fields menu') - 1
+getLevelIndex menu' = case readMaybe (fieldName $ head $ fields menu') of
+  Nothing -> 0 -- fault when reading level index so start level 1
+  Just x -> x - 1 -- from number to index in list -> -1
 
 levelConverter :: LevelJSON -> Assets -> Level
 levelConverter LevelJSON {resLevelNr = _resLevelNr, resLevelBackgroundName = _backgroundName, resWaves = _resWaves} assetList =
@@ -51,12 +53,24 @@ waveConverter WaveJSON {resEnemiesInWave = _resEnemiesInWave, resWaveTimer = _re
     convertEnemies :: [AirplaneJSON] -> [Airplane]
     convertEnemies = map (`airplaneConverter` assetList)
 
+addPlayers :: Assets -> Int -> [Airplane]
+addPlayers assets amount
+  | amount == 1 = addPlayer assets []
+  | amount == 2 = addPlayer assets $ addPlayer assets []
+  | otherwise = []
+
+addPlayer :: Assets -> [Airplane] -> [Airplane]
+addPlayer assets xs
+  | null xs = xs ++ [createAirplane Player1 (-300, 100) assets]
+  | length xs == 1 = xs ++ [createAirplane Player2 (-300, -100) assets]
+  | otherwise = xs
+
 -- | creates a enemy airplane based on the Type and set the spawning location. The spawning position is determent by the (absolute x position + screenWidth) and the (y position in the JSON file)
 airplaneConverter :: AirplaneJSON -> Assets -> Airplane
-airplaneConverter AirplaneJSON {resAirplaneType = _resAirplaneType, resAirplanePos = (airplaneX, airplaneY)} = createEnemy _resAirplaneType ((abs airplaneX, airplaneY) + (C.screenMaxX, 0))
+airplaneConverter AirplaneJSON {resAirplaneType = _resAirplaneType, resAirplanePos = (airplaneX, airplaneY)} = createAirplane _resAirplaneType ((abs airplaneX, airplaneY) + (C.screenMaxX, 0))
 
-createEnemy :: AirPlaneType -> Position -> Assets -> Enemy
-createEnemy airplaneType' airplanePosition' assetList = case airplaneType' of
+createAirplane :: AirPlaneType -> Position -> Assets -> Enemy
+createAirplane airplaneType' airplanePosition' assetList = case airplaneType' of
   Fighter ->
     createAirplaneBase
       { airplaneMaxVelocity = (-12, 12),
@@ -77,12 +91,26 @@ createEnemy airplaneType' airplanePosition' assetList = case airplaneType' of
     createAirplaneBase
       { airplaneMaxVelocity = (-12, 12),
         airplaneHealth = 100,
-        fireRate = Burst 120.0,
+        fireRate = Burst 30.0,
         airplaneGun = createSingleGun,
         airplaneSprite = createAirplaneSprite
       }
-  Player1 -> error "Creating a player" -- TODO What do we need to do in this situation?
-  Player2 -> error "Creating a player"
+  Player1 ->
+    createAirplaneBase
+      { airplaneMaxVelocity = (-12, 12),
+        airplaneHealth = 100,
+        fireRate = Single 80.0,
+        airplaneGun = createSingleGun,
+        airplaneSprite = createAirplaneSprite
+      }
+  Player2 ->
+    createAirplaneBase
+      { airplaneMaxVelocity = (-12, 12),
+        airplaneHealth = 100,
+        fireRate = Single 80.0,
+        airplaneGun = createSingleGun,
+        airplaneSprite = createAirplaneSprite
+      }
   where
     createAirplaneBase :: Airplane
     createAirplaneBase =
@@ -97,20 +125,47 @@ createEnemy airplaneType' airplanePosition' assetList = case airplaneType' of
         }
 
     createSingleGun :: AirplaneGun
-    createSingleGun =
-      AirplaneGun
-        Projectile
-          { projectileType = Gun,
-            projectilePos = (0, 0),
-            projectileSize = C.projectileSizeVar,
-            projectileVelocity = (-10, 0),
-            projectileHealth = 1,
-            projectileDamage = 10,
-            projectileOrigin = Enemies,
-            projectileSprite = flip fixImageOrigin C.projectileSizeVar $ rotate (-90) $ getTexture "bullet" assetList
-          }
+    createSingleGun = case airplaneType' of
+      Player1 ->
+        AirplaneGun
+          Projectile
+            { projectileType = Gun,
+              projectilePos = (0, 0),
+              projectileSize = C.projectileSizeVar,
+              projectileVelocity = (10, 0),
+              projectileHealth = 1,
+              projectileDamage = 10,
+              projectileOrigin = Players,
+              projectileSprite = flip fixImageOrigin C.projectileSizeVar $ rotate (-90) $ getTexture "bullet" assetList
+            }
+      Player2 ->
+        AirplaneGun
+          Projectile
+            { projectileType = Gun,
+              projectilePos = (0, 0),
+              projectileSize = C.projectileSizeVar,
+              projectileVelocity = (10, 0),
+              projectileHealth = 1,
+              projectileDamage = 10,
+              projectileOrigin = Players,
+              projectileSprite = flip fixImageOrigin C.projectileSizeVar $ rotate (-90) $ getTexture "bullet" assetList
+            }
+      _ ->
+        AirplaneGun
+          Projectile
+            { projectileType = Gun,
+              projectilePos = (0, 0),
+              projectileSize = C.projectileSizeVar,
+              projectileVelocity = (-40, 0),
+              projectileHealth = 1,
+              projectileDamage = 10,
+              projectileOrigin = Enemies,
+              projectileSprite = flip fixImageOrigin C.projectileSizeVar $ rotate (-90) $ getTexture "bullet" assetList
+            }
 
     createAirplaneSprite :: Picture
     createAirplaneSprite = case airplaneType' of
       Kamikaze -> flip fixImageOrigin C.airplaneSizeVar $ getTexture (show airplaneType') assetList
+      Player1 -> flip fixImageOrigin C.airplaneSizeVar $ rotate 90 $ getTexture "player_1" assetList
+      Player2 -> flip fixImageOrigin C.airplaneSizeVar $ rotate 90 $ getTexture "player_2" assetList
       _ -> flip fixImageOrigin C.airplaneSizeVar $ rotate (-90) $ getTexture (show airplaneType') assetList
