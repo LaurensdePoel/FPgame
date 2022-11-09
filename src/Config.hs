@@ -1,8 +1,10 @@
 module Config where
 
-import Model
-
 -- TODO Add all values
+
+import Assets
+import Graphics.Gloss
+import Model
 
 -- * Window
 
@@ -42,10 +44,9 @@ menuTextStartHeight = 200
 
 -- * Sprite sizes and offsets
 
-projectileSizeXY, airplaneSizeXY, gunOffset :: Float
+projectileSizeXY, airplaneSizeXY :: Float
 projectileSizeXY = 16.0
 airplaneSizeXY = 32.0
-gunOffset = airplaneSizeXY * 0.5 - projectileSizeXY * 0.5
 
 projectileSizeVar, airplaneSizeVar :: Size
 projectileSizeVar = (projectileSizeXY, projectileSizeXY)
@@ -54,8 +55,8 @@ airplaneSizeVar = (airplaneSizeXY, airplaneSizeXY)
 -- * Airplane base values
 
 enemyXBounds, enemyYBounds :: (Float, Float)
-enemyXBounds = (0.0, screenMaxX)
-enemyYBounds = (screenMaxY, screenMinY)
+enemyXBounds = (0.0, screenMaxX - airplaneSizeXY)
+enemyYBounds = (screenMinY, screenMaxY - airplaneSizeXY)
 
 -- ** Player base values
 
@@ -79,3 +80,42 @@ destinationErrorMargin = (0.2, 0.2)
 
 damageMultiplier :: Int
 damageMultiplier = 2
+
+-- * Power Ups
+
+healthPackValue :: Int
+healthPackValue = 100
+
+powerPackValue :: Float
+powerPackValue = 0.5
+
+powerUpDefaultSize :: (Float, Float)
+powerUpDefaultSize = (10, 10)
+
+powerUpDespawnTime :: Float
+powerUpDespawnTime = 1000.0
+
+powerUpDurationTime :: Float
+powerUpDurationTime = 500.0
+
+powerUpAnimationInterval :: Float
+powerUpAnimationInterval = 10.0
+
+powerUpSpawnOdds :: Int
+powerUpSpawnOdds = 1000
+
+-- * Sprites
+
+spritesDefaultInterval :: Float
+spritesDefaultInterval = 10.0
+
+spritesDefault :: Sprites
+spritesDefault =
+  Sprites
+    { spritesState = Idle,
+      spritePos = (0, 0),
+      spritesInterval = spritesDefaultInterval,
+      spritesTimer = spritesDefaultInterval,
+      idleSprites = [errorSprite "Idle sprites not set"],
+      movingSprites = [errorSprite "Moving sprites not set"]
+    }

@@ -23,9 +23,15 @@ data Status = InMenu | InGame deriving (Eq)
 
 type Time = Float
 
+data IOActions = IOActions
+  { releadLevels :: Bool,
+    quitGame :: Bool
+  }
+
 data GameState = GameState
   { elapsedTime :: Float,
     status :: Status,
+    nrOfPlayers :: Int,
     players :: [Airplane],
     enemies :: [Enemy],
     levels :: [Level],
@@ -38,7 +44,8 @@ data GameState = GameState
     pressedKeys :: S.Set Graphics.Gloss.Interface.IO.Interact.Key,
     menu :: Menu,
     levelSelectMenu :: Menu,
-    tmpassetList :: Assets
+    tmpassetList :: Assets,
+    ioActions :: IOActions
   }
 
 -- * Assets and Sprites
@@ -59,7 +66,7 @@ data Sprites = Sprites
   }
 
 data Particle = Particle
-  { particlePosition :: Position,
+  { particlePos :: Position,
     particleSize :: Size,
     particleInterval :: Time,
     particleTimer :: Time,
@@ -92,6 +99,7 @@ data AirplaneGun = AirplaneGun Projectile | None
 
 instance Eq AirplaneGun where
   None == None = True
+  (AirplaneGun _) == (AirplaneGun _) = True
   _ == _ = False
 
 data Airplane = Airplane
@@ -131,8 +139,14 @@ data Projectile = Projectile
 
 -- * Levels
 
+data Background = Background
+  { backgroundPos :: Position,
+    backgroundSprite :: Picture
+  }
+
 data Level = Level
   { levelNr :: Int,
+    levelBackground :: Background,
     waves :: [Wave]
   }
 
@@ -147,7 +161,7 @@ data Menu
   = Menu
       { header :: String,
         fields :: [Field],
-        -- menuBackground :: Picture,
+        menuBackground :: Picture,
         returnMenu :: Menu
       }
   | NoMenu

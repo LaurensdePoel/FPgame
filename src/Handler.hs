@@ -22,11 +22,11 @@ import Updateable
 
 -- | Handles levels and waves -- TODO Rewrite so more functonality is inside Level.hs
 levelHandler :: GameState -> GameState
-levelHandler gs@GameState {currentLevel = _currentLevel, enemies = _enemies, players = _players}
+levelHandler gs@GameState {currentLevel = _currentLevel, tmpassetList = assetsList, enemies = _enemies, players = _players}
   -- Enter Defeat menu
-  | ifAllPlayersDied = gs {status = InMenu, menu = initDefeatMenu, pressedKeys = emptyKeys}
+  | ifAllPlayersDied = gs {status = InMenu, menu = initDefeatMenu assetsList, pressedKeys = emptyKeys}
   -- Enter Victory menu
-  | ifCurrentWaveKilled && ifAllWavesCleared = gs {status = InMenu, menu = initVictoryMenu, pressedKeys = emptyKeys}
+  | ifCurrentWaveKilled && ifAllWavesCleared = gs {status = InMenu, menu = initVictoryMenu assetsList, pressedKeys = emptyKeys}
   -- Next Wave
   | ifCurrentWaveKilled || ifWaveTimerExpired = nextWave gs
   -- Do Nothing
@@ -44,7 +44,7 @@ levelHandler gs@GameState {currentLevel = _currentLevel, enemies = _enemies, pla
 -- | Handles all timers of entities
 timeHandler :: GameState -> GameState
 timeHandler gs@GameState {players = _players, enemies = _enemies, currentLevel = _currentLevel, projectiles = _projectiles, powerUps = _powerUps, particles = _particles} =
-  gs {players = updatedPlayers, enemies = updatedEnemies, currentLevel = updatedLevel, projectiles = updatedProjectiles, powerUps = updatedPowerUps, particles = updatedParticles}
+  gs {players = updatedPlayers, enemies = updatedEnemies, currentLevel = updatedLevel1, projectiles = updatedProjectiles, powerUps = updatedPowerUps, particles = updatedParticles}
   where
     updatedPlayers = map (\player -> updateTime player {airplanePowerUps = map updateTime (airplanePowerUps player)}) _players
     updatedEnemies = map updateTime _enemies
@@ -52,6 +52,7 @@ timeHandler gs@GameState {players = _players, enemies = _enemies, currentLevel =
     updatedPowerUps = map updateTime _powerUps
     updatedParticles = map (applyOnExecute nextSprite) _particles
     updatedLevel = updateTime _currentLevel
+    updatedLevel1 = updatedLevel {levelBackground = nextSprite $ levelBackground updatedLevel}
 
 -- | Handles all movement of entities
 movementHandler :: GameState -> GameState
@@ -75,7 +76,7 @@ particleHandler gs@GameState {players = _players, enemies = _enemies, projectile
       where
         newParticle = getParticle key particleMap'
         createParticle :: Updateable a => a -> Particle
-        createParticle a' = newParticle {particlePosition = getCenterPosition a'}
+        createParticle a' = newParticle {particlePos = getCenterPosition a'}
 
 -- | Handles collision (events on collision) between all entities which are collidable
 collisionHandler :: GameState -> GameState

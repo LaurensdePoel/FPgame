@@ -10,7 +10,6 @@ import Init
 import Input
 import Level
 import LoadLevels (getLevelsInJSON)
-import System.Random
 import View
 
 -- | The entery of Haskell game
@@ -25,7 +24,7 @@ main = do
     (InWindow "Nice Window" (screenWidth, screenHeight) (offset, offset))
     black
     fps
-    (initialState assets levels levelSelectMenu)
+    (initialState assets levels (levelSelectMenu assets))
     view
     input
     step

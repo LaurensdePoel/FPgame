@@ -2,20 +2,35 @@
 module Controller where
 
 import Config as C
+import Control.Exception (assert)
 import Enemy
 import Graphics.Gloss.Interface.IO.Game
 import Handler
+import Init
 import Input
 import Level
+import LoadLevels
 import Menu
 import Model
 import Random
+import System.Exit (exitSuccess)
 import System.Random
 
 step :: Float -> GameState -> IO GameState
-step seconds gs@GameState {status = _status} = do
+step seconds gs@GameState {status = _status, ioActions = _ioActoins, tmpassetList = _assets} = do
+  newGs <- handleIO
   gen <- newStdGen -- getStdGen
-  return $ stepPure seconds gen gs
+  return $ stepPure seconds gen newGs
+  where
+    handleIO :: IO GameState
+    handleIO
+      | releadLevels _ioActoins = do
+          newJSONLevel <- getLevelsInJSON
+          let newLevels = Prelude.map (`levelConverter` _assets) newJSONLevel
+          let newLevelSelectMenu = createLevelSelectmenu newLevels
+          return gs {levels = newLevels, levelSelectMenu = newLevelSelectMenu _assets, menu = newLevelSelectMenu _assets, ioActions = emptyIOActions}
+      | quitGame _ioActoins = exitSuccess
+      | otherwise = return gs
 
 -- | Handle one iteration of the game
 --

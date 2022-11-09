@@ -61,11 +61,11 @@ checkMenuInput gs@GameState {pressedKeys = _pressedKeys}
   | pressed (SpecialKey KeyUp) = moveMenu fieldUp gs {pressedKeys = S.delete (SpecialKey KeyUp) _pressedKeys}
   | pressed (Char 's') = moveMenu fieldDown gs {pressedKeys = S.delete (Char 's') _pressedKeys}
   | pressed (SpecialKey KeyDown) = moveMenu fieldDown gs {pressedKeys = S.delete (SpecialKey KeyDown) _pressedKeys}
-  | pressed (Char 'd') = nextMenu gs {pressedKeys = S.delete (Char 'd') _pressedKeys}
-  | pressed (SpecialKey KeyRight) = nextMenu gs {pressedKeys = S.delete (SpecialKey KeyRight) _pressedKeys}
+  -- pressed (Char 'd') = nextMenu gs {pressedKeys = S.delete (Char 'd') _pressedKeys}
+  -- pressed (SpecialKey KeyRight) = nextMenu gs {pressedKeys = S.delete (SpecialKey KeyRight) _pressedKeys}
   | pressed (SpecialKey KeyEnter) = nextMenu gs {pressedKeys = S.delete (SpecialKey KeyEnter) _pressedKeys}
-  | pressed (Char 'a') = previousMenu gs {pressedKeys = S.delete (Char 'a') _pressedKeys}
-  | pressed (SpecialKey KeyLeft) = previousMenu gs {pressedKeys = S.delete (SpecialKey KeyLeft) _pressedKeys}
+  -- pressed (Char 'a') = previousMenu gs {pressedKeys = S.delete (Char 'a') _pressedKeys}
+  -- pressed (SpecialKey KeyLeft) = previousMenu gs {pressedKeys = S.delete (SpecialKey KeyLeft) _pressedKeys}
   | pressed (SpecialKey KeyDelete) = previousMenu gs {pressedKeys = S.delete (SpecialKey KeyDelete) _pressedKeys}
   | pressed (SpecialKey KeyBackspace) = previousMenu gs {pressedKeys = S.delete (SpecialKey KeyBackspace) _pressedKeys}
   | pressed (SpecialKey KeyEsc) = previousMenu gs {pressedKeys = S.delete (SpecialKey KeyEsc) _pressedKeys}
@@ -82,9 +82,9 @@ generateMenuFields = foldl createField []
     createField rest (text', subMenu') = rest ++ [Field {fieldName = text', fieldPosition = (xOffset, yOffset), subMenu = subMenu'}]
       where
         xOffset, yOffset :: Float
-        xOffset = (-0.5) * fromIntegral (length text') -- not working properly
+        xOffset = (-0.5) * fromIntegral (length text' * 60) -- not working properly
         yOffset = C.menuTextStartHeight + C.menuTextOffset + menuTextOffset * fromIntegral (length rest)
 
 -- | Creates a menu
-createMenu :: String -> Menu -> [(String, Menu)] -> Menu
-createMenu title prevMenu menuFields = Menu {header = title, fields = generateMenuFields menuFields, returnMenu = prevMenu}
+createMenu :: String -> Picture -> Menu -> [(String, Menu)] -> Menu
+createMenu title background prevMenu menuFields = Menu {header = title, menuBackground = background, fields = generateMenuFields menuFields, returnMenu = prevMenu}

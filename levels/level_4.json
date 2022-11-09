@@ -1,5 +1,6 @@
 {
     "resLevelNr": 4,
+    "resLevelBackgroundName": "level4",
     "resWaves": [
         {
             "resEnemiesInWave": [
