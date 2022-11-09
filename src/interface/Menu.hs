@@ -82,9 +82,9 @@ generateMenuFields = foldl createField []
     createField rest (text', subMenu') = rest ++ [Field {fieldName = text', fieldPosition = (xOffset, yOffset), subMenu = subMenu'}]
       where
         xOffset, yOffset :: Float
-        xOffset = (-0.5) * fromIntegral (length text') -- not working properly
+        xOffset = (-0.5) * fromIntegral (length text' * 60) -- not working properly
         yOffset = C.menuTextStartHeight + C.menuTextOffset + menuTextOffset * fromIntegral (length rest)
 
 -- | Creates a menu
-createMenu :: String -> Menu -> [(String, Menu)] -> Menu
-createMenu title prevMenu menuFields = Menu {header = title, fields = generateMenuFields menuFields, returnMenu = prevMenu}
+createMenu :: String -> Picture -> Menu -> [(String, Menu)] -> Menu
+createMenu title background prevMenu menuFields = Menu {header = title, menuBackground = background, fields = generateMenuFields menuFields, returnMenu = prevMenu}

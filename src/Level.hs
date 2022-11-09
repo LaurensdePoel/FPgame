@@ -10,7 +10,8 @@ import Control.Monad ()
 import Data.Aeson ()
 import Data.List ()
 import GHC.Generics ()
-import Graphics.Gloss.Data.Picture (Picture, rotate)
+import Graphics.Gloss
+import Graphics.Gloss.Data.Picture (Picture, pictures, rotate)
 import LoadLevels (AirplaneJSON (..), LevelJSON (..), WaveJSON (..))
 import Model
 import System.Directory ()
@@ -34,14 +35,16 @@ nextWave gs@GameState {currentLevel = _currentLevel, enemies = _enemies}
 getLevelIndex :: Menu -> Int
 getLevelIndex menu' = case readMaybe (fieldName $ head $ fields menu') of
   Nothing -> 0 -- fault when reading level index so start level 1
-  Just x -> x -1 -- from number to index in list -> -1
+  Just x -> x - 1 -- from number to index in list -> -1
 
 levelConverter :: LevelJSON -> Assets -> Level
-levelConverter LevelJSON {resLevelNr = _resLevelNr, resWaves = _resWaves} assetList =
-  Level {levelNr = _resLevelNr, waves = convertWaves _resWaves}
+levelConverter LevelJSON {resLevelNr = _resLevelNr, resLevelBackgroundName = _backgroundName, resWaves = _resWaves} assetList =
+  Level {levelNr = _resLevelNr, levelBackground = background, waves = convertWaves _resWaves}
   where
     convertWaves :: [WaveJSON] -> [Wave]
     convertWaves = map (`waveConverter` assetList)
+
+    background = Background (0, 0) (pictures $ [getTexture _backgroundName assetList, uncurry translate (fromIntegral C.screenWidth, 0) $ getTexture _backgroundName assetList])
 
 waveConverter :: WaveJSON -> Assets -> Wave
 waveConverter WaveJSON {resEnemiesInWave = _resEnemiesInWave, resWaveTimer = _resWaveTimer} assetList =
@@ -62,7 +65,7 @@ addPlayer assets xs
   | length xs == 1 = xs ++ [createAirplane Player2 (-300, -100) assets]
   | otherwise = xs
 
--- | creates a enemy airplane based on the Type and set the spawning location. The spawning position is determend by the (absolute x position + screenWidth) and the (y position in the JSON file)
+-- | creates a enemy airplane based on the Type and set the spawning location. The spawning position is determent by the (absolute x position + screenWidth) and the (y position in the JSON file)
 airplaneConverter :: AirplaneJSON -> Assets -> Airplane
 airplaneConverter AirplaneJSON {resAirplaneType = _resAirplaneType, resAirplanePos = (airplaneX, airplaneY)} = createAirplane _resAirplaneType ((abs airplaneX, airplaneY) + (C.screenMaxX, 0))
 

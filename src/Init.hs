@@ -1,15 +1,16 @@
 module Init where
 
-import Assets (getTexture)
+import Assets (errorSprite, getTexture)
 import Data.Map as Dict (empty, fromList)
-import Graphics.Gloss (Picture (Scale))
+-- import Graphics.Gloss (Picture (Scale))
+import Graphics.Gloss
 import Input
 import Level
 import Menu
 import Model
 
 initEmptyLevel :: Level
-initEmptyLevel = Level 0 []
+initEmptyLevel = Level 0 (Background (0, 0) (errorSprite "emptyLevel")) []
 
 emptyIOActions :: IOActions
 emptyIOActions = IOActions False False
@@ -28,14 +29,14 @@ initialState assetlist levelList levelSelectMenu' =
       projectiles = [],
       powerUps = [],
       pressedKeys = emptyKeys,
-      menu = initMenu,
+      menu = initMenu assetlist,
       levelSelectMenu = levelSelectMenu',
       particles = [],
       particleMap =
         Dict.fromList
           [ ( "explosion",
               Particle
-                { particlePosition = (0, 0),
+                { particlePos = (0, 0),
                   particleSize = (0, 0),
                   particleInterval = 8,
                   particleTimer = 8,
@@ -44,7 +45,7 @@ initialState assetlist levelList levelSelectMenu' =
             ),
             ( "explosion2",
               Particle
-                { particlePosition = (0, 0),
+                { particlePos = (0, 0),
                   particleSize = (0, 0),
                   particleInterval = 8,
                   particleTimer = 8,
@@ -53,7 +54,7 @@ initialState assetlist levelList levelSelectMenu' =
             ),
             ( "5SecondTimer",
               Particle
-                { particlePosition = (-400, 80),
+                { particlePos = (-400, 80),
                   particleSize = (10, 10),
                   particleInterval = 60,
                   particleTimer = 60,
@@ -95,20 +96,22 @@ resetLevel gs =
     }
 
 -- | Create menu's
-initMenu, initPlayMenu, initPauseMenu :: Menu
-initMenu = createMenu "Shoot'em Up" NoMenu [("Play", initPlayMenu), ("Controls", NoMenu), ("Credits", NoMenu), ("Exit", NoMenuButFunction exitGame)]
-initPlayMenu = createMenu "Choose players" initMenu [("1 Player", NoMenuButFunction loadLevelselectAnd1Player), ("2 Player", NoMenuButFunction loadLevelselectAnd2Player)]
-initPauseMenu = createMenu "Paused" NoMenu [("Resume", NoMenuButFunction resumeGame), ("Return to menu", initMenu)]
+initMenu, initPlayMenu, initPauseMenu, initCreditMenu, initControlsMenu :: Assets -> Menu
+initMenu assets = createMenu "Shoot'em Up" (getTexture "menu" assets) NoMenu [("Play", initPlayMenu assets), ("Controls", initControlsMenu assets), ("Credits", initCreditMenu assets), ("Exit", NoMenuButFunction exitGame)]
+initPlayMenu assets = createMenu "Choose players" (getTexture "menu" assets) (initMenu assets) [("1 Player", NoMenuButFunction loadLevelselectAnd1Player), ("2 Player", NoMenuButFunction loadLevelselectAnd2Player)]
+initPauseMenu assets = createMenu "Paused" (getTexture "menu" assets) NoMenu [("Resume", NoMenuButFunction resumeGame), ("Return to menu", initMenu assets)]
+initCreditMenu assets = createMenu "Credits" (getTexture "credits" assets) (initMenu assets) [("", NoMenu)]
+initControlsMenu assets = createMenu "Controls" (getTexture "controls" assets) (initMenu assets) [("", NoMenu)]
 
-initVictoryMenu :: Menu
-initVictoryMenu = createMenu "Level Completed" NoMenu [("Next Level", NoMenuButFunction nextLevel), ("Select Level", NoMenuButFunction loadLevelSelectMenu), ("Return to Menu", initMenu)] -- TODO: NoMenuButFunction start1player is incorrect
+initVictoryMenu :: Assets -> Menu
+initVictoryMenu assets = createMenu "Level Completed" (getTexture "menu" assets) NoMenu [("Next Level", NoMenuButFunction nextLevel), ("Select Level", NoMenuButFunction loadLevelSelectMenu), ("Return to Menu", initMenu assets)] -- TODO: NoMenuButFunction start1player is incorrect
 
-initDefeatMenu :: Menu
-initDefeatMenu = createMenu "Game Over" NoMenu [("Retry Level", NoMenuButFunction retryLevel), ("Select Level", NoMenuButFunction loadLevelSelectMenu), ("Return to Menu", initMenu)] -- TODO: NoMenuButFunction start1player is incorrect
+initDefeatMenu :: Assets -> Menu
+initDefeatMenu assets = createMenu "Game Over" (getTexture "menu" assets) NoMenu [("Retry Level", NoMenuButFunction retryLevel), ("Select Level", NoMenuButFunction loadLevelSelectMenu), ("Return to Menu", initMenu assets)] -- TODO: NoMenuButFunction start1player is incorrect
 
 -- TODO Make higher order function
-createLevelSelectmenu :: [Level] -> Menu
-createLevelSelectmenu levelList = createMenu "Level Select" initPlayMenu (reloadLevelsField : createLevelFields levelList)
+createLevelSelectmenu :: [Level] -> Assets -> Menu
+createLevelSelectmenu levelList assets = createMenu "Level Select" (getTexture "menu" assets) (initPlayMenu assets) (reloadLevelsField : createLevelFields levelList)
   where
     createLevelFields :: [Level] -> [(String, Menu)]
     createLevelFields [] = []
@@ -145,7 +148,7 @@ nextLevel gs@GameState {levels = _levels, currentLevel = _level}
 loadLevel :: GameState -> GameState
 loadLevel gs@GameState {levels = _levels, currentLevelNr = _currentLevelNr, menu = _menu} =
   gs
-    { currentLevel = _levels !! (_currentLevelNr -1)
+    { currentLevel = _levels !! (_currentLevelNr - 1)
     }
 
 loadPlayers :: GameState -> GameState
@@ -155,7 +158,7 @@ startLevel :: GameState -> GameState
 startLevel gs@GameState {tmpassetList = _assetList, menu = _menu} =
   gs
     { status = InGame,
-      menu = initPauseMenu
+      menu = initPauseMenu _assetList
     }
 
 -- Toggles the status in the GameState.

@@ -18,7 +18,7 @@ closestPlayer
   (player : players') = foldr updateClosestPlayer (getCenterPosition player) players'
     where
       updateClosestPlayer :: Airplane -> Position -> Position
-      updateClosestPlayer airplane@Airplane {airplanePos = _pos, airplaneSize = _size} rest =
+      updateClosestPlayer airplane rest =
         case isCloser position rest of
           True -> position
           False -> rest

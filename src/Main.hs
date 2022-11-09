@@ -24,7 +24,7 @@ main = do
     (InWindow "Nice Window" (screenWidth, screenHeight) (offset, offset))
     black
     fps
-    (initialState assets levels levelSelectMenu)
+    (initialState assets levels (levelSelectMenu assets))
     view
     input
     step

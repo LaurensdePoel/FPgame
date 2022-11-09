@@ -66,7 +66,7 @@ data Sprites = Sprites
   }
 
 data Particle = Particle
-  { particlePosition :: Position,
+  { particlePos :: Position,
     particleSize :: Size,
     particleInterval :: Time,
     particleTimer :: Time,
@@ -99,6 +99,7 @@ data AirplaneGun = AirplaneGun Projectile | None
 
 instance Eq AirplaneGun where
   None == None = True
+  (AirplaneGun _) == (AirplaneGun _) = True
   _ == _ = False
 
 data Airplane = Airplane
@@ -138,8 +139,14 @@ data Projectile = Projectile
 
 -- * Levels
 
+data Background = Background
+  { backgroundPos :: Position,
+    backgroundSprite :: Picture
+  }
+
 data Level = Level
   { levelNr :: Int,
+    levelBackground :: Background,
     waves :: [Wave]
   }
 
@@ -154,7 +161,7 @@ data Menu
   = Menu
       { header :: String,
         fields :: [Field],
-        -- menuBackground :: Picture,
+        menuBackground :: Picture,
         returnMenu :: Menu
       }
   | NoMenu

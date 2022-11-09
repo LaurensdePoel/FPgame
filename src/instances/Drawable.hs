@@ -48,7 +48,7 @@ instance Drawable PowerUp where
 instance Drawable Particle where
   -- \| Converts a particle into a picture
   draw :: Particle -> Picture
-  draw Particle {particlePosition = _position, particleSprites = _sprites} = translate `uncurry` _position $ head _sprites
+  draw Particle {particlePos = _position, particleSprites = _sprites} = translate `uncurry` _position $ head _sprites
 
 instance Drawable Sprites where
   -- \| Converts the first sprite of sprites into a picture
@@ -62,14 +62,19 @@ instance Drawable Sprites where
 instance Drawable Menu where
   -- \| Converts a menu into a picture
   draw :: Menu -> Picture
-  draw Menu {header = _header, fields = _fields} = pictures $ headerPicture : currentSelected : map draw (tail _fields)
+  draw Menu {header = _header, menuBackground = _background, fields = _fields} = pictures $ _background : headerPicture : currentSelected : map draw (tail _fields)
     where
-      headerPicture = Scale 0.5 0.5 $ translate 0 (C.menuTextStartHeight - C.menuTextOffset) $ color white (Text _header)
-      currentSelected = Scale 0.25 0.25 $ translate `uncurry` fieldPosition (head _fields) $ color yellow (Text (fieldName $ head _fields))
+      headerPicture = Scale 0.5 0.5 $ translate headerXOffset (C.menuTextStartHeight - C.menuTextOffset) $ color black (Text _header)
+      currentSelected = Scale 0.25 0.25 $ translate `uncurry` fieldPosition (head _fields) $ color red (Text (fieldName $ head _fields))
+      headerXOffset = (-0.5) * fromIntegral (length _header * 70)
   draw NoMenu = Blank
   draw NoMenuButFunction {} = Blank
 
 instance Drawable Field where
   -- \| Converts a field into a picture
   draw :: Field -> Picture
-  draw Field {fieldName = _fieldName, fieldPosition = _fieldPosition} = Scale 0.25 0.25 $ translate `uncurry` _fieldPosition $ color white (Text _fieldName)
+  draw Field {fieldName = _fieldName, fieldPosition = _fieldPosition} = Scale 0.25 0.25 $ translate `uncurry` _fieldPosition $ color black (Text _fieldName)
+
+instance Drawable Level where
+  draw :: Level -> Picture
+  draw Level {levelBackground = Background {backgroundPos = _pos, backgroundSprite = _sprite}} = uncurry translate _pos $ Color black _sprite

@@ -3,7 +3,8 @@
 -- | This module defines the Animateable type class
 module Animateable where
 
-import Graphics.Gloss (Picture)
+import Config as C
+import Graphics.Gloss
 import Model
 
 ---------------------------------------------------
@@ -39,3 +40,15 @@ instance Animateable Sprites where
       updateHead :: [Picture] -> [Picture]
       updateHead [] = []
       updateHead (x : xs) = xs ++ [x]
+
+instance Animateable Background where
+  nextSprite :: Background -> Background
+  nextSprite background@Background {backgroundPos = _pos, backgroundSprite = _sprite} = background {backgroundPos = newPos}
+    where
+      newPos :: Position
+      newPos = updatePosition _pos
+
+      updatePosition :: Position -> Position
+      updatePosition (x, y)
+        | x <= (C.screenMinX * 2) = (0, 0)
+        | otherwise = (x - 1, y)

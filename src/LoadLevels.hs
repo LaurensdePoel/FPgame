@@ -13,6 +13,7 @@ import System.Directory
 
 data LevelJSON = LevelJSON
   { resLevelNr :: Int,
+    resLevelBackgroundName :: String,
     resWaves :: [WaveJSON]
   }
   deriving (Show, Generic, ToJSON, FromJSON)
@@ -42,14 +43,14 @@ loadLevel filePath = do
   case d of
     Left err -> do
       print err
-      return $ LevelJSON (-1) []
+      return $ LevelJSON (-1) "" []
     Right levelJSON ->
       do
         return $ checkLevelJson levelJSON
   where
     checkLevelJson :: LevelJSON -> LevelJSON
     checkLevelJson level@LevelJSON {resLevelNr = _resLevelNr, resWaves = _resWaves}
-      | _resLevelNr < 0 = LevelJSON (-1) [] -- level number below 0
+      | _resLevelNr < 0 = LevelJSON (-1) "" [] -- level number below 0
       | otherwise = level
 
 getLevelsInJSON :: IO [LevelJSON]

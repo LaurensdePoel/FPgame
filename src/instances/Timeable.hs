@@ -49,6 +49,7 @@ instance Timeable Airplane where
   readyToExecute Airplane {timeLastShot = _time, airplaneGun = _gunType}
     | _time == 0.0 && _gunType /= None = True
     | otherwise = False
+
 instance Timeable PowerUp where
   -- \| Updates the timer of a powerUp
   updateTime :: PowerUp -> PowerUp
@@ -95,7 +96,7 @@ instance Timeable Sprites where
 instance Timeable Level where
   -- \| Updates the wave timer of a level
   updateTime :: Level -> Level
-  updateTime level@Level {waves = _waves} = level {waves = updateCurrentWave _waves}
+  updateTime level@Level {waves = _waves, levelBackground = _background} = level {waves = updateCurrentWave _waves}
     where
       updateCurrentWave :: [Wave] -> [Wave]
       updateCurrentWave [] = []
