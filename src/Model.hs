@@ -23,6 +23,11 @@ data Status = InMenu | InGame deriving (Eq)
 
 type Time = Float
 
+data IOActions = IOActions
+  { releadLevels :: Bool,
+    quitGame :: Bool
+  }
+
 data GameState = GameState
   { elapsedTime :: Float,
     status :: Status,
@@ -39,7 +44,8 @@ data GameState = GameState
     pressedKeys :: S.Set Graphics.Gloss.Interface.IO.Interact.Key,
     menu :: Menu,
     levelSelectMenu :: Menu,
-    tmpassetList :: Assets
+    tmpassetList :: Assets,
+    ioActions :: IOActions
   }
 
 -- * Assets and Sprites

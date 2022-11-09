@@ -1,7 +1,7 @@
 module Init where
 
 import Assets (getTexture)
-import Data.Map as Dict (fromList)
+import Data.Map as Dict (empty, fromList)
 import Graphics.Gloss (Picture (Scale))
 import Input
 import Level
@@ -10,6 +10,9 @@ import Model
 
 initEmptyLevel :: Level
 initEmptyLevel = Level 0 []
+
+emptyIOActions :: IOActions
+emptyIOActions = IOActions False False
 
 initialState :: Assets -> [Level] -> Menu -> GameState
 initialState assetlist levelList levelSelectMenu' =
@@ -58,7 +61,8 @@ initialState assetlist levelList levelSelectMenu' =
                 }
             )
           ],
-      tmpassetList = assetlist
+      tmpassetList = assetlist,
+      ioActions = emptyIOActions
     }
 
 resetGameState :: GameState -> GameState
@@ -92,7 +96,7 @@ resetLevel gs =
 
 -- | Create menu's
 initMenu, initPlayMenu, initPauseMenu :: Menu
-initMenu = createMenu "Shoot'em Up" NoMenu [("Play", initPlayMenu), ("Controls", NoMenu), ("Credits", NoMenu), ("Exit", NoMenu)]
+initMenu = createMenu "Shoot'em Up" NoMenu [("Play", initPlayMenu), ("Controls", NoMenu), ("Credits", NoMenu), ("Exit", NoMenuButFunction exitGame)]
 initPlayMenu = createMenu "Choose players" initMenu [("1 Player", NoMenuButFunction loadLevelselectAnd1Player), ("2 Player", NoMenuButFunction loadLevelselectAnd2Player)]
 initPauseMenu = createMenu "Paused" NoMenu [("Resume", NoMenuButFunction resumeGame), ("Return to menu", initMenu)]
 
@@ -104,13 +108,19 @@ initDefeatMenu = createMenu "Game Over" NoMenu [("Retry Level", NoMenuButFunctio
 
 -- TODO Make higher order function
 createLevelSelectmenu :: [Level] -> Menu
-createLevelSelectmenu levelList = createMenu "Level Select" initPlayMenu $ createLevelFields levelList
+createLevelSelectmenu levelList = createMenu "Level Select" initPlayMenu (reloadLevelsField : createLevelFields levelList)
   where
     createLevelFields :: [Level] -> [(String, Menu)]
     createLevelFields [] = []
     createLevelFields (x : xs)
       | levelNr x == -1 = ("Error with JSON", NoMenu) : createLevelFields xs
       | otherwise = (show (levelNr x), NoMenuButFunction startFromLevelSelect) : createLevelFields xs
+
+    reloadLevelsField :: (String, Menu)
+    reloadLevelsField = ("Reload Levels", NoMenuButFunction reloadLevels)
+
+reloadLevels :: GameState -> GameState
+reloadLevels gs = gs {ioActions = IOActions True False}
 
 resumeGame :: GameState -> GameState
 resumeGame gs = gs {status = InGame}
@@ -158,3 +168,6 @@ startFromLevelSelect gs =
       gss
         { currentLevel = _levels !! getLevelIndex _menu
         }
+
+exitGame :: GameState -> GameState
+exitGame gs = gs {ioActions = IOActions False True}

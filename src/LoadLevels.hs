@@ -39,7 +39,6 @@ loadLevel :: FilePath -> IO LevelJSON
 loadLevel filePath = do
   d <- (eitherDecode <$> getJSON (levelsPath ++ filePath)) :: IO (Either String LevelJSON)
 
-  -- TODO Level Check here
   case d of
     Left err -> do
       print err
