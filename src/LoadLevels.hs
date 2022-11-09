@@ -38,9 +38,19 @@ getJSON = B.readFile
 loadLevel :: FilePath -> IO LevelJSON
 loadLevel filePath = do
   d <- (eitherDecode <$> getJSON (levelsPath ++ filePath)) :: IO (Either String LevelJSON)
+
   case d of
-    Left err -> error err
-    Right levelJSON -> do return levelJSON
+    Left err -> do
+      print err
+      return $ LevelJSON (-1) []
+    Right levelJSON ->
+      do
+        return $ checkLevelJson levelJSON
+  where
+    checkLevelJson :: LevelJSON -> LevelJSON
+    checkLevelJson level@LevelJSON {resLevelNr = _resLevelNr, resWaves = _resWaves}
+      | _resLevelNr < 0 = LevelJSON (-1) [] -- level number below 0
+      | otherwise = level
 
 getLevelsInJSON :: IO [LevelJSON]
 getLevelsInJSON = do
@@ -52,4 +62,4 @@ getLevelsInJSON = do
 
 -- writeJSONLevelToJson :: FilePath -> IO ()
 -- writeJSONLevelToJson filePath = do
---   B.writeFile filePath (encode myLevel)
+--   B.writeFile filePath (encode myLevel

@@ -42,14 +42,14 @@ addVelocityBasedOnKey key airplane@Airplane {airplaneType = _planeType, airplane
   case _planeType of
     Player1
       | key == Char 'w' -> airplane {airplaneVelocity = add (0, C.velocityStep)}
-      | key == Char 'a' -> airplane {airplaneVelocity = add (-C.velocityStep, 0)}
-      | key == Char 's' -> airplane {airplaneVelocity = add (0, -C.velocityStep)}
+      | key == Char 'a' -> airplane {airplaneVelocity = add (- C.velocityStep, 0)}
+      | key == Char 's' -> airplane {airplaneVelocity = add (0, - C.velocityStep)}
       | key == Char 'd' -> airplane {airplaneVelocity = add (C.velocityStep, -0)}
       | otherwise -> airplane
     Player2
       | key == SpecialKey KeyUp -> airplane {airplaneVelocity = add (0, C.velocityStep)}
-      | key == SpecialKey KeyLeft -> airplane {airplaneVelocity = add (-C.velocityStep, 0)}
-      | key == SpecialKey KeyDown -> airplane {airplaneVelocity = add (0, -C.velocityStep)}
+      | key == SpecialKey KeyLeft -> airplane {airplaneVelocity = add (- C.velocityStep, 0)}
+      | key == SpecialKey KeyDown -> airplane {airplaneVelocity = add (0, - C.velocityStep)}
       | key == SpecialKey KeyRight -> airplane {airplaneVelocity = add (C.velocityStep, -0)}
       | otherwise -> airplane
     _ -> airplane
