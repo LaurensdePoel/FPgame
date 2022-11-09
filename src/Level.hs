@@ -14,11 +14,12 @@ import Graphics.Gloss.Data.Picture (Picture, rotate)
 import LoadLevels (AirplaneJSON (..), LevelJSON (..), WaveJSON (..))
 import Model
 import System.Directory ()
+import Text.Read (readMaybe)
 
 -- | The function 'nextwave' sets the nextwave as currentwave. If there are no more waves this functions does nothing.
 nextWave :: GameState -> GameState
 nextWave gs@GameState {currentLevel = _currentLevel, enemies = _enemies}
-  | ifAllWavesCleared = gs -- do nothing if all waves are cleared --TODO better if we can disable timer
+  | ifAllWavesCleared = gs
   | otherwise = gs {enemies = _enemies ++ spawnNextWave, currentLevel = _currentLevel {waves = removeWaveAfterSpawn}}
   where
     ifAllWavesCleared :: Bool
@@ -30,9 +31,10 @@ nextWave gs@GameState {currentLevel = _currentLevel, enemies = _enemies}
     removeWaveAfterSpawn :: [Wave]
     removeWaveAfterSpawn = tail $ waves _currentLevel
 
--- TODO REFACTOR use readMaybe
 getLevelIndex :: Menu -> Int
-getLevelIndex menu' = read (fieldName $ head $ fields menu') - 1
+getLevelIndex menu' = case readMaybe (fieldName $ head $ fields menu') of
+  Nothing -> 0 -- fault when reading level index so start level 1
+  Just x -> x -1 -- from number to index in list -> -1
 
 levelConverter :: LevelJSON -> Assets -> Level
 levelConverter LevelJSON {resLevelNr = _resLevelNr, resWaves = _resWaves} assetList =

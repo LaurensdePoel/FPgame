@@ -93,7 +93,6 @@ resetLevel gs =
 -- | Create menu's
 initMenu, initPlayMenu, initPauseMenu :: Menu
 initMenu = createMenu "Shoot'em Up" NoMenu [("Play", initPlayMenu), ("Controls", NoMenu), ("Credits", NoMenu), ("Exit", NoMenu)]
--- initPlayMenu = createMenu "Choose players" initMenu [("1 Player", NoMenuButFunction start1player), ("2 Player", NoMenuButFunction start2player)]
 initPlayMenu = createMenu "Choose players" initMenu [("1 Player", NoMenuButFunction loadLevelselectAnd1Player), ("2 Player", NoMenuButFunction loadLevelselectAnd2Player)]
 initPauseMenu = createMenu "Paused" NoMenu [("Resume", NoMenuButFunction resumeGame), ("Return to menu", initMenu)]
 
@@ -109,7 +108,9 @@ createLevelSelectmenu levelList = createMenu "Level Select" initPlayMenu $ creat
   where
     createLevelFields :: [Level] -> [(String, Menu)]
     createLevelFields [] = []
-    createLevelFields (x : xs) = (show (levelNr x), NoMenuButFunction startFromLevelSelect) : createLevelFields xs
+    createLevelFields (x : xs)
+      | levelNr x == -1 = ("Error with JSON", NoMenu) : createLevelFields xs
+      | otherwise = (show (levelNr x), NoMenuButFunction startFromLevelSelect) : createLevelFields xs
 
 resumeGame :: GameState -> GameState
 resumeGame gs = gs {status = InGame}
