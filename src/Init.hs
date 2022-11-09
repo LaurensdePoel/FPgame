@@ -1,6 +1,6 @@
 module Init where
 
-import Assets (errorSprite, fixImageOrigin, getBackground, getTexture)
+import Assets (errorSprite, fixImageOrigin, getTexture)
 import Config (airplaneSizeVar, projectileSizeVar)
 import Data.Map as Dict (fromList)
 -- import Graphics.Gloss (Picture (Scale), rotate)
@@ -11,10 +11,10 @@ import Menu
 import Model
 
 initEmptyLevel :: Level
-initEmptyLevel = Level 0 (Background (0, 0) 100.0 100.0 (errorSprite "emptyLevel")) []
+initEmptyLevel = Level 0 (Background (0, 0) (errorSprite "emptyLevel")) []
 
-initialState :: Assets -> Backgrounds -> [Level] -> Menu -> GameState
-initialState assetlist backgrounds levelList levelSelectMenu' =
+initialState :: Assets -> [Level] -> Menu -> GameState
+initialState assetlist levelList levelSelectMenu' =
   GameState
     { elapsedTime = 0,
       status = InMenu,
@@ -26,7 +26,7 @@ initialState assetlist backgrounds levelList levelSelectMenu' =
       projectiles = [],
       powerUps = [],
       pressedKeys = emptyKeys,
-      menu = initMenu backgrounds assetlist,
+      menu = initMenu assetlist,
       levelSelectMenu = levelSelectMenu',
       particles = [],
       particleMap =
@@ -59,8 +59,7 @@ initialState assetlist backgrounds levelList levelSelectMenu' =
                 }
             )
           ],
-      tmpassetList = assetlist,
-      backgroundMap = backgrounds
+      tmpassetList = assetlist
     }
 
 resetGameState :: GameState -> GameState
@@ -84,21 +83,23 @@ resetGameState gs =
     }
 
 -- | Create menu's
-initMenu, initPlayMenu, initPauseMenu :: Backgrounds -> Assets -> Menu
-initMenu backgrounds assets = createMenu "Shoot'em Up" (getTexture "fdfdf" assets) NoMenu [("Play", initPlayMenu backgrounds assets), ("Controls", NoMenu), ("Credits", NoMenu), ("Exit", NoMenu)]
+initMenu, initPlayMenu, initPauseMenu, initCreditMenu, initControlsMenu :: Assets -> Menu
+initMenu assets = createMenu "Shoot'em Up" (getTexture "menu" assets) NoMenu [("Play", initPlayMenu assets), ("Controls", initControlsMenu assets), ("Credits", initCreditMenu assets), ("Exit", NoMenu)]
 -- initPlayMenu = createMenu "Choose players" initMenu [("1 Player", NoMenuButFunction start1player), ("2 Player", NoMenuButFunction start2player)]
-initPlayMenu backgrounds assets = createMenu "Choose players" (getTexture "fdfdf" assets) (initMenu backgrounds assets) [("1 Player", NoMenuButFunction loadLevelSelectMenu), ("2 Player", NoMenuButFunction loadLevelSelectMenu)]
-initPauseMenu backgrounds assets = createMenu "Paused" (getTexture "fdfdf" assets) NoMenu [("Resume", NoMenuButFunction resumeGame), ("Return to menu", initMenu backgrounds assets)]
+initPlayMenu assets = createMenu "Choose players" (getTexture "menu" assets) (initMenu assets) [("1 Player", NoMenuButFunction loadLevelSelectMenu), ("2 Player", NoMenuButFunction loadLevelSelectMenu)]
+initPauseMenu assets = createMenu "Paused" (getTexture "menu" assets) NoMenu [("Resume", NoMenuButFunction resumeGame), ("Return to menu", initMenu assets)]
+initCreditMenu assets = createMenu "Credits" (getTexture "credits" assets) (initMenu assets) [("", NoMenu)]
+initControlsMenu assets = createMenu "Controls" (getTexture "controls" assets) (initMenu assets) [("", NoMenu)]
 
-initVictoryMenu :: Backgrounds -> Assets -> Menu
-initVictoryMenu backgrounds assets = createMenu "Level Completed" (getTexture "fdfdf" assets) NoMenu [("Next Level", NoMenuButFunction nextLevel), ("Select Level", NoMenuButFunction loadLevelSelectMenu), ("Return to Menu", initMenu backgrounds assets)] -- TODO: NoMenuButFunction start1player is incorrect
+initVictoryMenu :: Assets -> Menu
+initVictoryMenu assets = createMenu "Level Completed" (getTexture "menu" assets) NoMenu [("Next Level", NoMenuButFunction nextLevel), ("Select Level", NoMenuButFunction loadLevelSelectMenu), ("Return to Menu", initMenu assets)] -- TODO: NoMenuButFunction start1player is incorrect
 
-initDefeatMenu :: Backgrounds -> Assets -> Menu
-initDefeatMenu backgrounds assets = createMenu "Game Over" (getTexture "fdfdf" assets) NoMenu [("Retry Level", NoMenuButFunction loadLevelSelectMenu), ("Select Level", NoMenuButFunction loadLevelSelectMenu), ("Return to Menu", initMenu backgrounds assets)] -- TODO: NoMenuButFunction start1player is incorrect
+initDefeatMenu :: Assets -> Menu
+initDefeatMenu assets = createMenu "Game Over" (getTexture "menu" assets) NoMenu [("Retry Level", NoMenuButFunction loadLevelSelectMenu), ("Select Level", NoMenuButFunction loadLevelSelectMenu), ("Return to Menu", initMenu assets)] -- TODO: NoMenuButFunction start1player is incorrect
 
 -- TODO Make higher order function
-createLevelSelectmenu :: [Level] -> Backgrounds -> Assets -> Menu
-createLevelSelectmenu levelList backgrounds assets = createMenu "Level Select" (getTexture "fdfdf" assets) (initPlayMenu backgrounds assets) $ createLevelFields levelList
+createLevelSelectmenu :: [Level] -> Assets -> Menu
+createLevelSelectmenu levelList assets = createMenu "Level Select" (getTexture "menu" assets) (initPlayMenu assets) $ createLevelFields levelList
   where
     createLevelFields :: [Level] -> [(String, Menu)]
     createLevelFields [] = []
@@ -125,10 +126,10 @@ loadLevel gs@GameState {levels = _levels, currentLevelNr = _currentLevelNr, menu
     }
 
 startLevel :: GameState -> GameState
-startLevel gs@GameState {tmpassetList = _assetList, backgroundMap = _backgrounds, menu = _menu} =
+startLevel gs@GameState {tmpassetList = _assetList, menu = _menu} =
   gs
     { status = InGame,
-      menu = initPauseMenu _backgrounds _assetList
+      menu = initPauseMenu _assetList
     }
 
 -- Toggles the status in the GameState.
@@ -137,7 +138,7 @@ start1player gs =
   startAndLoad1Player $ resetGameState gs
   where
     startAndLoad1Player :: GameState -> GameState
-    startAndLoad1Player gss@GameState {tmpassetList = _assetList, backgroundMap = _backgrounds, menu = _menu, levels = _levels} =
+    startAndLoad1Player gss@GameState {tmpassetList = _assetList, menu = _menu, levels = _levels} =
       gss
         { players =
             [ Airplane
@@ -167,7 +168,7 @@ start1player gs =
                 }
             ],
           status = InGame,
-          menu = initPauseMenu _backgrounds _assetList,
+          menu = initPauseMenu _assetList,
           currentLevel = _levels !! getLevelIndex _menu
         }
 

@@ -3,7 +3,7 @@
 
 module Level where
 
-import Assets (fixImageOrigin, getBackground, getTexture)
+import Assets (fixImageOrigin, getTexture)
 import qualified Config as C
 import Control.Applicative ()
 import Control.Monad ()
@@ -35,16 +35,14 @@ nextWave gs@GameState {currentLevel = _currentLevel, enemies = _enemies}
 getLevelIndex :: Menu -> Int
 getLevelIndex menu' = read (fieldName $ head $ fields menu') - 1
 
-levelConverter :: LevelJSON -> Assets -> Backgrounds -> Level
-levelConverter LevelJSON {resLevelNr = _resLevelNr, resLevelBackgroundName = _backgroundName, resWaves = _resWaves} assetList backgrounds =
+levelConverter :: LevelJSON -> Assets -> Level
+levelConverter LevelJSON {resLevelNr = _resLevelNr, resLevelBackgroundName = _backgroundName, resWaves = _resWaves} assetList =
   Level {levelNr = _resLevelNr, levelBackground = background, waves = convertWaves _resWaves}
   where
     convertWaves :: [WaveJSON] -> [Wave]
     convertWaves = map (`waveConverter` assetList)
 
-    background = Background (0, 0) 0.0 0.0 (pictures $ [getTexture "naamloos" assetList, uncurry translate (fromIntegral C.screenWidth, 0) $ getTexture "naamloos" assetList]) -- (pictures $ replicate 2 backgroundSprite')
-    backgroundSprite' :: Picture
-    backgroundSprite' = getBackground _backgroundName backgrounds assetList
+    background = Background (0, 0) (pictures $ [getTexture _backgroundName assetList, uncurry translate (fromIntegral C.screenWidth, 0) $ getTexture _backgroundName assetList])
 
 waveConverter :: WaveJSON -> Assets -> Wave
 waveConverter WaveJSON {resEnemiesInWave = _resEnemiesInWave, resWaveTimer = _resWaveTimer} assetList =
@@ -53,7 +51,7 @@ waveConverter WaveJSON {resEnemiesInWave = _resEnemiesInWave, resWaveTimer = _re
     convertEnemies :: [AirplaneJSON] -> [Airplane]
     convertEnemies = map (`airplaneConverter` assetList)
 
--- | creates a enemy airplane based on the Type and set the spawning location. The spawning position is determend by the (absolute x position + screenWidth) and the (y position in the JSON file)
+-- | creates a enemy airplane based on the Type and set the spawning location. The spawning position is determent by the (absolute x position + screenWidth) and the (y position in the JSON file)
 airplaneConverter :: AirplaneJSON -> Assets -> Airplane
 airplaneConverter AirplaneJSON {resAirplaneType = _resAirplaneType, resAirplanePos = (airplaneX, airplaneY)} = createEnemy _resAirplaneType ((abs airplaneX, airplaneY) + (C.screenMaxX, 0))
 

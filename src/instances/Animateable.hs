@@ -43,7 +43,7 @@ instance Animateable Sprites where
 
 instance Animateable Background where
   nextSprite :: Background -> Background
-  nextSprite background@Background {backgroundPos = _pos, backgroundInterval = _interval, backgroundSprite = _sprite} = background {backgroundPos = newPos, backgroundTimer = _interval} -- , backgroundSprite = uncurry translate newPos _sprite}
+  nextSprite background@Background {backgroundPos = _pos, backgroundSprite = _sprite} = background {backgroundPos = newPos}
     where
       newPos :: Position
       newPos = updatePosition _pos

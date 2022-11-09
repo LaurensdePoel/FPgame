@@ -13,11 +13,9 @@ import Random
 import System.Random
 
 step :: Float -> GameState -> IO GameState
-step seconds gs@GameState {status = _status}
-  | _status == QuitGame = do return gs
-  | otherwise = do
-      gen <- newStdGen -- getStdGen
-      return $ stepPure seconds gen gs
+step seconds gs@GameState {status = _status} = do
+  gen <- newStdGen -- getStdGen
+  return $ stepPure seconds gen gs
 
 -- | Handle one iteration of the game
 --

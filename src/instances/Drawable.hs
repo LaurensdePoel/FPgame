@@ -64,8 +64,9 @@ instance Drawable Menu where
   draw :: Menu -> Picture
   draw Menu {header = _header, menuBackground = _background, fields = _fields} = pictures $ _background : headerPicture : currentSelected : map draw (tail _fields)
     where
-      headerPicture = Scale 0.5 0.5 $ translate 0 (C.menuTextStartHeight - C.menuTextOffset) $ color black (Text _header)
+      headerPicture = Scale 0.5 0.5 $ translate headerXOffset (C.menuTextStartHeight - C.menuTextOffset) $ color black (Text _header)
       currentSelected = Scale 0.25 0.25 $ translate `uncurry` fieldPosition (head _fields) $ color red (Text (fieldName $ head _fields))
+      headerXOffset = (-0.5) * fromIntegral (length _header * 70)
   draw NoMenu = Blank
   draw NoMenuButFunction {} = Blank
 
@@ -76,4 +77,4 @@ instance Drawable Field where
 
 instance Drawable Level where
   draw :: Level -> Picture
-  draw Level {levelBackground = Background {backgroundPos = _pos, backgroundSprite = _sprite}} = uncurry translate _pos _sprite
+  draw Level {levelBackground = Background {backgroundPos = _pos, backgroundSprite = _sprite}} = uncurry translate _pos $ Color black _sprite

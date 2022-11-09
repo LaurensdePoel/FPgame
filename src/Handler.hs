@@ -22,11 +22,11 @@ import Updateable
 
 -- | Handles levels and waves -- TODO Rewrite so more functonality is inside Level.hs
 levelHandler :: GameState -> GameState
-levelHandler gs@GameState {currentLevel = _currentLevel, tmpassetList = assetsList, backgroundMap = _backgrounds, enemies = _enemies, players = _players}
+levelHandler gs@GameState {currentLevel = _currentLevel, tmpassetList = assetsList, enemies = _enemies, players = _players}
   -- Enter Defeat menu
-  | ifAllPlayersDied = gs {status = InMenu, menu = initDefeatMenu _backgrounds assetsList, pressedKeys = emptyKeys}
+  | ifAllPlayersDied = gs {status = InMenu, menu = initDefeatMenu assetsList, pressedKeys = emptyKeys}
   -- Enter Victory menu
-  | ifCurrentWaveKilled && ifAllWavesCleared = gs {status = InMenu, menu = initVictoryMenu _backgrounds assetsList, pressedKeys = emptyKeys}
+  | ifCurrentWaveKilled && ifAllWavesCleared = gs {status = InMenu, menu = initVictoryMenu assetsList, pressedKeys = emptyKeys}
   -- Next Wave
   | ifCurrentWaveKilled || ifWaveTimerExpired = nextWave gs
   -- Do Nothing

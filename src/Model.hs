@@ -19,7 +19,7 @@ import Graphics.Gloss.Interface.IO.Interact (Key)
 
 -- * GameState
 
-data Status = InMenu | InGame | QuitGame deriving (Eq)
+data Status = InMenu | InGame deriving (Eq)
 
 type Time = Float
 
@@ -38,8 +38,7 @@ data GameState = GameState
     pressedKeys :: S.Set Graphics.Gloss.Interface.IO.Interact.Key,
     menu :: Menu,
     levelSelectMenu :: Menu,
-    tmpassetList :: Assets,
-    backgroundMap :: Backgrounds
+    tmpassetList :: Assets
   }
 
 -- * Assets and Sprites
@@ -47,8 +46,6 @@ data GameState = GameState
 type Assets = (Map String Picture)
 
 type Particles = (Map String Particle)
-
-type Backgrounds = (Map String [Int])
 
 data AnimationState = Idle | Moving
 
@@ -137,8 +134,6 @@ data Projectile = Projectile
 
 data Background = Background
   { backgroundPos :: Position,
-    backgroundInterval :: Time,
-    backgroundTimer :: Time,
     backgroundSprite :: Picture
   }
 

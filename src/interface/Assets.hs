@@ -64,27 +64,3 @@ fixImageOrigin pic (width, height) = translate (width * 0.5) (height * (-0.5)) p
 
 errorSprite :: String -> Picture
 errorSprite name = Scale 0.25 0.25 (color red $ Text name)
-
-getBackgroundData :: String -> Backgrounds -> [Int]
-getBackgroundData key map' = fromMaybe [] (Dict.lookup key map')
-
-getBackground :: String -> Backgrounds -> Assets -> Picture
-getBackground key map' assets
-  | Prelude.null backgroundData = errorSprite "Background not found!"
-  | otherwise = uncurry translate (1024 * (-0.5) + 8, 768 * 0.5 - 8) (pictures bg)
-  where
-    backgroundData = getBackgroundData key map'
-
-    tileList :: [Picture]
-    tileList = Prelude.map (\number -> getTexture (show (number - 1)) assets) backgroundData
-
-    bg :: [Picture]
-    bg = snd $ L.foldl' (\(pos, tiles) tile -> let tile' = uncurry translate pos tile in (updatePosition pos, tile' : tiles)) ((0, 0), [] :: [Picture]) tileList
-
-    updatePosition :: Position -> Position
-    updatePosition (x', y')
-      | x' >= 1024 - 16 = (0, y' - tileSize)
-      | otherwise = (x' + tileSize, y')
-
-    tileSize :: Float
-    tileSize = 16
