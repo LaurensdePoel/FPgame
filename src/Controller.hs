@@ -25,10 +25,10 @@ step seconds gs@GameState {status = _status, ioActions = _ioActoins, tmpassetLis
     handleIO :: IO GameState
     handleIO
       | releadLevels _ioActoins = do
-          newJSONLevel <- getLevelsInJSON
-          let newLevels = Prelude.map (`levelConverter` _assets) newJSONLevel
-          let newLevelSelectMenu = createLevelSelectmenu newLevels
-          return gs {levels = newLevels, levelSelectMenu = newLevelSelectMenu _assets, menu = newLevelSelectMenu _assets, ioActions = emptyIOActions}
+        newJSONLevel <- getLevelsInJSON
+        let newLevels = Prelude.map (`levelConverter` _assets) newJSONLevel
+        let newLevelSelectMenu = createLevelSelectmenu newLevels
+        return gs {levels = newLevels, levelSelectMenu = newLevelSelectMenu _assets, menu = newLevelSelectMenu _assets, ioActions = emptyIOActions}
       | quitGame _ioActoins = exitSuccess
       | otherwise = return gs
 

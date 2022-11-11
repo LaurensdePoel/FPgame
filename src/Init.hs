@@ -143,12 +143,12 @@ loadLevelselectAnd2Player gs@GameState {nrOfPlayers = _nrOfPlayers} = loadLevelS
 nextLevel :: GameState -> GameState
 nextLevel gs@GameState {levels = _levels, currentLevel = _level}
   | levelNr _level == length _levels = loadLevelSelectMenu gs
-  | otherwise = startLevel $ loadPlayers $ resetLevel $ loadLevel gs {currentLevelNr = levelNr _level + 1}
+  | otherwise = startLevel $ loadPlayers $ resetLevel $ loadLevel gs {currentLevelNr = levelNr _level}
 
 loadLevel :: GameState -> GameState
 loadLevel gs@GameState {levels = _levels, currentLevelNr = _currentLevelNr, menu = _menu} =
   gs
-    { currentLevel = _levels !! (_currentLevelNr - 1)
+    { currentLevel = _levels !! _currentLevelNr
     }
 
 loadPlayers :: GameState -> GameState
@@ -169,7 +169,8 @@ startFromLevelSelect gs =
     getLevelFromMenu :: GameState -> GameState
     getLevelFromMenu gss@GameState {tmpassetList = _assets, menu = _menu, levels = _levels, players = _players, nrOfPlayers = _nrOfPlayers} =
       gss
-        { currentLevel = _levels !! getLevelIndex _menu
+        { currentLevel = _levels !! getLevelIndex _menu,
+          currentLevelNr = getLevelIndex _menu
         }
 
 exitGame :: GameState -> GameState
