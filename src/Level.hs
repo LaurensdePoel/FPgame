@@ -73,33 +73,33 @@ createAirplane :: AirPlaneType -> Position -> Assets -> Enemy
 createAirplane airplaneType' airplanePosition' assetList = case airplaneType' of
   Fighter ->
     createAirplaneBase
-      { airplaneMaxVelocity = (-12, 12),
-        airplaneHealth = 100,
-        fireRate = Single 120.0,
+      { airplaneMaxVelocity = (-4, 4),
+        airplaneHealth = 20,
+        fireRate = Single 100.0,
         airplaneGun = createSingleGun,
         airplaneSprite = createAirplaneSprite
       }
   Kamikaze ->
     createAirplaneBase
-      { airplaneMaxVelocity = (-12, 12),
-        airplaneHealth = 100,
-        fireRate = Single 999999.0,
+      { airplaneMaxVelocity = (-8, 8),
+        airplaneHealth = 40,
+        fireRate = Single 0.0,
         airplaneGun = None,
         airplaneSprite = createAirplaneSprite
       }
   FlyBy ->
     createAirplaneBase
-      { airplaneMaxVelocity = (-12, 12),
-        airplaneHealth = 100,
+      { airplaneMaxVelocity = (-4, 4),
+        airplaneHealth = 20,
         fireRate = Burst 30.0,
         airplaneGun = createSingleGun,
         airplaneSprite = createAirplaneSprite
       }
   Player1 ->
     createAirplaneBase
-      { airplaneMaxVelocity = (-12, 12),
+      { airplaneMaxVelocity = (-10, 10),
         airplaneHealth = 100,
-        fireRate = Single 80.0,
+        fireRate = Single 30.0,
         airplaneGun = createSingleGun,
         airplaneSprite = createAirplaneSprite
       }
@@ -107,7 +107,7 @@ createAirplane airplaneType' airplanePosition' assetList = case airplaneType' of
     createAirplaneBase
       { airplaneMaxVelocity = (-12, 12),
         airplaneHealth = 100,
-        fireRate = Single 80.0,
+        fireRate = Single 30.0,
         airplaneGun = createSingleGun,
         airplaneSprite = createAirplaneSprite
       }
@@ -132,7 +132,7 @@ createAirplane airplaneType' airplanePosition' assetList = case airplaneType' of
             { projectileType = Gun,
               projectilePos = (0, 0),
               projectileSize = C.projectileSizeVar,
-              projectileVelocity = (10, 0),
+              projectileVelocity = (11, 0),
               projectileHealth = 1,
               projectileDamage = 10,
               projectileOrigin = Players,
@@ -144,7 +144,7 @@ createAirplane airplaneType' airplanePosition' assetList = case airplaneType' of
             { projectileType = Gun,
               projectilePos = (0, 0),
               projectileSize = C.projectileSizeVar,
-              projectileVelocity = (10, 0),
+              projectileVelocity = (11, 0),
               projectileHealth = 1,
               projectileDamage = 10,
               projectileOrigin = Players,
@@ -156,7 +156,7 @@ createAirplane airplaneType' airplanePosition' assetList = case airplaneType' of
             { projectileType = Gun,
               projectilePos = (0, 0),
               projectileSize = C.projectileSizeVar,
-              projectileVelocity = (-40, 0),
+              projectileVelocity = (-10, 0),
               projectileHealth = 1,
               projectileDamage = 10,
               projectileOrigin = Enemies,

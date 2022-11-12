@@ -40,7 +40,10 @@ menuTextOffset :: Float
 menuTextOffset = -200
 
 menuTextStartHeight :: Float
-menuTextStartHeight = 200
+menuTextStartHeight = 300
+
+menuHeaderStartHeight :: Float
+menuHeaderStartHeight = 300
 
 -- * Sprite sizes and offsets
 
@@ -87,7 +90,7 @@ healthPackValue :: Int
 healthPackValue = 100
 
 powerPackValue :: Float
-powerPackValue = 0.5
+powerPackValue = 0.125
 
 powerUpDefaultSize :: (Float, Float)
 powerUpDefaultSize = (10, 10)
