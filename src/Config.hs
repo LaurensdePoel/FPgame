@@ -87,7 +87,7 @@ damageMultiplier = 2
 -- * Power Ups
 
 healthPackValue :: Int
-healthPackValue = 100
+healthPackValue = 30
 
 powerPackValue :: Float
 powerPackValue = 0.125
@@ -96,10 +96,10 @@ powerUpDefaultSize :: (Float, Float)
 powerUpDefaultSize = (10, 10)
 
 powerUpDespawnTime :: Float
-powerUpDespawnTime = 1000.0
+powerUpDespawnTime = 350.0
 
 powerUpDurationTime :: Float
-powerUpDurationTime = 500.0
+powerUpDurationTime = 300.0
 
 powerUpAnimationInterval :: Float
 powerUpAnimationInterval = 10.0

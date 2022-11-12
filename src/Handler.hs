@@ -87,7 +87,7 @@ collisionHandler gs@GameState {players = _players, enemies = _enemies, projectil
     (players', enemies') = applyOnCollisions applyDamage3 _players _enemies
 
     applyDamage3 :: Airplane -> Airplane -> (Airplane, Airplane)
-    applyDamage3 player enemy = (takeDamage (airplaneHealth player) player, takeDamage (airplaneHealth enemy) enemy)
+    applyDamage3 player enemy = (takeDamage (airplaneHealth enemy) player, takeDamage (airplaneHealth enemy) enemy)
 
     -- Handle collision between projectiles
     (updatedProjectiles, _) = applyOnCollisions applyDamage _projectiles _projectiles

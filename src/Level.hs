@@ -78,7 +78,7 @@ createAirplane :: AirPlaneType -> Position -> Assets -> Enemy
 createAirplane airplaneType' airplanePosition' assetList = case airplaneType' of
   Fighter ->
     createAirplaneBase
-      { airplaneMaxVelocity = (-4, 4),
+      { airplaneMaxVelocity = (-3, 3),
         airplaneHealth = 20,
         fireRate = Single 100.0,
         airplaneGun = createSingleGun,
@@ -86,7 +86,7 @@ createAirplane airplaneType' airplanePosition' assetList = case airplaneType' of
       }
   Kamikaze ->
     createAirplaneBase
-      { airplaneMaxVelocity = (-8, 8),
+      { airplaneMaxVelocity = (-5, 5),
         airplaneHealth = 40,
         fireRate = Single 0.0,
         airplaneGun = None,
@@ -102,7 +102,7 @@ createAirplane airplaneType' airplanePosition' assetList = case airplaneType' of
       }
   Player1 ->
     createAirplaneBase
-      { airplaneMaxVelocity = (-10, 10),
+      { airplaneMaxVelocity = (-6, 6),
         airplaneHealth = 100,
         fireRate = Single 30.0,
         airplaneGun = createSingleGun,
@@ -110,7 +110,7 @@ createAirplane airplaneType' airplanePosition' assetList = case airplaneType' of
       }
   Player2 ->
     createAirplaneBase
-      { airplaneMaxVelocity = (-12, 12),
+      { airplaneMaxVelocity = (-6, 6),
         airplaneHealth = 100,
         fireRate = Single 30.0,
         airplaneGun = createSingleGun,
@@ -137,7 +137,7 @@ createAirplane airplaneType' airplanePosition' assetList = case airplaneType' of
             { projectileType = Gun,
               projectilePos = (0, 0),
               projectileSize = C.projectileSizeVar,
-              projectileVelocity = (11, 0),
+              projectileVelocity = (16, 0),
               projectileHealth = 1,
               projectileDamage = 10,
               projectileOrigin = Players,
@@ -149,7 +149,7 @@ createAirplane airplaneType' airplanePosition' assetList = case airplaneType' of
             { projectileType = Gun,
               projectilePos = (0, 0),
               projectileSize = C.projectileSizeVar,
-              projectileVelocity = (11, 0),
+              projectileVelocity = (16, 0),
               projectileHealth = 1,
               projectileDamage = 10,
               projectileOrigin = Players,
