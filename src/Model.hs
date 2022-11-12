@@ -36,7 +36,7 @@ data GameState = GameState
     enemies :: [Enemy],
     levels :: [Level],
     currentLevel :: Level,
-    currentLevelNr :: Int, -- TODO make max level
+    currentLevelNr :: Int,
     projectiles :: [Projectile],
     powerUps :: [PowerUp],
     particleMap :: Particles,
