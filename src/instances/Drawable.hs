@@ -30,10 +30,12 @@ class Drawable a where
 instance Drawable Airplane where
   -- \| Converts an airplane into a picture
   draw :: Airplane -> Picture
-  draw Airplane {airplaneType = _type, airplanePos = _position, airplaneVelocity = _velocity, airplaneSprite = _sprite} =
+  draw Airplane {airplaneType = _type, airplanePos = _position, airplaneVelocity = _velocity, airplaneSprite = _sprite, airplaneHealth = _health} =
     case _type of
       Kamikaze -> translate `uncurry` _position $ rotate (atan2 `uncurry` _velocity / pi * 180) _sprite
-      _ -> translate `uncurry` _position $ _sprite
+      _ -> pictures [healthText, translate `uncurry` _position $ _sprite]
+    where
+      healthText = translate `uncurry` (_position + (5, -48)) $ scale 0.1 0.1 $ color red (Text $ show _health)
 
 instance Drawable Projectile where
   -- \| Converts a projectile into a picture

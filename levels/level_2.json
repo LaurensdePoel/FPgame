@@ -19,21 +19,54 @@
                     "resAirplaneType": "FlyBy"
                 }
             ],
-            "resWaveTimer": 50
+            "resWaveTimer": 500
+        },
+        {
+            "resEnemiesInWave": [
+                {
+                    "resAirplanePos": [
+                        0,
+                        -300
+                    ],
+                    "resAirplaneType": "Fighter"
+                },
+                {
+                    "resAirplanePos": [
+                        0,
+                        300
+                    ],
+                    "resAirplaneType": "Fighter"
+                },
+                {
+                    "resAirplanePos": [
+                        300,
+                        -350
+                    ],
+                    "resAirplaneType": "Fighter"
+                },
+                {
+                    "resAirplanePos": [
+                        300,
+                        350
+                    ],
+                    "resAirplaneType": "Fighter"
+                }
+            ],
+            "resWaveTimer": 300
         },
         {
             "resEnemiesInWave": [
                 {
                     "resAirplanePos": [
                         -200,
-                        300
+                        100
                     ],
                     "resAirplaneType": "FlyBy"
                 },
                 {
                     "resAirplanePos": [
                         200,
-                        -300
+                        -100
                     ],
                     "resAirplaneType": "FlyBy"
                 }
@@ -44,191 +77,136 @@
             "resEnemiesInWave": [
                 {
                     "resAirplanePos": [
-                        -200,
-                        300
+                        0,
+                        -300
                     ],
-                    "resAirplaneType": "FlyBy"
+                    "resAirplaneType": "Fighter"
                 },
                 {
                     "resAirplanePos": [
-                        200,
-                        -300
+                        50,
+                        0
                     ],
-                    "resAirplaneType": "FlyBy"
+                    "resAirplaneType": "Kamikaze"
+                },
+                {
+                    "resAirplanePos": [
+                        0,
+                        300
+                    ],
+                    "resAirplaneType": "Fighter"
                 }
             ],
-            "resWaveTimer": 50
+            "resWaveTimer": 300
         },
         {
             "resEnemiesInWave": [
                 {
                     "resAirplanePos": [
-                        -200,
-                        300
+                        -50,
+                        375
                     ],
                     "resAirplaneType": "FlyBy"
                 },
                 {
                     "resAirplanePos": [
-                        200,
-                        -300
+                        50,
+                        -375
                     ],
                     "resAirplaneType": "FlyBy"
                 }
             ],
-            "resWaveTimer": 50
+            "resWaveTimer": 100
         },
         {
             "resEnemiesInWave": [
                 {
                     "resAirplanePos": [
-                        -200,
+                        50,
                         300
                     ],
                     "resAirplaneType": "FlyBy"
                 },
                 {
                     "resAirplanePos": [
-                        200,
+                        50,
                         -300
                     ],
                     "resAirplaneType": "FlyBy"
+                },
+                {
+                    "resAirplanePos": [
+                        50,
+                        400
+                    ],
+                    "resAirplaneType": "Kamikaze"
+                },
+                {
+                    "resAirplanePos": [
+                        50,
+                        -400
+                    ],
+                    "resAirplaneType": "Kamikaze"
                 }
             ],
-            "resWaveTimer": 50
+            "resWaveTimer": 100
         },
         {
             "resEnemiesInWave": [
                 {
                     "resAirplanePos": [
-                        -200,
-                        300
+                        50,
+                        200
                     ],
                     "resAirplaneType": "FlyBy"
                 },
                 {
                     "resAirplanePos": [
-                        200,
-                        -300
+                        50,
+                        -200
                     ],
                     "resAirplaneType": "FlyBy"
                 }
             ],
-            "resWaveTimer": 50
+            "resWaveTimer": 100
         },
         {
             "resEnemiesInWave": [
                 {
                     "resAirplanePos": [
-                        -200,
-                        300
+                        50,
+                        100
                     ],
                     "resAirplaneType": "FlyBy"
                 },
                 {
                     "resAirplanePos": [
-                        200,
-                        -300
+                        50,
+                        -100
                     ],
                     "resAirplaneType": "FlyBy"
                 }
             ],
-            "resWaveTimer": 50
+            "resWaveTimer": 100
         },
         {
             "resEnemiesInWave": [
                 {
                     "resAirplanePos": [
-                        -200,
+                        50,
                         300
                     ],
                     "resAirplaneType": "FlyBy"
                 },
                 {
                     "resAirplanePos": [
-                        200,
+                        50,
                         -300
                     ],
                     "resAirplaneType": "FlyBy"
                 }
             ],
-            "resWaveTimer": 50
-        },
-        {
-            "resEnemiesInWave": [
-                {
-                    "resAirplanePos": [
-                        -200,
-                        300
-                    ],
-                    "resAirplaneType": "FlyBy"
-                },
-                {
-                    "resAirplanePos": [
-                        200,
-                        -300
-                    ],
-                    "resAirplaneType": "FlyBy"
-                }
-            ],
-            "resWaveTimer": 50
-        },
-        {
-            "resEnemiesInWave": [
-                {
-                    "resAirplanePos": [
-                        -200,
-                        300
-                    ],
-                    "resAirplaneType": "FlyBy"
-                },
-                {
-                    "resAirplanePos": [
-                        200,
-                        -300
-                    ],
-                    "resAirplaneType": "FlyBy"
-                }
-            ],
-            "resWaveTimer": 50
-        },
-        {
-            "resEnemiesInWave": [
-                {
-                    "resAirplanePos": [
-                        -200,
-                        300
-                    ],
-                    "resAirplaneType": "FlyBy"
-                },
-                {
-                    "resAirplanePos": [
-                        200,
-                        -300
-                    ],
-                    "resAirplaneType": "FlyBy"
-                }
-            ],
-            "resWaveTimer": 50
-        },
-        {
-            "resEnemiesInWave": [
-                {
-                    "resAirplanePos": [
-                        -200,
-                        300
-                    ],
-                    "resAirplaneType": "FlyBy"
-                },
-                {
-                    "resAirplanePos": [
-                        200,
-                        -300
-                    ],
-                    "resAirplaneType": "FlyBy"
-                }
-            ],
-            "resWaveTimer": 50
+            "resWaveTimer": 100
         }
     ]
 }

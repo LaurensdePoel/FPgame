@@ -10,9 +10,108 @@
                         -300
                     ],
                     "resAirplaneType": "Fighter"
+                },
+                {
+                    "resAirplanePos": [
+                        0,
+                        300
+                    ],
+                    "resAirplaneType": "Fighter"
                 }
             ],
-            "resWaveTimer": 50
+            "resWaveTimer": 1000
+        },
+        {
+            "resEnemiesInWave": [
+                {
+                    "resAirplanePos": [
+                        0,
+                        -300
+                    ],
+                    "resAirplaneType": "Fighter"
+                },
+                {
+                    "resAirplanePos": [
+                        0,
+                        300
+                    ],
+                    "resAirplaneType": "Fighter"
+                },
+                {
+                    "resAirplanePos": [
+                        50,
+                        0
+                    ],
+                    "resAirplaneType": "Kamikaze"
+                }
+            ],
+            "resWaveTimer": 500
+        },
+        {
+            "resEnemiesInWave": [
+                {
+                    "resAirplanePos": [
+                        50,
+                        400
+                    ],
+                    "resAirplaneType": "Kamikaze"
+                },
+                {
+                    "resAirplanePos": [
+                        50,
+                        -400
+                    ],
+                    "resAirplaneType": "Kamikaze"
+                }
+            ],
+            "resWaveTimer": 1500
+        },
+        {
+            "resEnemiesInWave": [
+                {
+                    "resAirplanePos": [
+                        0,
+                        -300
+                    ],
+                    "resAirplaneType": "Fighter"
+                },
+                {
+                    "resAirplanePos": [
+                        0,
+                        300
+                    ],
+                    "resAirplaneType": "Fighter"
+                },
+                {
+                    "resAirplanePos": [
+                        200,
+                        -400
+                    ],
+                    "resAirplaneType": "Fighter"
+                },
+                {
+                    "resAirplanePos": [
+                        200,
+                        400
+                    ],
+                    "resAirplaneType": "Fighter"
+                },
+                {
+                    "resAirplanePos": [
+                        400,
+                        100
+                    ],
+                    "resAirplaneType": "Fighter"
+                },
+                {
+                    "resAirplanePos": [
+                        400,
+                        -100
+                    ],
+                    "resAirplaneType": "Fighter"
+                }
+            ],
+            "resWaveTimer": 1000
         }
     ]
 }
