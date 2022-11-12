@@ -1,7 +1,7 @@
 module Init where
 
 import Assets (errorSprite, getTexture)
-import Data.Map as Dict (empty, fromList)
+import Data.Map as Dict (fromList)
 -- import Graphics.Gloss (Picture (Scale))
 import Graphics.Gloss
 import Input
@@ -9,12 +9,16 @@ import Level
 import Menu
 import Model
 
+-- | creates an empty level which should never be displayed.
 initEmptyLevel :: Level
 initEmptyLevel = Level 0 (Background (0, 0) (errorSprite "emptyLevel")) []
 
+-- | reset the IOActions record
 emptyIOActions :: IOActions
 emptyIOActions = IOActions False False
 
+-- | this function creates the initial 'GameState' that will be used when the game is run for the first time.
+-- It loads all the nessesery records so that they are available to all the other parts of the game.
 initialState :: Assets -> [Level] -> Menu -> GameState
 initialState assetlist levelList levelSelectMenu' =
   GameState

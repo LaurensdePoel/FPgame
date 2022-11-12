@@ -11,7 +11,6 @@ import Data.Aeson ()
 import Data.List ()
 import GHC.Generics ()
 import Graphics.Gloss
-import Graphics.Gloss.Data.Picture (Picture, pictures, rotate)
 import LoadLevels (AirplaneJSON (..), LevelJSON (..), WaveJSON (..))
 import Model
 import System.Directory ()
@@ -32,11 +31,13 @@ nextWave gs@GameState {currentLevel = _currentLevel, enemies = _enemies}
     removeWaveAfterSpawn :: [Wave]
     removeWaveAfterSpawn = tail $ waves _currentLevel
 
+-- | This function tries to convert the name of the selected menu. In case it is a Level it is a number.
 getLevelIndex :: Menu -> Int
 getLevelIndex menu' = case readMaybe (fieldName $ head $ fields menu') of
   Nothing -> 0 -- fault when reading level index so start level 1
   Just x -> x - 1 -- from number to index in list -> -1
 
+-- | Converts a 'LevelJSON' to a 'Level' record wich will be used by the game.
 levelConverter :: LevelJSON -> Assets -> Level
 levelConverter LevelJSON {resLevelNr = _resLevelNr, resLevelBackgroundName = _backgroundName, resWaves = _resWaves} assetList =
   Level {levelNr = _resLevelNr, levelBackground = background, waves = convertWaves _resWaves}
@@ -44,8 +45,9 @@ levelConverter LevelJSON {resLevelNr = _resLevelNr, resLevelBackgroundName = _ba
     convertWaves :: [WaveJSON] -> [Wave]
     convertWaves = map (`waveConverter` assetList)
 
-    background = Background (0, 0) (pictures $ [getTexture _backgroundName assetList, uncurry translate (fromIntegral C.screenWidth, 0) $ getTexture _backgroundName assetList])
+    background = Background (0, 0) (pictures [getTexture _backgroundName assetList, translate (fromIntegral C.screenWidth) 0 $ getTexture _backgroundName assetList])
 
+-- | Converts a 'WaveJSON' to a 'Wave' record wich will be used by to spawn enemies in the level.
 waveConverter :: WaveJSON -> Assets -> Wave
 waveConverter WaveJSON {resEnemiesInWave = _resEnemiesInWave, resWaveTimer = _resWaveTimer} assetList =
   Wave {enemiesInWave = convertEnemies _resEnemiesInWave, waveTimer = _resWaveTimer}
@@ -53,12 +55,14 @@ waveConverter WaveJSON {resEnemiesInWave = _resEnemiesInWave, resWaveTimer = _re
     convertEnemies :: [AirplaneJSON] -> [Airplane]
     convertEnemies = map (`airplaneConverter` assetList)
 
+-- | based on the number retruns 1 or 2 players.
 addPlayers :: Assets -> Int -> [Airplane]
 addPlayers assets amount
   | amount == 1 = addPlayer assets []
   | amount == 2 = addPlayer assets $ addPlayer assets []
   | otherwise = []
 
+-- | add a player to the given airplane list if there are not already 2 players in the list.
 addPlayer :: Assets -> [Airplane] -> [Airplane]
 addPlayer assets xs
   | null xs = xs ++ [createAirplane Player1 (-300, 100) assets]
@@ -69,6 +73,7 @@ addPlayer assets xs
 airplaneConverter :: AirplaneJSON -> Assets -> Airplane
 airplaneConverter AirplaneJSON {resAirplaneType = _resAirplaneType, resAirplanePos = (airplaneX, airplaneY)} = createAirplane _resAirplaneType ((abs airplaneX, airplaneY) + (C.screenMaxX, 0))
 
+-- | constructs a airplane based on some passed parameters.
 createAirplane :: AirPlaneType -> Position -> Assets -> Enemy
 createAirplane airplaneType' airplanePosition' assetList = case airplaneType' of
   Fighter ->

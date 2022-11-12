@@ -2,7 +2,6 @@
 module Controller where
 
 import Config as C
-import Control.Exception (assert)
 import Enemy
 import Graphics.Gloss.Interface.IO.Game
 import Handler
