@@ -13,11 +13,14 @@ import System.Random
 -- TODO: Move magic numbers to config file
 
 -- | Generates a random position
-getRandomPoint :: RandomGen a => (Float, Float) -> (Float, Float) -> a -> Position
-getRandomPoint rangeX rangeY gen = (x, y)
+getRandomPoint :: RandomGen a => (Float, Float) -> (Float, Float) -> a -> (Position, a)
+getRandomPoint rangeX rangeY gen = ((x, y), gen'')
   where
     (x, gen') = randomR rangeX gen
-    (y, _) = randomR rangeY gen'
+    (y, gen'') = randomR rangeY gen'
+
+getRandomPoints :: RandomGen a => (Float, Float) -> (Float, Float) -> Int -> a -> [Position]
+getRandomPoints rangeX rangeY amount gen = snd $ foldr (\_ (gen', points) -> let (point, gen'') = getRandomPoint rangeX rangeY gen' in (gen'', point : points)) (gen, []) [0 .. amount]
 
 -- | PowerUpTypes instance of random
 instance Random PowerUpTypes where
@@ -53,7 +56,7 @@ getRandomPowerUp gen assetList =
 
     -- \| Get random position for the powerUp
     getRandomPos :: Position
-    getRandomPos = getRandomPoint xRange yRange gen
+    getRandomPos = fst $ getRandomPoint xRange yRange gen
       where
         xRange = (C.screenMinX, C.screenMaxX)
         yRange = (C.screenMinY, C.screenMaxY)

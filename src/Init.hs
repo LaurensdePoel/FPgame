@@ -1,8 +1,10 @@
 module Init where
 
-import Assets (errorSprite, getTexture)
-import Data.Map as Dict (fromList)
+import Assets (errorSprite, getParticle, getTexture)
 -- import Graphics.Gloss (Picture (Scale))
+
+import Config as C
+import Data.Map as Dict (fromList)
 import Graphics.Gloss
 import Input
 import Level
@@ -64,6 +66,46 @@ initialState assetlist levelList levelSelectMenu' =
                   particleTimer = 60,
                   particleSprites = [getTexture "5" assetlist, getTexture "4" assetlist, getTexture "3" assetlist, getTexture "2" assetlist, getTexture "1" assetlist]
                 }
+            ),
+            ( "level1",
+              C.defaultTextParticle
+                { particlePos = (0, 300),
+                  particleInterval = 30,
+                  particleTimer = 30,
+                  particleSprites = [getTexture "text_level1" assetlist, getTexture "text2_level1" assetlist, getTexture "text_level1" assetlist, getTexture "text2_level1" assetlist]
+                }
+            ),
+            ( "level2",
+              C.defaultTextParticle
+                { particlePos = (0, 300),
+                  particleInterval = 30,
+                  particleTimer = 30,
+                  particleSprites = [getTexture "text_level2" assetlist, getTexture "text2_level2" assetlist, getTexture "text_level2" assetlist, getTexture "text2_level2" assetlist]
+                }
+            ),
+            ( "level3",
+              C.defaultTextParticle
+                { particlePos = (0, 300),
+                  particleInterval = 30,
+                  particleTimer = 30,
+                  particleSprites = [getTexture "text_level3" assetlist, getTexture "text2_level3" assetlist, getTexture "text_level3" assetlist, getTexture "text2_level3" assetlist]
+                }
+            ),
+            ( "level4",
+              C.defaultTextParticle
+                { particlePos = (0, 300),
+                  particleInterval = 30,
+                  particleTimer = 30,
+                  particleSprites = [getTexture "text_level4" assetlist, getTexture "text2_level4" assetlist, getTexture "text_level4" assetlist, getTexture "text2_level4" assetlist]
+                }
+            ),
+            ( "NextWave",
+              C.defaultTextParticle
+                { particlePos = (300, 0),
+                  particleInterval = 10,
+                  particleTimer = 10,
+                  particleSprites = [getTexture "text_nextwave" assetlist, getTexture "text2_nextwave" assetlist, getTexture "text_nextwave" assetlist, getTexture "text2_nextwave" assetlist, getTexture "text_nextwave" assetlist, getTexture "text2_nextwave" assetlist]
+                }
             )
           ],
       tmpassetList = assetlist,
@@ -102,7 +144,7 @@ resetLevel gs =
 -- | Create menu's
 initMenu, initPlayMenu, initPauseMenu, initCreditMenu, initControlsMenu :: Assets -> Menu
 initMenu assets = createMenu "Shoot'em Up" (getTexture "menu" assets) NoMenu [("Play", initPlayMenu assets), ("Controls", initControlsMenu assets), ("Credits", initCreditMenu assets), ("Exit", NoMenuButFunction exitGame)]
-initPlayMenu assets = createMenu "Choose players" (getTexture "menu" assets) (initMenu assets) [("1 Player", NoMenuButFunction loadLevelselectAnd1Player), ("2 Player", NoMenuButFunction loadLevelselectAnd2Player)]
+initPlayMenu assets = createMenu "Choose players" (getTexture "menu" assets) (initMenu assets) [("1 Player", NoMenuButFunction loadLevelselectAnd1Player), ("2 Players", NoMenuButFunction loadLevelselectAnd2Player)]
 initPauseMenu assets = createMenu "Paused" (getTexture "menu" assets) NoMenu [("Resume", NoMenuButFunction resumeGame), ("Return to menu", initMenu assets)]
 initCreditMenu assets = createMenu "Credits" (getTexture "credits" assets) (initMenu assets) [("", NoMenu)]
 initControlsMenu assets = createMenu "Controls" (getTexture "controls" assets) (initMenu assets) [("", NoMenu)]
@@ -159,10 +201,11 @@ loadPlayers :: GameState -> GameState
 loadPlayers gs@GameState {tmpassetList = _assets, nrOfPlayers = _nrOfPlayers} = gs {players = addPlayers _assets _nrOfPlayers}
 
 startLevel :: GameState -> GameState
-startLevel gs@GameState {tmpassetList = _assetList, menu = _menu} =
+startLevel gs@GameState {tmpassetList = _assetList, menu = _menu, particles = _particles, particleMap = _particleMap, currentLevel = _currentLevel} =
   gs
     { status = InGame,
-      menu = initPauseMenu _assetList
+      menu = initPauseMenu _assetList,
+      particles = getParticle ("level" ++ show (levelNr _currentLevel)) _particleMap : _particles
     }
 
 -- Toggles the status in the GameState.

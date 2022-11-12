@@ -3,7 +3,7 @@
 
 module Level where
 
-import Assets (fixImageOrigin, getTexture)
+import Assets (fixImageOrigin, getParticle, getTexture)
 import qualified Config as C
 import Control.Applicative ()
 import Control.Monad ()
@@ -18,9 +18,9 @@ import Text.Read (readMaybe)
 
 -- | The function 'nextwave' sets the nextwave as currentwave. If there are no more waves this functions does nothing.
 nextWave :: GameState -> GameState
-nextWave gs@GameState {currentLevel = _currentLevel, enemies = _enemies}
+nextWave gs@GameState {currentLevel = _currentLevel, enemies = _enemies, particles = _particles, particleMap = _particleMap}
   | ifAllWavesCleared = gs
-  | otherwise = gs {enemies = _enemies ++ spawnNextWave, currentLevel = _currentLevel {waves = removeWaveAfterSpawn}}
+  | otherwise = gs {enemies = _enemies ++ spawnNextWave, currentLevel = _currentLevel {waves = removeWaveAfterSpawn}, particles = waveParticles : _particles}
   where
     ifAllWavesCleared :: Bool
     ifAllWavesCleared = null (waves _currentLevel)
@@ -30,6 +30,9 @@ nextWave gs@GameState {currentLevel = _currentLevel, enemies = _enemies}
 
     removeWaveAfterSpawn :: [Wave]
     removeWaveAfterSpawn = tail $ waves _currentLevel
+
+    waveParticles :: Particle
+    waveParticles = getParticle "NextWave" _particleMap
 
 -- | This function tries to convert the name of the selected menu. In case it is a Level it is a number.
 getLevelIndex :: Menu -> Int
@@ -134,24 +137,24 @@ createAirplane airplaneType' airplanePosition' assetList = case airplaneType' of
       Player1 ->
         AirplaneGun
           Projectile
-            { projectileType = Gun,
+            { projectileType = DoubleGun,
               projectilePos = (0, 0),
               projectileSize = C.projectileSizeVar,
               projectileVelocity = (16, 0),
               projectileHealth = 1,
-              projectileDamage = 10,
+              projectileDamage = 5,
               projectileOrigin = Players,
-              projectileSprite = flip fixImageOrigin C.projectileSizeVar $ rotate (-90) $ getTexture "bullet" assetList
+              projectileSprite = flip fixImageOrigin C.projectileSizeVar $ rotate (-90) $ getTexture "double-bullet" assetList
             }
       Player2 ->
         AirplaneGun
           Projectile
-            { projectileType = Gun,
+            { projectileType = DoubleGun,
               projectilePos = (0, 0),
               projectileSize = C.projectileSizeVar,
               projectileVelocity = (16, 0),
               projectileHealth = 1,
-              projectileDamage = 10,
+              projectileDamage = 5,
               projectileOrigin = Players,
               projectileSprite = flip fixImageOrigin C.projectileSizeVar $ rotate (-90) $ getTexture "bullet" assetList
             }

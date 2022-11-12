@@ -59,7 +59,7 @@ airplaneSizeVar = (airplaneSizeXY, airplaneSizeXY)
 
 enemyXBounds, enemyYBounds :: (Float, Float)
 enemyXBounds = (0.0, screenMaxX - airplaneSizeXY)
-enemyYBounds = (screenMinY, screenMaxY - airplaneSizeXY)
+enemyYBounds = (screenMinY + airplaneSizeXY, screenMaxY - airplaneSizeXY)
 
 -- ** Player base values
 
@@ -121,4 +121,15 @@ spritesDefault =
       spritesTimer = spritesDefaultInterval,
       idleSprites = [errorSprite "Idle sprites not set"],
       movingSprites = [errorSprite "Moving sprites not set"]
+    }
+-- * defaults
+
+defaultTextParticle :: Particle
+defaultTextParticle =
+  Particle
+    { particlePos = (0, 0),
+      particleSize = (0, 0),
+      particleInterval = 30,
+      particleTimer = 30,
+      particleSprites = [errorSprite "Sprites not initialized"]
     }

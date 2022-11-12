@@ -24,10 +24,10 @@ step seconds gs@GameState {status = _status, ioActions = _ioActoins, tmpassetLis
     handleIO :: IO GameState
     handleIO
       | releadLevels _ioActoins = do
-        newJSONLevel <- getLevelsInJSON
-        let newLevels = Prelude.map (`levelConverter` _assets) newJSONLevel
-        let newLevelSelectMenu = createLevelSelectmenu newLevels
-        return gs {levels = newLevels, levelSelectMenu = newLevelSelectMenu _assets, menu = newLevelSelectMenu _assets, ioActions = emptyIOActions}
+          newJSONLevel <- getLevelsInJSON
+          let newLevels = Prelude.map (`levelConverter` _assets) newJSONLevel
+          let newLevelSelectMenu = createLevelSelectmenu newLevels
+          return gs {levels = newLevels, levelSelectMenu = newLevelSelectMenu _assets, menu = newLevelSelectMenu _assets, ioActions = emptyIOActions}
       | quitGame _ioActoins = exitSuccess
       | otherwise = return gs
 
@@ -38,12 +38,12 @@ step seconds gs@GameState {status = _status, ioActions = _ioActoins, tmpassetLis
 stepPure :: Float -> StdGen -> GameState -> GameState
 stepPure seconds gen gs@GameState {status = _status}
   | _status == InMenu = updateMenu gs
-  | _status == InGame = updateGameState randomPoint $ gs {elapsedTime = updateTime, powerUps = updatedPowerUpList}
+  | _status == InGame = updateGameState randomPoints $ gs {elapsedTime = updateTime, powerUps = updatedPowerUpList}
   | otherwise = gs
   where
     updateTime :: Time
     updateTime = elapsedTime gs + seconds
-    randomPoint = getRandomPoint C.enemyXBounds C.enemyYBounds gen -- mkStdGen $ round updateTime
+    randomPoints = getRandomPoints C.enemyXBounds C.enemyYBounds 10 gen -- mkStdGen $ round updateTime
     updatedPowerUpList = case spawnPowerUp gen (tmpassetList gs) of
       Just x -> x : powerUps gs
       Nothing -> powerUps gs
@@ -53,8 +53,8 @@ updateMenu :: GameState -> GameState
 updateMenu = checkMenuInput
 
 -- | GameLoop while game is in state InGame
-updateGameState :: Position -> GameState -> GameState
-updateGameState randomPoint = debugButtons . checkPause . levelHandler . garbageCollector . particleHandler . collisionHandler . timeHandler . movementHandler . enemyBehaviourHandler randomPoint
+updateGameState :: [Position] -> GameState -> GameState
+updateGameState randomPoints = debugButtons . checkPause . levelHandler . garbageCollector . particleHandler . collisionHandler . timeHandler . movementHandler . enemyBehaviourHandler randomPoints
 
 -- | When ESC key is pressed change the Status to InMenu
 checkPause :: GameState -> GameState
