@@ -6,16 +6,6 @@ module Timeable where
 import Animateable (Animateable (nextSprite))
 import Config as C
 import Model
-  ( Airplane (..),
-    AirplaneGun (..),
-    FireRate (..),
-    Level (..),
-    Particle (..),
-    PowerUp (..),
-    PowerUpState (..),
-    Sprites (..),
-    Wave (..),
-  )
 
 -------------------------------------------------
 

@@ -11,9 +11,9 @@ import Graphics.Gloss
     red,
     translate,
   )
-import Model (Assets, Particle (..), Particles, Size)
+import Model
 import System.Directory (doesDirectoryExist, listDirectory)
-import System.FilePath
+import System.FilePath (takeFileName, (</>))
 
 -- | Assets folder location
 assetsPath :: FilePath
@@ -47,7 +47,7 @@ loadAssets filePath = do
 combinePath :: [FilePath] -> [[FilePath]] -> [[FilePath]]
 combinePath [] _ = []
 combinePath _ [] = []
-combinePath (x : xs) (ys : yss) = Prelude.map (x ++) ys : combinePath xs yss -- TODO use higher order functions
+combinePath (x : xs) (ys : yss) = Prelude.map (x ++) ys : combinePath xs yss
 
 -- | Get all directories of the given file path
 getDirectories :: FilePath -> IO [FilePath]

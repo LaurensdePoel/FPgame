@@ -1,8 +1,7 @@
 module Airplane where
 
-import Assets
 import Model
-import Updateable
+import Updateable (Updateable (getCenterPosition))
 
 -- | Returns a list of new projectiles based on the airplaneGun
 shoot :: Airplane -> [Projectile]

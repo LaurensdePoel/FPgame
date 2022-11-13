@@ -5,10 +5,6 @@ module Damageable where
 
 import Config as C
 import Model
-  ( Airplane (..),
-    Projectile (..),
-    ProjectileType (..),
-  )
 
 -------------------------------------------------
 

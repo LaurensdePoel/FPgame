@@ -2,18 +2,28 @@
 module Controller where
 
 import Config as C
-import Enemy
+import Enemy (enemyBehaviourHandler)
 import Graphics.Gloss.Interface.IO.Game
+  ( Key (Char, SpecialKey),
+    SpecialKey (KeyEsc),
+  )
 import Handler
-import Init
-import Input
-import Level
-import LoadLevels
-import Menu
+  ( collisionHandler,
+    garbageCollector,
+    levelHandler,
+    movementHandler,
+    particleHandler,
+    timeHandler,
+  )
+import Init (createLevelSelectmenu, emptyIOActions)
+import Input (singleKeyPress)
+import Level (levelConverter, nextWave)
+import LoadLevels (getLevelsInJSON)
+import Menu (checkMenuInput, pauseMenu)
 import Model
-import Random
+import Random (getRandomPoints, randomPowerUps)
 import System.Exit (exitSuccess)
-import System.Random
+import System.Random (StdGen, newStdGen)
 
 step :: Float -> GameState -> IO GameState
 step seconds gs@GameState {status = _status, ioActions = _ioActoins, assetMap = _assets} = do

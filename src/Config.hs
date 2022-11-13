@@ -1,13 +1,15 @@
+-- | This module defines configuration values of the game
 module Config where
 
--- TODO Add all values
-
-import Assets
-import Graphics.Gloss
-import Helper
+import Assets (errorSprite, fixImageOrigin, getTexture)
+import Graphics.Gloss (Picture, rotate)
 import Model
 
+--------------------------------------------
+
 -- * Window
+
+--------------------------------------------
 
 fps :: Int
 fps = 60
@@ -35,7 +37,16 @@ screenMaxY = fromIntegral screenHeight * 0.5
 screenMinY :: Float
 screenMinY = fromIntegral screenHeight * (-0.5)
 
--- * Menu
+-- ** Background
+
+backgroundAnimationSpeed :: Float
+backgroundAnimationSpeed = 1.0
+
+--------------------------------------------
+
+-- * Menu / text
+
+--------------------------------------------
 
 menuTextOffset :: Float
 menuTextOffset = -200
@@ -49,127 +60,16 @@ menuHeaderStartHeight = 300
 menuTextCharacterOffset :: Float
 menuTextCharacterOffset = 60
 
--- * Sprite sizes and offsets
-
-projectileSizeXY, airplaneSizeXY :: Float
-projectileSizeXY = 16.0
-airplaneSizeXY = 32.0
-
-projectileSizeVar, airplaneSizeVar :: Size
-projectileSizeVar = (projectileSizeXY, projectileSizeXY)
-airplaneSizeVar = (airplaneSizeXY, airplaneSizeXY)
-
--- * Airplane base values
-
-enemyXBounds, enemyYBounds :: (Float, Float)
-enemyXBounds = (0.0, screenMaxX - airplaneSizeXY)
-enemyYBounds = (screenMinY + airplaneSizeXY, screenMaxY - airplaneSizeXY)
-
--- ** Player base values
-
-velocityStep :: Float
-velocityStep = 0.6
-
--- ** Enemey base values
-
-behaviourVelocitySteps :: Float
-behaviourVelocitySteps = 0.25
-
--- * Multipliers
-
-velocityReduction :: Float
-velocityReduction = 0.2
-
-destinationErrorMargin :: (Float, Float)
-destinationErrorMargin = (0.2, 0.2)
-
--- * Projectile values
-
-damageMultiplier :: Int
-damageMultiplier = 2
-
--- * Power Ups
-
-itemParticleOffset :: Position
-itemParticleOffset = (0, 10)
-
-healthPackValue :: Int
-healthPackValue = 30
-
-powerPackValue :: Float
-powerPackValue = 0.125
-
-powerUpDefaultSize :: (Float, Float)
-powerUpDefaultSize = (10, 10)
-
-powerUpDespawnTime :: Float
-powerUpDespawnTime = 350.0
-
-powerUpDurationTime :: Float
-powerUpDurationTime = 300.0
-
-powerUpAnimationInterval :: Float
-powerUpAnimationInterval = 10.0
-
-powerUpSpawnOdds :: Int
-powerUpSpawnOdds = 500
-
--- * Sprites
-
-spritesDefaultInterval :: Float
-spritesDefaultInterval = 10.0
-
-spritesDefault :: Sprites
-spritesDefault =
-  Sprites
-    { spritesState = Idle,
-      spritePos = (0, 0),
-      spritesInterval = spritesDefaultInterval,
-      spritesTimer = spritesDefaultInterval,
-      idleSprites = [errorSprite "Idle sprites not set"],
-      movingSprites = [errorSprite "Moving sprites not set"]
-    }
-
--- * defaults
-
-defaultTextParticle :: Particle
-defaultTextParticle =
-  Particle
-    { particlePos = (0, 0),
-      particleSize = (0, 0),
-      particleInterval = 80,
-      particleTimer = 80,
-      particleSprites = [errorSprite "Sprites not initialized"]
-    }
-
--- * Background
-
-backgroundAnimationSpeed :: Float
-backgroundAnimationSpeed = 1.0
-
--- * Text
-
 healthTextOffset :: (Float, Float)
 healthTextOffset = (5, -48)
 
--- * Time
+--------------------------------------------
 
-resetTime, timeInterval :: Time
-resetTime = 0.0
-timeInterval = 1.0
+-- * Define airplanes
 
-numRandomPoints :: Int
-numRandomPoints = 10
+--------------------------------------------
 
-playerSpriteRotation, enemySpriteRotation :: Float
-playerSpriteRotation = 90
-enemySpriteRotation = -90
-
-player1SpawnLocation, player2SpawnLocation :: Position
-player1SpawnLocation = (-300, 100)
-player2SpawnLocation = (-300, -100)
-
--- * define airplanes
+-- ** Default
 
 baseAirplane :: AirPlaneType -> Position -> Airplane
 baseAirplane type' position =
@@ -183,6 +83,20 @@ baseAirplane type' position =
       airplanePowerUps = [],
       airplaneSprite = errorSprite "default airplane config"
     }
+
+-- ** Player
+
+playerAirplane :: AirPlaneType -> Position -> Assets -> Picture -> Enemy
+playerAirplane type' position assets sprite =
+  (baseAirplane type' position)
+    { airplaneMaxVelocity = (-6, 6),
+      airplaneHealth = 100,
+      fireRate = Single 30.0,
+      airplaneGun = playerGun assets,
+      airplaneSprite = sprite
+    }
+
+-- ** Enemies
 
 fighterAirplane :: AirPlaneType -> Position -> Assets -> Picture -> Enemy
 fighterAirplane type' position assets sprite =
@@ -204,8 +118,8 @@ flybyAirplane type' position assets sprite =
       airplaneSprite = sprite
     }
 
-kamikazeAirplane :: AirPlaneType -> Position -> Assets -> Picture -> Enemy
-kamikazeAirplane type' position assets sprite =
+kamikazeAirplane :: AirPlaneType -> Position -> Picture -> Enemy
+kamikazeAirplane type' position sprite =
   (baseAirplane type' position)
     { airplaneMaxVelocity = (-5, 5),
       airplaneHealth = 40,
@@ -214,17 +128,11 @@ kamikazeAirplane type' position assets sprite =
       airplaneSprite = sprite
     }
 
-playerAirplane :: AirPlaneType -> Position -> Assets -> Picture -> Enemy
-playerAirplane type' position assets sprite =
-  (baseAirplane type' position)
-    { airplaneMaxVelocity = (-6, 6),
-      airplaneHealth = 100,
-      fireRate = Single 30.0,
-      airplaneGun = playerGun assets,
-      airplaneSprite = sprite
-    }
+--------------------------------------------
 
--- * define airplane guns
+-- * Define airplane gun Types
+
+--------------------------------------------
 
 playerGun :: Assets -> AirplaneGun
 playerGun assets =
@@ -253,3 +161,143 @@ enemyGun assets =
         projectileOrigin = Enemies,
         projectileSprite = flip fixImageOrigin projectileSizeVar $ rotate enemySpriteRotation $ getTexture "bullet" assets
       }
+
+--------------------------------------------
+
+-- * Power up
+
+--------------------------------------------
+
+itemParticleOffset :: Position
+itemParticleOffset = (0, 10)
+
+healthPackValue :: Int
+healthPackValue = 30
+
+powerPackValue :: Float
+powerPackValue = 0.125
+
+powerUpDefaultSize :: (Float, Float)
+powerUpDefaultSize = (10, 10)
+
+powerUpDespawnTime :: Float
+powerUpDespawnTime = 350.0
+
+powerUpDurationTime :: Float
+powerUpDurationTime = 300.0
+
+powerUpAnimationInterval :: Float
+powerUpAnimationInterval = 10.0
+
+powerUpSpawnOdds :: Int
+powerUpSpawnOdds = 500
+
+--------------------------------------------
+
+-- * Movement
+
+--------------------------------------------
+
+velocityReduction :: Float
+velocityReduction = 0.2
+
+-- player
+velocityStep :: Float
+velocityStep = 0.6
+
+-- enemy
+behaviourVelocitySteps :: Float
+behaviourVelocitySteps = 0.25
+
+--------------------------------------------
+
+-- * Size and rotation
+
+--------------------------------------------
+
+projectileSizeXY, airplaneSizeXY :: Float
+projectileSizeXY = 16.0
+airplaneSizeXY = 32.0
+
+projectileSizeVar, airplaneSizeVar :: Size
+projectileSizeVar = (projectileSizeXY, projectileSizeXY)
+airplaneSizeVar = (airplaneSizeXY, airplaneSizeXY)
+
+playerSpriteRotation, enemySpriteRotation :: Float
+playerSpriteRotation = 90
+enemySpriteRotation = -90
+
+--------------------------------------------
+
+-- * Time
+
+--------------------------------------------
+
+resetTime, timeInterval :: Time
+resetTime = 0.0
+timeInterval = 1.0
+
+--------------------------------------------
+
+-- * Random
+
+--------------------------------------------
+
+numRandomPoints :: Int
+numRandomPoints = 10
+
+--------------------------------------------
+
+-- * Spawning and boundaries
+
+--------------------------------------------
+
+enemyXBounds, enemyYBounds :: (Float, Float)
+enemyXBounds = (0.0, screenMaxX - airplaneSizeXY)
+enemyYBounds = (screenMinY + airplaneSizeXY, screenMaxY - airplaneSizeXY)
+
+player1SpawnLocation, player2SpawnLocation :: Position
+player1SpawnLocation = (-300, 100)
+player2SpawnLocation = (-300, -100)
+
+destinationErrorMargin :: (Float, Float)
+destinationErrorMargin = (0.2, 0.2)
+
+--------------------------------------------
+
+-- * Multipliers
+
+--------------------------------------------
+
+damageMultiplier :: Int
+damageMultiplier = 2
+
+--------------------------------------------
+
+-- * Define defaults
+
+--------------------------------------------
+
+spritesDefaultInterval :: Float
+spritesDefaultInterval = 10.0
+
+spritesDefault :: Sprites
+spritesDefault =
+  Sprites
+    { spritesState = Idle,
+      spritePos = (0, 0),
+      spritesInterval = spritesDefaultInterval,
+      spritesTimer = spritesDefaultInterval,
+      idleSprites = [errorSprite "Idle sprites not set"],
+      movingSprites = [errorSprite "Moving sprites not set"]
+    }
+
+defaultTextParticle :: Particle
+defaultTextParticle =
+  Particle
+    { particlePos = (0, 0),
+      particleSize = (0, 0),
+      particleInterval = 80,
+      particleTimer = 80,
+      particleSprites = [errorSprite "Sprites not initialized"]
+    }

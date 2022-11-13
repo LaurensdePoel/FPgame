@@ -5,7 +5,7 @@ Build & Run project:
 cabal run
 
 Clean project:
-cabal Clean
+cabal clean
 
 Create Documentation:
 cabal haddock --haddock-executables

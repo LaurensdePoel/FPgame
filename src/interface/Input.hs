@@ -3,7 +3,7 @@ module Input where
 import qualified Data.Set as S
 import Graphics.Gloss.Interface.IO.Game (Event (EventKey), Key)
 import Graphics.Gloss.Interface.IO.Interact (KeyState (..))
-import Model (GameState (..))
+import Model
 
 -- | Handle user input
 input :: Event -> GameState -> IO GameState

@@ -15,18 +15,6 @@ import Graphics.Gloss
     translate,
   )
 import Model
-  ( AirPlaneType (..),
-    Airplane (..),
-    AnimationState (..),
-    Background (..),
-    Field (..),
-    Level (..),
-    Menu (..),
-    Particle (..),
-    PowerUp (..),
-    Projectile (..),
-    Sprites (..),
-  )
 
 -------------------------------------------------
 
@@ -81,7 +69,6 @@ instance Drawable Sprites where
       Idle -> uncurry translate _position (head _idleSprites)
       Moving -> uncurry translate _position (head _movingSprites)
 
--- TODO clean up menu drawable
 instance Drawable Menu where
   -- \| Converts a menu into a picture
   draw :: Menu -> Picture
@@ -99,5 +86,6 @@ instance Drawable Field where
   draw Field {fieldName = _fieldName, fieldPosition = _fieldPosition} = Scale 0.25 0.25 $ translate `uncurry` _fieldPosition $ color black (Text _fieldName)
 
 instance Drawable Level where
+  -- \| Converts the background of a level in a picture
   draw :: Level -> Picture
   draw Level {levelBackground = Background {backgroundPos = _pos, backgroundSprite = _sprite}} = uncurry translate _pos $ Color black _sprite

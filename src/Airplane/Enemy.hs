@@ -3,7 +3,7 @@ module Enemy where
 import Config as C
 import Helper (minMax)
 import Model
-import Updateable
+import Updateable (Updateable (getClosestPosition))
 
 -- | Check if the Airplane has reached its destination
 isDestinationReached :: Airplane -> Bool

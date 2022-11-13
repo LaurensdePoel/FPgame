@@ -3,6 +3,17 @@ module Menu where
 import Config as C
 import qualified Data.Set as S
 import Graphics.Gloss.Interface.IO.Interact
+  ( Key (Char, SpecialKey),
+    Picture,
+    SpecialKey
+      ( KeyBackspace,
+        KeyDelete,
+        KeyDown,
+        KeyEnter,
+        KeyEsc,
+        KeyUp
+      ),
+  )
 import Model
 
 -- | Toggles the status in the 'GameState'.

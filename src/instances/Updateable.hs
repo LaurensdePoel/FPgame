@@ -4,7 +4,7 @@
 module Updateable where
 
 import Config as C
-import Data.Maybe
+import Data.Maybe (mapMaybe)
 import Helper (minMax)
 import Model
 
@@ -28,7 +28,7 @@ class Updateable a where
   -- | Returns the center position of an Updateable
   getCenterPosition :: a -> Position
 
-  -- | Gets the position of the closets Updateable b in [b] of Updateable a
+  -- | Gets the position of the closets Updateable b in [b] to Updateable a
   getClosestPosition :: Updateable b => a -> [b] -> Position
   getClosestPosition a [] = getCenterPosition a
   getClosestPosition a (b : bs) = foldr updateClosestB (getCenterPosition b) bs

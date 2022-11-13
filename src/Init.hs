@@ -5,10 +5,10 @@ import Assets (errorSprite, getParticle, getTexture)
 
 import Config as C
 import Data.Map as Dict (fromList)
-import Graphics.Gloss
-import Input
-import Level
-import Menu
+import Graphics.Gloss (Picture (Scale))
+import Input (emptyKeys)
+import Level (addPlayers, getLevelIndex)
+import Menu (createMenu)
 import Model
 
 -- | creates an empty level which should never be displayed.
@@ -136,7 +136,6 @@ initVictoryMenu assets = createMenu "Level Completed" (getTexture "menu" assets)
 initDefeatMenu :: Assets -> Menu
 initDefeatMenu assets = createMenu "Game Over" (getTexture "menu" assets) NoMenu [("Retry Level", NoMenuButFunction retryLevel), ("Select Level", NoMenuButFunction loadLevelSelectMenu), ("Return to Menu", initMenu assets)] -- TODO: NoMenuButFunction start1player is incorrect
 
--- TODO Make higher order function
 createLevelSelectmenu :: [Level] -> Assets -> Menu
 createLevelSelectmenu levelList assets = createMenu "Level Select" (getTexture "menu" assets) (initPlayMenu assets) (reloadLevelsField : createLevelFields levelList)
   where

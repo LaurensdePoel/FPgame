@@ -7,15 +7,6 @@ module Collidable where
 
 import Graphics.Gloss (Point)
 import Model
-  ( AirPlaneType (..),
-    Airplane (..),
-    Origin (..),
-    Position,
-    PowerUp (..),
-    PowerUpState (..),
-    Projectile (..),
-    Size,
-  )
 
 -------------------------------------------------
 

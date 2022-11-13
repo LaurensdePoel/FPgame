@@ -4,12 +4,12 @@
 module LoadLevels where
 
 import Data.Aeson (eitherDecode)
-import Data.Aeson.Types
+import Data.Aeson.Types (FromJSON, ToJSON)
 import qualified Data.ByteString.Lazy as B
 import Data.List (sort)
 import GHC.Generics (Generic)
 import Model
-import System.Directory
+import System.Directory (listDirectory)
 
 -- * Models
 

@@ -1,10 +1,12 @@
 module Player where
 
-import Airplane
 import Config as C
 import qualified Data.Set as S
 import Graphics.Gloss.Interface.IO.Interact
-import Helper
+  ( Key (Char, SpecialKey),
+    SpecialKey (KeyDown, KeyLeft, KeyRight, KeyUp),
+  )
+import Helper (minMax)
 import Model
 
 -- | Apply or remove powerUp effect on/from the airplane

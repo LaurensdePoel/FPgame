@@ -6,12 +6,6 @@ module Animateable where
 import Config as C
 import Graphics.Gloss (Picture)
 import Model
-  ( AnimationState (..),
-    Background (..),
-    Particle (..),
-    Position,
-    Sprites (..),
-  )
 
 ---------------------------------------------------
 

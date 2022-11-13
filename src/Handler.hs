@@ -3,20 +3,22 @@
 -- | This module defines the Updates of entities in the game
 module Handler where
 
-import Airplane
-import Animateable
-import Assets
-import Collidable
+import Airplane (shoot)
+import Animateable (Animateable (nextSprite))
+import Assets (getParticle)
+import Collidable (Collidable (applyOnCollisions))
 import Config as C
-import Damageable
-import Data.Maybe
-import Init
-import Input
-import Level
+import Damageable (Damageable (damageBoth))
+import Data.Maybe (isNothing, mapMaybe)
+import Init (initDefeatMenu, initVictoryMenu)
+import Input (emptyKeys)
+import Level (nextWave)
 import Model
-import Player
+import Player (powerUpEffect, updatePlayerVelocity)
 import Timeable (Timeable (applyOnExecute, readyToExecute, updateTime))
 import Updateable
+  ( Updateable (destroy, destroyFromList, getCenterPosition, move),
+  )
 
 -- | Handles levels and waves -- TODO Rewrite so more functonality is inside Level.hs
 levelHandler :: GameState -> GameState

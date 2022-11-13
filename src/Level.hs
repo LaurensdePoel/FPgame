@@ -10,7 +10,7 @@ import Control.Monad ()
 import Data.Aeson ()
 import Data.List ()
 import GHC.Generics ()
-import Graphics.Gloss
+import Graphics.Gloss (Picture, pictures, rotate, translate)
 import LoadLevels (AirplaneJSON (..), LevelJSON (..), WaveJSON (..))
 import Model
 import System.Directory ()
@@ -95,7 +95,7 @@ createAirplane :: AirPlaneType -> Position -> Assets -> Airplane
 createAirplane airplaneType' airplanePosition' assets' =
   case airplaneType' of
     Fighter -> C.fighterAirplane airplaneType' airplanePosition' assets' createAirplaneSprite
-    Kamikaze -> C.kamikazeAirplane airplaneType' airplanePosition' assets' createAirplaneSprite
+    Kamikaze -> C.kamikazeAirplane airplaneType' airplanePosition' createAirplaneSprite
     FlyBy -> C.flybyAirplane airplaneType' airplanePosition' assets' createAirplaneSprite
     Player1 -> C.playerAirplane airplaneType' airplanePosition' assets' createAirplaneSprite
     Player2 -> C.playerAirplane airplaneType' airplanePosition' assets' createAirplaneSprite

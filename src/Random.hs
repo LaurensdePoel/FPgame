@@ -3,13 +3,13 @@
 
 module Random where
 
-import Assets
+import Assets (getParticle, getTexture)
 import Config as C
 import Graphics.Gloss (Picture)
-import Item
+import Item ()
 import Model
-import System.Random
-import Updateable
+import System.Random (Random (random, randomR), RandomGen)
+import Updateable ()
 
 -- | Generates a random position
 getRandomPoint :: RandomGen a => (Float, Float) -> (Float, Float) -> a -> (Position, a)
