@@ -5,6 +5,7 @@ module Updateable where
 
 import Config as C
 import Data.Maybe
+import Helper (minMax)
 import Model
 
 -------------------------------------------------
@@ -26,6 +27,29 @@ class Updateable a where
 
   -- | Returns the center position of an Updateable
   getCenterPosition :: a -> Position
+
+  -- | Gets the position of the closets Updateable b in [b] of Updateable a
+  getClosestPosition :: Updateable b => a -> [b] -> Position
+  getClosestPosition a [] = getCenterPosition a
+  getClosestPosition a (b : bs) = foldr updateClosestB (getCenterPosition b) bs
+    where
+      currentPos :: Position
+      currentPos = getCenterPosition a
+
+      updateClosestB :: Updateable b => b -> Position -> Position
+      updateClosestB b' rest =
+        case isCloser position rest of
+          True -> position
+          False -> rest
+        where
+          isCloser :: Position -> Position -> Bool
+          isCloser newPos pos = distance newPos < distance pos
+
+          distance :: Position -> Float
+          distance (x, y) = sqrt (((x - fst currentPos) ** 2) + ((y - snd currentPos) ** 2))
+
+          position :: Position
+          position = getCenterPosition b'
 
 -------------------------------------------------
 
@@ -72,7 +96,7 @@ instance Updateable Airplane where
 
       updatedPosition :: Position
       updatedPosition
-        | _type == Player1 || _type == Player2 = (max C.screenMinX (min x (C.screenMaxX - _sizeX)), max (C.screenMinY + _sizeY) (min y C.screenMaxY)) -- TODO: Use minmax function (where can we place such general functions?)
+        | _type == Player1 || _type == Player2 = (minMax (C.screenMinX, C.screenMaxX - _sizeX) x, minMax (C.screenMinY + _sizeY, C.screenMaxY) y)
         | otherwise = pos
 
       updatedHealth :: Int
@@ -118,13 +142,14 @@ instance Updateable PowerUp where
 
   -- \| Only returns the powerUp if the timer is not zero
   destroy :: PowerUp -> Maybe PowerUp
-  destroy powerUp@PowerUp {powerUpState = _state, timeUntilDespawn = _despawnTime, powerUpDuration = _duration} = case _state of
-    PickedUp
-      | _duration <= 0 -> Nothing
-      | otherwise -> Just powerUp
-    WorldSpace
-      | _despawnTime <= 0 -> Nothing
-      | otherwise -> Just powerUp
+  destroy powerUp@PowerUp {powerUpState = _state, timeUntilDespawn = _despawnTime, powerUpDuration = _duration} =
+    case _state of
+      PickedUp
+        | _duration <= 0 -> Nothing
+        | otherwise -> Just powerUp
+      WorldSpace
+        | _despawnTime <= 0 -> Nothing
+        | otherwise -> Just powerUp
 
   -- \| Get the center position of a powerUp
   getCenterPosition :: PowerUp -> Position
@@ -135,6 +160,7 @@ instance Updateable Particle where
   move :: Particle -> Particle
   move particle = particle
 
+  -- \| Only returns the Particle if the animation isn't finished
   destroy :: Particle -> Maybe Particle
   destroy particle@Particle {particleSprites = _sprites}
     | null _sprites = Nothing

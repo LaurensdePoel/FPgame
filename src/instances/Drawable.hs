@@ -5,7 +5,28 @@ module Drawable where
 
 import Config as C
 import Graphics.Gloss
+  ( Picture (Blank, Color, Scale, Text),
+    black,
+    color,
+    pictures,
+    red,
+    rotate,
+    scale,
+    translate,
+  )
 import Model
+  ( AirPlaneType (..),
+    Airplane (..),
+    AnimationState (..),
+    Background (..),
+    Field (..),
+    Level (..),
+    Menu (..),
+    Particle (..),
+    PowerUp (..),
+    Projectile (..),
+    Sprites (..),
+  )
 
 -------------------------------------------------
 
@@ -35,7 +56,7 @@ instance Drawable Airplane where
       Kamikaze -> pictures [healthText, translate `uncurry` _position $ rotate (atan2 `uncurry` _velocity / pi * 180) _sprite]
       _ -> pictures [healthText, translate `uncurry` _position $ _sprite]
     where
-      healthText = translate `uncurry` (_position + (5, -48)) $ scale 0.1 0.1 $ color red (Text $ show _health)
+      healthText = translate `uncurry` (_position + C.healthTextOffset) $ scale 0.1 0.1 $ color red (Text $ show _health)
 
 instance Drawable Projectile where
   -- \| Converts a projectile into a picture
@@ -68,7 +89,7 @@ instance Drawable Menu where
     where
       headerPicture = Scale 0.5 0.5 $ translate headerXOffset C.menuHeaderStartHeight $ color black (Text _header)
       currentSelected = Scale 0.25 0.25 $ translate `uncurry` fieldPosition (head _fields) $ color red (Text (fieldName $ head _fields))
-      headerXOffset = (-0.5) * fromIntegral (length _header * 70)
+      headerXOffset = (-0.5) * (fromIntegral (length _header) * C.menuTextCharacterOffset)
   draw NoMenu = Blank
   draw NoMenuButFunction {} = Blank
 

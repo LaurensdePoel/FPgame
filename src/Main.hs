@@ -21,7 +21,7 @@ main = do
   let levelSelectMenu = createLevelSelectmenu levels
   let
   playIO
-    (InWindow "Nice Window" (screenWidth, screenHeight) (offset, offset))
+    (InWindow "FP - Haskell - Game project" (screenWidth, screenHeight) (offset, offset))
     black
     fps
     (initialState assets levels (levelSelectMenu assets))

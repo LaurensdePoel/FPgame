@@ -5,8 +5,17 @@
 -- | This module defines the Collidable type class
 module Collidable where
 
-import Graphics.Gloss
+import Graphics.Gloss (Point)
 import Model
+  ( AirPlaneType (..),
+    Airplane (..),
+    Origin (..),
+    Position,
+    PowerUp (..),
+    PowerUpState (..),
+    Projectile (..),
+    Size,
+  )
 
 -------------------------------------------------
 

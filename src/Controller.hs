@@ -16,9 +16,9 @@ import System.Exit (exitSuccess)
 import System.Random
 
 step :: Float -> GameState -> IO GameState
-step seconds gs@GameState {status = _status, ioActions = _ioActoins, tmpassetList = _assets} = do
+step seconds gs@GameState {status = _status, ioActions = _ioActoins, assetMap = _assets} = do
   newGs <- handleIO
-  gen <- newStdGen -- getStdGen
+  gen <- newStdGen
   return $ stepPure seconds gen newGs
   where
     handleIO :: IO GameState
@@ -32,21 +32,26 @@ step seconds gs@GameState {status = _status, ioActions = _ioActoins, tmpassetLis
       | otherwise = return gs
 
 -- | Handle one iteration of the game
---
 -- if status = InMenu -> updateMenu
 -- if status = InGame -> updateGameState
 stepPure :: Float -> StdGen -> GameState -> GameState
-stepPure seconds gen gs@GameState {status = _status}
+stepPure seconds gen gs@GameState {status = _status, assetMap = _assets}
   | _status == InMenu = updateMenu gs
-  | _status == InGame = updateGameState randomPoints $ gs {elapsedTime = updateTime, powerUps = updatedPowerUpList}
+  | _status == InGame = updateGameState randomPoints $ randomPowerUps gs {elapsedTime = updateTime} gen
   | otherwise = gs
   where
     updateTime :: Time
     updateTime = elapsedTime gs + seconds
-    randomPoints = getRandomPoints C.enemyXBounds C.enemyYBounds 10 gen -- mkStdGen $ round updateTime
-    updatedPowerUpList = case spawnPowerUp gen (tmpassetList gs) of
-      Just x -> x : powerUps gs
-      Nothing -> powerUps gs
+
+    -- \| generate random positions
+    randomPoints :: [Position]
+    randomPoints = getRandomPoints C.enemyXBounds C.enemyYBounds C.numRandomPoints gen
+
+-- \| Probability to spawn a powerUp
+-- randomPowerUps :: ([PowerUp],[Particle])
+-- updatedPowerUpList = case spawnPowerUp gen _assets of
+--   Just x -> (x : powerUps gs, getParticle "" (): particles gs)
+--   Nothing -> powerUps gs
 
 -- | GameLoop while game is in state InMenu
 updateMenu :: GameState -> GameState

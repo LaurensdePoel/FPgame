@@ -3,6 +3,7 @@
 
 module Item where
 
+import Assets
 import Config as C
 import Model
 
