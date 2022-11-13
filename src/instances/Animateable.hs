@@ -4,7 +4,7 @@
 module Animateable where
 
 import Config as C
-import Graphics.Gloss
+import Graphics.Gloss (Picture)
 import Model
 
 ---------------------------------------------------
@@ -42,6 +42,7 @@ instance Animateable Sprites where
       updateHead (x : xs) = xs ++ [x]
 
 instance Animateable Background where
+  -- \| Offsets the background
   nextSprite :: Background -> Background
   nextSprite background@Background {backgroundPos = _pos, backgroundSprite = _sprite} = background {backgroundPos = newPos}
     where
@@ -51,4 +52,4 @@ instance Animateable Background where
       updatePosition :: Position -> Position
       updatePosition (x, y)
         | x <= (C.screenMinX * 2) = (0, 0)
-        | otherwise = (x - 1, y)
+        | otherwise = (x - C.backgroundAnimationSpeed, y)

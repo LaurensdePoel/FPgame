@@ -3,30 +3,30 @@
 -- | This module defines the Updates of entities in the game
 module Handler where
 
-import Airplane
-import Animateable
-import Assets
-import Collidable
-import Damageable
-import Data.Maybe
-import Init
-import Input
-import Level
+import Airplane (shoot)
+import Animateable (Animateable (nextSprite))
+import Assets (getParticle)
+import Collidable (Collidable (applyOnCollisions))
+import Config as C
+import Damageable (Damageable (damageBoth))
+import Data.Maybe (isNothing, mapMaybe)
+import Init (initDefeatMenu, initVictoryMenu)
+import Input (emptyKeys)
+import Level (nextWave)
 import Model
-import Player
+import Player (powerUpEffect, updatePlayerVelocity)
 import Timeable (Timeable (applyOnExecute, readyToExecute, updateTime))
 import Updateable
-
--- TODO Naming refactor
--- TODO REWRITE FUNCTIONS
+  ( Updateable (destroy, destroyFromList, getCenterPosition, move),
+  )
 
 -- | Handles levels and waves -- TODO Rewrite so more functonality is inside Level.hs
 levelHandler :: GameState -> GameState
-levelHandler gs@GameState {currentLevel = _currentLevel, tmpassetList = assetsList, enemies = _enemies, players = _players}
+levelHandler gs@GameState {currentLevel = _currentLevel, assetMap = _assetsList, enemies = _enemies, players = _players}
   -- Enter Defeat menu
-  | ifAllPlayersDied = gs {status = InMenu, menu = initDefeatMenu assetsList, pressedKeys = emptyKeys}
+  | ifAllPlayersDied = gs {status = InMenu, menu = initDefeatMenu _assetsList, pressedKeys = emptyKeys}
   -- Enter Victory menu
-  | ifCurrentWaveKilled && ifAllWavesCleared = gs {status = InMenu, menu = initVictoryMenu assetsList, pressedKeys = emptyKeys}
+  | ifCurrentWaveKilled && ifAllWavesCleared = gs {status = InMenu, menu = initVictoryMenu _assetsList, pressedKeys = emptyKeys}
   -- Next Wave
   | ifCurrentWaveKilled || ifWaveTimerExpired = nextWave gs
   -- Do Nothing
@@ -84,42 +84,52 @@ collisionHandler gs@GameState {players = _players, enemies = _enemies, projectil
   gs {players = updatedPlayers, enemies = updatedEnemies, projectiles = updatedProjectiles3, powerUps = updatedPowerUps}
   where
     -- Handle collision between airplanes
-    (players', enemies') = applyOnCollisions applyDamage3 _players _enemies
-
-    applyDamage3 :: Airplane -> Airplane -> (Airplane, Airplane)
-    applyDamage3 player enemy = (takeDamage (airplaneHealth player) player, takeDamage (airplaneHealth enemy) enemy)
+    (players', enemies') = applyOnCollisions damageBoth _players _enemies
 
     -- Handle collision between projectiles
-    (updatedProjectiles, _) = applyOnCollisions applyDamage _projectiles _projectiles
-
-    applyDamage :: Projectile -> Projectile -> (Projectile, Projectile)
-    applyDamage a b = (takeDamage (projectileDamage b) a, takeDamage (projectileDamage a) b)
+    (updatedProjectiles, _) = applyOnCollisions damageBoth _projectiles _projectiles
 
     -- Handle collision between projectiles and enemies
-    (updatedProjectiles2, updatedEnemies) = applyOnCollisions applyDamage2 updatedProjectiles enemies'
+    (updatedProjectiles2, updatedEnemies) = applyOnCollisions damageBoth updatedProjectiles enemies'
 
     -- Handle collision between projectiles and players
-    (updatedProjectiles3, players'') = applyOnCollisions applyDamage2 updatedProjectiles2 players'
-
-    applyDamage2 :: Projectile -> Airplane -> (Projectile, Airplane)
-    applyDamage2 a b = (takeDamage (projectileHealth a) a, takeDamage (projectileDamage a) b)
+    (updatedProjectiles3, players'') = applyOnCollisions damageBoth updatedProjectiles2 players'
 
     -- Handle collision between players and powerUps
     (updatedPlayers, updatedPowerUps) = applyOnCollisions pickUp players'' _powerUps
 
     pickUp :: Airplane -> PowerUp -> (Airplane, PowerUp)
-    pickUp a b = (powerUpEffect True a b, b {timeUntilDespawn = 0.0})
+    pickUp a b = (powerUpEffect True a b, b {timeUntilDespawn = C.resetTime})
 
 -- | Removes all entities which satisfy their condition to be destroyed
 garbageCollector :: GameState -> GameState
-garbageCollector gs@GameState {players = _players, enemies = _enemies, projectiles = _projectiles, powerUps = _powerUps, particles = _particles} =
-  gs {players = updatedPlayers, enemies = destroyFromList _enemies, projectiles = destroyFromList _projectiles, powerUps = destroyFromList _powerUps, particles = destroyFromList _particles}
+garbageCollector gs@GameState {players = _players, enemies = _enemies, projectiles = _projectiles, particles = _particles, powerUps = _powerUps} =
+  gs {players = updatedPlayers, enemies = destroyFromList _enemies, projectiles = destroyFromList _projectiles, particles = destroyFromList updatedPowerUpParticles, powerUps = destroyFromList _powerUps}
   where
+    -- Remove power up particle when the power up is destroyed
+    updatedPowerUpParticles :: [Particle]
+    updatedPowerUpParticles = filter (\particle -> let pos = particlePos particle in pos `notElem` positions) _particles
+      where
+        positions :: [Position]
+        -- positions = mapMaybe (\powerUp -> if isNothing $ destroy powerUp then Just $ getClosestPosition powerUp _particles else Nothing) _powerUps
+        positions = mapMaybe (\powerUp -> if isNothing $ destroy powerUp then Just $ powerUpPos powerUp + C.itemParticleOffset else Nothing) _powerUps
+
     -- Remove destroyed players or/and finished powerUps of players
     updatedPlayers = mapMaybe (updatePowerUps . destroy) $ destroyFromList _players
       where
         updatePowerUps :: Maybe Airplane -> Maybe Airplane
         updatePowerUps player =
           case player of
-            Just _player -> let updatedPlayer = foldr (\powerUp r -> if readyToExecute powerUp then powerUpEffect False r powerUp else r) _player (airplanePowerUps _player) in Just updatedPlayer {airplanePowerUps = mapMaybe destroy (airplanePowerUps _player)}
+            Just player' -> Just (updatedPlayer player') {airplanePowerUps = mapMaybe destroy (airplanePowerUps player')}
             Nothing -> Nothing
+          where
+            updatedPlayer :: Airplane -> Airplane
+            updatedPlayer player'' =
+              foldr
+                ( \powerUp r ->
+                    if readyToExecute powerUp
+                      then powerUpEffect False r powerUp
+                      else r
+                )
+                player''
+                (airplanePowerUps player'')

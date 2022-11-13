@@ -2,15 +2,15 @@
 module Main where
 
 import Assets (getAssets)
-import Config
-import Controller
-import Graphics.Gloss
-import Graphics.Gloss.Interface.IO.Game
-import Init
-import Input
-import Level
+import Config as C
+import Controller (step)
+import Graphics.Gloss (Display (InWindow), black)
+import Graphics.Gloss.Interface.IO.Game (playIO)
+import Init (createLevelSelectmenu, initialState)
+import Input (input)
+import Level (levelConverter)
 import LoadLevels (getLevelsInJSON)
-import View
+import View (view)
 
 -- | The entery of Haskell game
 main :: IO ()
@@ -21,9 +21,9 @@ main = do
   let levelSelectMenu = createLevelSelectmenu levels
   let
   playIO
-    (InWindow "Nice Window" (screenWidth, screenHeight) (offset, offset))
+    (InWindow "FP - Haskell - Game project" (C.screenWidth, C.screenHeight) (C.offset, C.offset))
     black
-    fps
+    C.fps
     (initialState assets levels (levelSelectMenu assets))
     view
     input

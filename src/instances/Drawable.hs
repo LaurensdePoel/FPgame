@@ -5,6 +5,15 @@ module Drawable where
 
 import Config as C
 import Graphics.Gloss
+  ( Picture (Blank, Color, Scale, Text),
+    black,
+    color,
+    pictures,
+    red,
+    rotate,
+    scale,
+    translate,
+  )
 import Model
 
 -------------------------------------------------
@@ -32,10 +41,10 @@ instance Drawable Airplane where
   draw :: Airplane -> Picture
   draw Airplane {airplaneType = _type, airplanePos = _position, airplaneVelocity = _velocity, airplaneSprite = _sprite, airplaneHealth = _health} =
     case _type of
-      Kamikaze -> translate `uncurry` _position $ rotate (atan2 `uncurry` _velocity / pi * 180) _sprite
+      Kamikaze -> pictures [healthText, translate `uncurry` _position $ rotate (atan2 `uncurry` _velocity / pi * 180) _sprite]
       _ -> pictures [healthText, translate `uncurry` _position $ _sprite]
     where
-      healthText = translate `uncurry` (_position + (5, -48)) $ scale 0.1 0.1 $ color red (Text $ show _health)
+      healthText = translate `uncurry` (_position + C.healthTextOffset) $ scale 0.1 0.1 $ color red (Text $ show _health)
 
 instance Drawable Projectile where
   -- \| Converts a projectile into a picture
@@ -60,15 +69,14 @@ instance Drawable Sprites where
       Idle -> uncurry translate _position (head _idleSprites)
       Moving -> uncurry translate _position (head _movingSprites)
 
--- TODO clean up menu drawable
 instance Drawable Menu where
   -- \| Converts a menu into a picture
   draw :: Menu -> Picture
   draw Menu {header = _header, menuBackground = _background, fields = _fields} = pictures $ _background : headerPicture : currentSelected : map draw (tail _fields)
     where
-      headerPicture = Scale 0.5 0.5 $ translate headerXOffset (C.menuTextStartHeight - C.menuTextOffset) $ color black (Text _header)
+      headerPicture = Scale 0.5 0.5 $ translate headerXOffset C.menuHeaderStartHeight $ color black (Text _header)
       currentSelected = Scale 0.25 0.25 $ translate `uncurry` fieldPosition (head _fields) $ color red (Text (fieldName $ head _fields))
-      headerXOffset = (-0.5) * fromIntegral (length _header * 70)
+      headerXOffset = (-0.5) * (fromIntegral (length _header) * C.menuTextCharacterOffset)
   draw NoMenu = Blank
   draw NoMenuButFunction {} = Blank
 
@@ -78,5 +86,6 @@ instance Drawable Field where
   draw Field {fieldName = _fieldName, fieldPosition = _fieldPosition} = Scale 0.25 0.25 $ translate `uncurry` _fieldPosition $ color black (Text _fieldName)
 
 instance Drawable Level where
+  -- \| Converts the background of a level in a picture
   draw :: Level -> Picture
   draw Level {levelBackground = Background {backgroundPos = _pos, backgroundSprite = _sprite}} = uncurry translate _pos $ Color black _sprite

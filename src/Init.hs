@@ -1,12 +1,14 @@
 module Init where
 
-import Assets (errorSprite, getTexture)
-import Data.Map as Dict (fromList)
+import Assets (errorSprite, getParticle, getTexture)
 -- import Graphics.Gloss (Picture (Scale))
-import Graphics.Gloss
-import Input
-import Level
-import Menu
+
+import Config as C
+import Data.Map as Dict (fromList)
+import Graphics.Gloss (Picture (Scale))
+import Input (emptyKeys)
+import Level (addPlayers, getLevelIndex)
+import Menu (createMenu)
 import Model
 
 -- | creates an empty level which should never be displayed.
@@ -18,9 +20,9 @@ emptyIOActions :: IOActions
 emptyIOActions = IOActions False False
 
 -- | this function creates the initial 'GameState' that will be used when the game is run for the first time.
--- It loads all the nessesery records so that they are available to all the other parts of the game.
+-- It loads all the necessary records so that they are available to all the other parts of the game.
 initialState :: Assets -> [Level] -> Menu -> GameState
-initialState assetlist levelList levelSelectMenu' =
+initialState assets levelList levelSelectMenu' =
   GameState
     { elapsedTime = 0,
       status = InMenu,
@@ -33,7 +35,7 @@ initialState assetlist levelList levelSelectMenu' =
       projectiles = [],
       powerUps = [],
       pressedKeys = emptyKeys,
-      menu = initMenu assetlist,
+      menu = initMenu assets,
       levelSelectMenu = levelSelectMenu',
       particles = [],
       particleMap =
@@ -44,7 +46,7 @@ initialState assetlist levelList levelSelectMenu' =
                   particleSize = (0, 0),
                   particleInterval = 8,
                   particleTimer = 8,
-                  particleSprites = [getTexture "explotion_1" assetlist, getTexture "explotion_2" assetlist, getTexture "explotion_3" assetlist, getTexture "explotion_4" assetlist, getTexture "explotion_5" assetlist]
+                  particleSprites = [getTexture "explotion_1" assets, getTexture "explotion_2" assets, getTexture "explotion_3" assets, getTexture "explotion_4" assets, getTexture "explotion_5" assets]
                 }
             ),
             ( "explosion2",
@@ -53,20 +55,50 @@ initialState assetlist levelList levelSelectMenu' =
                   particleSize = (0, 0),
                   particleInterval = 8,
                   particleTimer = 8,
-                  particleSprites = [Scale 2.0 2.0 $ getTexture "explotion_1" assetlist, Scale 2.0 2.0 $ getTexture "explotion_2" assetlist, Scale 2.0 2.0 $ getTexture "explotion_3" assetlist, Scale 2.0 2.0 $ getTexture "explotion_4" assetlist, Scale 2.0 2.0 $ getTexture "explotion_5" assetlist]
+                  particleSprites = [Scale 2.0 2.0 $ getTexture "explotion_1" assets, Scale 2.0 2.0 $ getTexture "explotion_2" assets, Scale 2.0 2.0 $ getTexture "explotion_3" assets, Scale 2.0 2.0 $ getTexture "explotion_4" assets, Scale 2.0 2.0 $ getTexture "explotion_5" assets]
                 }
             ),
-            ( "5SecondTimer",
+            ( "powerUpTimer",
               Particle
                 { particlePos = (-400, 80),
                   particleSize = (10, 10),
-                  particleInterval = 60,
-                  particleTimer = 60,
-                  particleSprites = [getTexture "5" assetlist, getTexture "4" assetlist, getTexture "3" assetlist, getTexture "2" assetlist, getTexture "1" assetlist]
+                  particleInterval = C.powerUpDespawnTime * 0.2,
+                  particleTimer = C.powerUpDespawnTime * 0.2,
+                  particleSprites = [getTexture "5" assets, getTexture "4" assets, getTexture "3" assets, getTexture "2" assets, getTexture "1" assets]
+                }
+            ),
+            ( "level1",
+              C.defaultTextParticle
+                { particlePos = (0, 300),
+                  particleSprites = [getTexture "text_level1" assets]
+                }
+            ),
+            ( "level2",
+              C.defaultTextParticle
+                { particlePos = (0, 300),
+                  particleSprites = [getTexture "text_level2" assets]
+                }
+            ),
+            ( "level3",
+              C.defaultTextParticle
+                { particlePos = (0, 300),
+                  particleSprites = [getTexture "text_level3" assets]
+                }
+            ),
+            ( "level4",
+              C.defaultTextParticle
+                { particlePos = (0, 300),
+                  particleSprites = [getTexture "text_level4" assets]
+                }
+            ),
+            ( "NextWave",
+              C.defaultTextParticle
+                { particlePos = (300, 0),
+                  particleSprites = [getTexture "text_nextwave" assets]
                 }
             )
           ],
-      tmpassetList = assetlist,
+      assetMap = assets,
       ioActions = emptyIOActions
     }
 
@@ -82,27 +114,18 @@ resetLevel :: GameState -> GameState
 resetLevel gs =
   gs
     { elapsedTime = 0,
-      -- status = _status,
-      -- nrOfPlayers = 0
       players = [],
       enemies = [],
-      -- levels = _levels,
-      -- currentLevel = initEmptyLevel,
-      -- currentLevelNr = 0,
       projectiles = [],
       powerUps = [],
-      -- particleMap = _particleMap,
       particles = [],
       pressedKeys = emptyKeys -- TODO Check if this isn't done multible times
-      -- menu = _menu,
-      -- levelSelectMenu = _levelSelectMenu,
-      -- tmpassetList = _tmpassetList
     }
 
 -- | Create menu's
 initMenu, initPlayMenu, initPauseMenu, initCreditMenu, initControlsMenu :: Assets -> Menu
 initMenu assets = createMenu "Shoot'em Up" (getTexture "menu" assets) NoMenu [("Play", initPlayMenu assets), ("Controls", initControlsMenu assets), ("Credits", initCreditMenu assets), ("Exit", NoMenuButFunction exitGame)]
-initPlayMenu assets = createMenu "Choose players" (getTexture "menu" assets) (initMenu assets) [("1 Player", NoMenuButFunction loadLevelselectAnd1Player), ("2 Player", NoMenuButFunction loadLevelselectAnd2Player)]
+initPlayMenu assets = createMenu "Choose players" (getTexture "menu" assets) (initMenu assets) [("1 Player", NoMenuButFunction loadLevelselectAnd1Player), ("2 Players", NoMenuButFunction loadLevelselectAnd2Player)]
 initPauseMenu assets = createMenu "Paused" (getTexture "menu" assets) NoMenu [("Resume", NoMenuButFunction resumeGame), ("Return to menu", initMenu assets)]
 initCreditMenu assets = createMenu "Credits" (getTexture "credits" assets) (initMenu assets) [("", NoMenu)]
 initControlsMenu assets = createMenu "Controls" (getTexture "controls" assets) (initMenu assets) [("", NoMenu)]
@@ -113,7 +136,6 @@ initVictoryMenu assets = createMenu "Level Completed" (getTexture "menu" assets)
 initDefeatMenu :: Assets -> Menu
 initDefeatMenu assets = createMenu "Game Over" (getTexture "menu" assets) NoMenu [("Retry Level", NoMenuButFunction retryLevel), ("Select Level", NoMenuButFunction loadLevelSelectMenu), ("Return to Menu", initMenu assets)] -- TODO: NoMenuButFunction start1player is incorrect
 
--- TODO Make higher order function
 createLevelSelectmenu :: [Level] -> Assets -> Menu
 createLevelSelectmenu levelList assets = createMenu "Level Select" (getTexture "menu" assets) (initPlayMenu assets) (reloadLevelsField : createLevelFields levelList)
   where
@@ -156,13 +178,14 @@ loadLevel gs@GameState {levels = _levels, currentLevelNr = _currentLevelNr, menu
     }
 
 loadPlayers :: GameState -> GameState
-loadPlayers gs@GameState {tmpassetList = _assets, nrOfPlayers = _nrOfPlayers} = gs {players = addPlayers _assets _nrOfPlayers}
+loadPlayers gs@GameState {assetMap = _assets, nrOfPlayers = _nrOfPlayers} = gs {players = addPlayers _assets _nrOfPlayers}
 
 startLevel :: GameState -> GameState
-startLevel gs@GameState {tmpassetList = _assetList, menu = _menu} =
+startLevel gs@GameState {assetMap = _assets, menu = _menu, particles = _particles, particleMap = _particleMap, currentLevel = _currentLevel} =
   gs
     { status = InGame,
-      menu = initPauseMenu _assetList
+      menu = initPauseMenu _assets,
+      particles = getParticle ("level" ++ show (levelNr _currentLevel)) _particleMap : _particles
     }
 
 -- Toggles the status in the GameState.
@@ -171,7 +194,7 @@ startFromLevelSelect gs =
   startLevel $ loadPlayers $ getLevelFromMenu $ resetGameState gs
   where
     getLevelFromMenu :: GameState -> GameState
-    getLevelFromMenu gss@GameState {tmpassetList = _assets, menu = _menu, levels = _levels, players = _players, nrOfPlayers = _nrOfPlayers} =
+    getLevelFromMenu gss@GameState {assetMap = _assets, menu = _menu, levels = _levels, players = _players, nrOfPlayers = _nrOfPlayers} =
       gss
         { currentLevel = _levels !! getLevelIndex _menu,
           currentLevelNr = getLevelIndex _menu

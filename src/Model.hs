@@ -44,7 +44,7 @@ data GameState = GameState
     pressedKeys :: S.Set Graphics.Gloss.Interface.IO.Interact.Key,
     menu :: Menu,
     levelSelectMenu :: Menu,
-    tmpassetList :: Assets,
+    assetMap :: Assets,
     ioActions :: IOActions
   }
 
@@ -120,6 +120,8 @@ data Airplane = Airplane
 
 -- ** Projectiles
 
+type Damage = Int
+
 data FireRate = Single Time | Burst Time
 
 data ProjectileType = Gun | DoubleGun deriving (Eq)
@@ -167,8 +169,6 @@ data Menu
   | NoMenu
   | NoMenuButFunction (GameState -> GameState)
 
---  NoMenuButFunctionWithInt (GameState -> Int -> GameState)
-
 data Field = Field
   { fieldName :: String,
     fieldPosition :: Position,
@@ -176,8 +176,6 @@ data Field = Field
   }
 
 -- * Global Parameters
-
-type Damage = Int
 
 type Position = Point
 

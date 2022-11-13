@@ -5,7 +5,7 @@
 -- | This module defines the Collidable type class
 module Collidable where
 
-import Graphics.Gloss
+import Graphics.Gloss (Point)
 import Model
 
 -------------------------------------------------

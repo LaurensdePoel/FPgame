@@ -3,21 +3,23 @@
 
 module Random where
 
-import Assets
+import Assets (getParticle, getTexture)
 import Config as C
 import Graphics.Gloss (Picture)
-import Item
+import Item ()
 import Model
-import System.Random
-
--- TODO: Move magic numbers to config file
+import System.Random (Random (random, randomR), RandomGen)
+import Updateable ()
 
 -- | Generates a random position
-getRandomPoint :: RandomGen a => (Float, Float) -> (Float, Float) -> a -> Position
-getRandomPoint rangeX rangeY gen = (x, y)
+getRandomPoint :: RandomGen a => (Float, Float) -> (Float, Float) -> a -> (Position, a)
+getRandomPoint rangeX rangeY gen = ((x, y), gen'')
   where
     (x, gen') = randomR rangeX gen
-    (y, _) = randomR rangeY gen'
+    (y, gen'') = randomR rangeY gen'
+
+getRandomPoints :: RandomGen a => (Float, Float) -> (Float, Float) -> Int -> a -> [Position]
+getRandomPoints rangeX rangeY amount gen = snd $ foldr (\_ (gen', points) -> let (point, gen'') = getRandomPoint rangeX rangeY gen' in (gen'', point : points)) (gen, []) [0 .. amount]
 
 -- | PowerUpTypes instance of random
 instance Random PowerUpTypes where
@@ -31,7 +33,7 @@ instance Random PowerUpTypes where
 
 -- | Generate a random powerUp
 getRandomPowerUp :: RandomGen a => a -> Assets -> PowerUp
-getRandomPowerUp gen assetList =
+getRandomPowerUp gen assets =
   PowerUp
     { powerUpPos = getRandomPos,
       powerUpType = getRandomPowerUpType,
@@ -53,7 +55,7 @@ getRandomPowerUp gen assetList =
 
     -- \| Get random position for the powerUp
     getRandomPos :: Position
-    getRandomPos = getRandomPoint xRange yRange gen
+    getRandomPos = fst $ getRandomPoint xRange yRange gen
       where
         xRange = (C.screenMinX, C.screenMaxX)
         yRange = (C.screenMinY, C.screenMaxY)
@@ -61,8 +63,8 @@ getRandomPowerUp gen assetList =
     -- \| Get the corresponding sprites
     sprites :: [Picture]
     sprites = case getRandomPowerUpType of
-      (PowerPack _) -> [getTexture "power-pack_1" assetList, getTexture "power-pack_2" assetList]
-      (HealthPack _) -> [getTexture "health-pack_1" assetList, getTexture "health-pack_2" assetList]
+      (PowerPack _) -> [getTexture "power-pack_1" assets, getTexture "power-pack_2" assets]
+      (HealthPack _) -> [getTexture "health-pack_1" assets, getTexture "health-pack_2" assets]
 
 -- | Probability of creating a power up to spawn
 spawnPowerUp :: RandomGen a => a -> Assets -> Maybe PowerUp
@@ -72,3 +74,16 @@ spawnPowerUp gen assets
   where
     -- \| Probability to spawn a power up
     (probability, gen') = randomR (0 :: Int, C.powerUpSpawnOdds :: Int) gen
+
+-- | Probability to spawn a powerUp
+randomPowerUps :: RandomGen a => GameState -> a -> GameState
+randomPowerUps gs@GameState {powerUps = _powerUps, particles = _particles, particleMap = _particleMap, assetMap = _assets} gen =
+  case spawnPowerUp gen _assets of
+    Just x -> gs {powerUps = x : _powerUps, particles = powerUpParticle : _particles}
+      where
+        powerUpParticle :: Particle
+        powerUpParticle = (getParticle "powerUpTimer" _particleMap) {particlePos = newParticlePos}
+
+        newParticlePos :: Position
+        newParticlePos = powerUpPos x + C.itemParticleOffset
+    Nothing -> gs
