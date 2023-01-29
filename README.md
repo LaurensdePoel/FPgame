@@ -10,14 +10,12 @@
 <div align="center">
 
 # Shoot'em Up
+
 The game is based on a **Shoot’em Up** type game, where a player controls a spaceship that needs to clear a level without dying and killing as many enemies as needed. This type of game is typically a side scrolling video game. The twist in this game is that the player is not limited to vertical movement.
 
 One of the main features of the game is that there are multiple types of enemies, with some having their own behavior and/or shooting projectiles. Each level is  defined in a JSON file, which makes adding, removing, and changing waves and levels possible.
 
-[Getting started](#getting-started) •
-[Installation](#installation) •
-[Configuration](#configuration) •
-[Integrations](#third-party-integrations)
+![Alt Text](https://media.giphy.com/media/30ifFmkWrEldcCi0JG/giphy.gif)
 
 </div>
 
@@ -52,48 +50,15 @@ The next wave will spawn when one of these conditions are met:
 - All current enemies are destroyed
 - The timer for the wave is over.
 
-![Health Pack](./assets/items/health-pack_2.bmp)
+### Loading custom levels
+The game supports easy custom level loading, since the game automatically converts all level.json files in the folder called “levels/”, the user has to edit or add a new file in this folder and press on reload levels option in the game.
 
-## Getting started
-
-![Tutorial][tutorial]
-
+## Commands
 ```sh
+cabal build                         # build project
+cabal run                           # startup the game
 
-z foo              # cd into highest ranked directory matching foo
-z foo bar          # cd into highest ranked directory matching foo and bar
-z foo /            # cd into a subdirectory starting with foo
+cabal haddock --haddock-executables # Generate the documentation
 
-z ~/foo            # z also works like a regular cd command
-z foo/             # cd into relative path
-z ..               # cd one level up
-z -                # cd into previous directory
-
-zi foo             # cd with interactive selection (using fzf)
-
-z foo<SPACE><TAB>  # show interactive completions (zoxide v0.8.0+, bash 4.4+/fish/zsh only)
+cabal clean                         # removes all the generated files
 ```
-
-
-
-[^1]: Debian / Ubuntu derivatives update their packages very slowly. If you're
-using one of these distributions, consider using the install script instead.
-[^2]: If you're not sure how to set an environment variable on your shell, check
-out the [wiki][wiki-env].
-
-
-
-
-Create a new Cabal project:
-cabal init --exe --author="Laurens de Poel, Mark Gasse" --email="l.m.depoel@students.uu.nl, m.gasse@students.uu.nl" --source-dir=src --synopsis="First Test Game" --simple
-
-Build & Run project:
-cabal run
-
-Clean project:
-cabal clean
-
-Create Documentation:
-cabal haddock --haddock-executables
-
-
