@@ -16,6 +16,7 @@ The game is based on a **Shoot’em Up** type game, where a player controls a sp
 One of the main features of the game is that there are multiple types of enemies, with some having their own behavior and/or shooting projectiles. Each level is  defined in a JSON file, which makes adding, removing, and changing waves and levels possible.
 
 ![Alt Text](https://media.giphy.com/media/30ifFmkWrEldcCi0JG/giphy.gif)
+![download](https://user-images.githubusercontent.com/40497575/215898919-ad4e6a21-894c-41da-b477-990cc81bc4da.gif)
 
 </div>
 
